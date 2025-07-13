@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles, RotateCcw, Download, Circle } from 'lucide-react';
 import type { Phase } from '../pages/Index';

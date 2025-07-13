@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React from 'react';
 import GridCell from './GridCell';
 import type { CellData, Phase } from '../pages/Index';
 

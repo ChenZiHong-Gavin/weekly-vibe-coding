@@ -1,45 +1,51 @@
 
 import React from 'react';
-import Dice from './Dice';
 import type { CellData, Phase } from '../pages/Index';
 
 interface TitleGridProps {
   data: CellData[];
   phase: Phase;
   onRotateDice: (cellId: string, direction?: 'forward' | 'backward') => void;
+  title: string;
+  onTitleChange: (title: string) => void;
 }
 
-const TitleGrid: React.FC<TitleGridProps> = ({ data, phase, onRotateDice }) => {
+const TitleGrid: React.FC<TitleGridProps> = ({ data, phase, onRotateDice, title, onTitleChange }) => {
   return (
     <div className="flex justify-center mb-8">
-      <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/20">
-        <div className="w-20 h-20 md:w-24 md:h-24">
-          {data.map((cell) => (
-            <div key={cell.id} className="w-full h-full">
-              {phase === 'setup' && (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-200 rounded-lg border border-amber-300 shadow-sm">
-                  <div className="text-amber-600/50 text-sm font-light">标题</div>
-                </div>
-              )}
-
-              {phase === 'generate' && (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-200 to-orange-300 rounded-lg border border-amber-400 shadow-md animate-pulse">
-                  <div className="w-4 h-4 bg-amber-600 rounded-full animate-bounce"></div>
-                </div>
-              )}
-
-              {phase === 'create' && (
-                <Dice
-                  words={cell.words}
-                  currentIndex={cell.currentWordIndex}
-                  onRotate={(direction) => onRotateDice(cell.id, direction)}
-                  variant="title"
-                />
-              )}
-            </div>
-          ))}
+      {phase === 'setup' && (
+        <div className="w-[400px]">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => onTitleChange(e.target.value)}
+            placeholder="在此输入标题..."
+            className="w-full px-4 py-3 text-center text-xl font-medium text-slate-700 bg-transparent border-0 focus:outline-none placeholder-slate-400 transition-all duration-200"
+            maxLength={20}
+          />
         </div>
-      </div>
+      )}
+      
+      {phase === 'generate' && (
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg">
+            <div className="flex items-center justify-center gap-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
+              <span className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800">
+                正在生成词汇...
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {phase === 'create' && (
+        <div className="text-center">
+          <div className="text-xl md:text-2xl font-bold text-slate-800 px-4 py-2">
+            {title || '无标题'}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

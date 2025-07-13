@@ -12,7 +12,6 @@ interface GridCellProps {
   onRotateDice: (cellId: string, direction?: 'forward' | 'backward') => void;
 }
 
-// 随机特殊字符数组
 const SPECIAL_CHARS = ['◯', '◇', '◆', '◈', '▢', '▣', '▤', '▥', '▦', '▧', '▨', '▩', '⬟', '⬢', '⬡', '⭘', '⭙', '⭚'];
 
 const getRandomChar = () => SPECIAL_CHARS[Math.floor(Math.random() * SPECIAL_CHARS.length)];
@@ -70,14 +69,12 @@ const GridCell: React.FC<GridCellProps> = ({
             : 'bg-white/60 border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50/80'
           }
         `}>
-          {/* 显示随机特殊字符 */}
           <div className="w-full h-full flex items-center justify-center p-2">
             {isActive ? renderSpecialChars() : (
               <div className="text-gray-400 text-2xl">+</div>
             )}
           </div>
 
-          {/* 控制按钮 */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 rounded-xl">
             <div className="flex items-center gap-2">
               <button
