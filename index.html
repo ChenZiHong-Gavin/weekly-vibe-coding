@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Vibe Coding - 一百个创意应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 900px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.2rem;
+        }
+        .deployment-info {
+            background: #f0f8ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            border-radius: 8px;
+        }
+        .deployment-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .deployment-info p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .app-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        .app-icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+        .app-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .app-desc {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .app-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        .status-live {
+            background: #e8f5e8;
+            color: #2d5a2d;
+        }
+        .status-coming {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .coming-soon {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .coming-soon:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: transparent;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Weekly Vibe Coding</h1>
+        <p class="subtitle">用提示词实现一百个创意应用</p>
+        
+        <div class="deployment-info">
+            <h3>🚀 Vercel Monorepo 部署</h3>
+            <p>本项目采用 Vercel Monorepo 架构，每个应用独立部署和管理。在 Vercel 中为每个子应用创建独立项目，设置对应的 Root Directory 即可实现自动部署。</p>
+        </div>
+        
+        <div class="apps-grid">
+            <a href="https://dice-verse-weekly-vibe.vercel.app" class="app-card" target="_blank">
+                <div class="app-icon">🎲</div>
+                <div class="app-title">Dice Verse</div>
+                <div class="app-desc">多功能骰子应用，支持各种游戏场景的骰子投掷和统计功能</div>
+                <span class="app-status status-live">✅ 已部署</span>
+            </a>
+            
+        </div>
+        
+        <div class="footer">
+            <p>🎯 目标：用提示词实现一百个创意应用 | 当前进度：1/100</p>
+        </div>
+    </div>
+</body>
+</html>
