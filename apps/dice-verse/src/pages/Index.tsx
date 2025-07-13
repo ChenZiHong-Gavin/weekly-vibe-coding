@@ -73,14 +73,6 @@ const Index = () => {
       }));
     
     const allRequests = [...cellRequests, ...titleRequests];
-    
-    // 调试信息
-    console.log('调试信息:');
-    console.log('网格格子数量:', cellRequests.length);
-    console.log('标题格子数量:', titleRequests.length);
-    console.log('总请求数量:', allRequests.length);
-    console.log('cellRequests:', cellRequests);
-    console.log('titleRequests:', titleRequests);
 
     setIsGenerating(true);
     setPhase('generate');
