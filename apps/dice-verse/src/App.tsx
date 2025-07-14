@@ -13,7 +13,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter  basename="/dice-verse">
+      <BrowserRouter  basename="/weekly-vibe-coding/dice-verse">
+
 
         <Routes>
           <Route path="/" element={<Index />} />
