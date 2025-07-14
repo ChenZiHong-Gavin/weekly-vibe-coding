@@ -39,6 +39,10 @@ jobs:
         npm ci
         
     - name: Build dice-verse
+      env:
+        VITE_OPENAI_API_KEY: ${{ secrets.VITE_OPENAI_API_KEY }}
+        VITE_LLM_API_URL: ${{ secrets.VITE_LLM_API_URL }}
+        VITE_LLM_MODEL: ${{ secrets.VITE_LLM_MODEL }}
       run: |
         cd apps/dice-verse
         npm run build
