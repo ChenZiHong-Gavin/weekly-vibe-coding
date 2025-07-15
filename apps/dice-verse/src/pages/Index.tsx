@@ -255,7 +255,7 @@ const Index = () => {
                      {phase === 'setup' && '请先输入标题，然后设置每个格子中的字数，最后点击生成词汇'}
                      {phase === 'generate' && (
                        <span className="flex items-center justify-center md:justify-end gap-2">
-                         正在AI顺序生成连贯词汇... 
+                         正在生成连贯词汇... 
                          <span className="text-blue-600 font-medium">
                            {generationProgress.current}/{generationProgress.total}
                          </span>
@@ -269,7 +269,7 @@ const Index = () => {
                          )}
                        </span>
                      )}
-                     {phase === 'create' && '左键前进，右键后退，旋转骰子创作你的诗歌'}
+                     {phase === 'create' && '左键下一个，右键上一个，调整骰子创作你的诗歌'}
                    </p>
                  </div>
                </div>
@@ -296,7 +296,7 @@ const Index = () => {
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
                     </svg>
-                    生成AI词汇骰子
+                    生成词汇骰子
                   </>
                 )}
               </button>

@@ -42,7 +42,7 @@ const TitleGrid: React.FC<TitleGridProps> = ({ data, phase, onRotateDice, title,
       {phase === 'create' && (
         <div className="text-center">
           <div className="text-xl md:text-2xl font-bold text-slate-800 px-4 py-2">
-            {title || '无标题'}
+            {title || '无题'}
           </div>
         </div>
       )}
