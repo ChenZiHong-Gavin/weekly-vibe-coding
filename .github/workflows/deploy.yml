@@ -46,10 +46,6 @@ jobs:
       run: |
         cd apps/dice-verse
         npm run build
-        
-    - name: Copy dice-verse build to dist
-      run: |
-        cp -r apps/dice-verse/dist dist/dice-verse
 
     - name: Install dependencies
       run: |
@@ -60,16 +56,14 @@ jobs:
       run: |
         cd apps/spin-art
         npm run build
-        
-    - name: Copy spin-art build to dist
+    
+    - name: Copy all builds to dist
       run: |
-        cp -r apps/spin-art/dist dist/spin-art
+        mkdir -p dist/{dice-verse,spin-art}
+        cp -r apps/dice-verse/dist/* dist/dice-verse/
+        cp -r apps/spin-art/dist/* dist/spin-art/
+        cp index.html dist/
  
-    - name: Copy main index.html
-      run: |
-        mkdir -p dist
-        cp index.html dist/index.html
-        
     - name: Setup Pages
       uses: actions/configure-pages@v4
       
