@@ -61,9 +61,8 @@ jobs:
         cd apps/spin-art
         npm run build
         
-    - name: Copy build to dist
+    - name: Copy spin-art build to dist
       run: |
-        cp -r apps/dice-verse/dist dist/dice-verse
         cp -r apps/spin-art/dist dist/spin-art
  
     - name: Copy main index.html
