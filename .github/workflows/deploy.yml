@@ -52,9 +52,9 @@ jobs:
         cp -r apps/dice-verse/dist dist/dice-verse
 
     - name: Install dependencies
-        run: |
-          cd apps/spin-art
-          npm ci
+      run: |
+        cd apps/spin-art
+        npm ci
 
     - name: Build spin-art
       run: |
