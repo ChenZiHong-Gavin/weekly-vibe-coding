@@ -1,73 +1,39 @@
-# Welcome to your Lovable project
+# Spin Art
 
-## Project info
+一款基于 React、TypeScript 与 Tailwind CSS 的实时旋转绘画小工具，通过旋转画布轻松创作出绚丽的几何图案。
 
-**URL**: https://lovable.dev/projects/26b42de6-1f48-45e2-8e48-835a41123deb
+## 功能亮点
+- **实时渲染**：利用 `requestAnimationFrame` 提升动画流畅度。
+- **响应式布局**：桌面与移动端均可良好体验，支持触控操作。
+- **导出图片**：点击即可将作品保存为 PNG。
+- **快速启动**：得益于 Vite，开发环境秒级启动。
 
-## How can I edit this code?
+## 快速开始
 
-There are several ways of editing your application.
+### 环境要求
+- Node.js ≥ 18
+- 包管理工具：pnpm / npm / yarn
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/26b42de6-1f48-45e2-8e48-835a41123deb) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### 安装依赖
+```bash
+# 任选其一
+pnpm install
+npm install
+yarn install
 ```
 
-**Edit a file directly in GitHub**
+### 启动开发服务器
+```bash
+pnpm dev    # 或 npm run dev / yarn dev
+```
+浏览器访问 <http://localhost:5173> 查看效果。
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 生产构建
+```bash
+pnpm build   # 或 npm run build / yarn build
+```
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/26b42de6-1f48-45e2-8e48-835a41123deb) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### 本地预览生产包
+```bash
+pnpm preview # 或 npm run preview / yarn preview
+```
