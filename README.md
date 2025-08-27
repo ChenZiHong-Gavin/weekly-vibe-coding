@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-1%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-2%2F100-blue)
 
 用提示词实现一百个idea。
 
@@ -23,6 +23,9 @@
 
 1.  **[Dice Verse](https://chenzihong-gavin.github.io/weekly-vibe-coding/dice-verse/)** (`apps/dice-verse`)
     - 一个创意写作工具，让你在方格中用AI生成的骰子创作诗歌。
+
+2. **[Spin Art](https://chenzihong-gavin.github.io/weekly-vibe-coding/spin-art/)** (`apps/spin-art`)
+    - 实时旋转绘画小工具，通过旋转画布轻松创作出绚丽的几何图案。
 
 
 ## 如何运行
