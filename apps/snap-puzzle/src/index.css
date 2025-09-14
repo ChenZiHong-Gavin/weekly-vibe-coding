@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Puzzle Game Design System - Modern Blue Tech Theme */
+
+@layer base {
+  :root {
+    /* Core Colors - Blue Tech Theme */
+    --background: 220 20% 97%;
+    --foreground: 220 15% 20%;
+
+    --card: 220 10% 98%;
+    --card-foreground: 220 15% 20%;
+
+    --popover: 220 10% 98%;
+    --popover-foreground: 220 15% 20%;
+
+    /* Primary - Blue Gradient */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 210 100% 70%;
+
+    /* Secondary - Light Blue */
+    --secondary: 210 40% 95%;
+    --secondary-foreground: 220 15% 25%;
+
+    /* Muted - Soft Gray */
+    --muted: 220 10% 95%;
+    --muted-foreground: 220 10% 50%;
+
+    /* Accent - Bright Blue */
+    --accent: 210 100% 92%;
+    --accent-foreground: 217 91% 60%;
+
+    /* Success - Green */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(210 100% 70%));
+    --gradient-secondary: linear-gradient(135deg, hsl(220 20% 97%), hsl(210 40% 95%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(120 100% 25%));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(220 15% 20% / 0.08);
+    --shadow-medium: 0 8px 30px hsl(220 15% 20% / 0.12);
+    --shadow-strong: 0 15px 40px hsl(217 91% 60% / 0.15);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 220 25% 8%;
+    --foreground: 220 10% 95%;
+
+    --card: 220 20% 12%;
+    --card-foreground: 220 10% 95%;
+
+    --popover: 220 20% 12%;
+    --popover-foreground: 220 10% 95%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 210 100% 70%;
+
+    --secondary: 220 20% 15%;
+    --secondary-foreground: 220 10% 85%;
+
+    --muted: 220 20% 15%;
+    --muted-foreground: 220 10% 65%;
+
+    --accent: 220 20% 18%;
+    --accent-foreground: 217 91% 60%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 217 91% 60%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(210 100% 70%));
+    --gradient-secondary: linear-gradient(135deg, hsl(220 25% 8%), hsl(220 20% 15%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(120 100% 25%));
+
+    /* Dark mode shadows */
+    --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.3);
+    --shadow-medium: 0 8px 30px hsl(0 0% 0% / 0.4);
+    --shadow-strong: 0 15px 40px hsl(217 91% 60% / 0.25);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--secondary)));
+    min-height: 100vh;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Puzzle piece animation */
+  .puzzle-piece {
+    @apply transition-all duration-300 hover:scale-105 cursor-pointer;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .puzzle-piece:hover {
+    box-shadow: var(--shadow-medium);
+  }
+
+  .puzzle-piece.dragging {
+    @apply scale-110 rotate-2;
+    box-shadow: var(--shadow-strong);
+    z-index: 1000;
+  }
+
+  /* Upload area */
+  .upload-area {
+    @apply relative overflow-hidden transition-all duration-300;
+    background: var(--gradient-secondary);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .upload-area:hover {
+    box-shadow: var(--shadow-medium);
+  }
+
+  .upload-area.drag-over {
+    @apply border-primary;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-strong);
+  }
+
+  /* Pulse animation for success */
+  .success-pulse {
+    animation: successPulse 0.6s ease-out;
+  }
+
+  @keyframes successPulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 hsl(var(--success) / 0.7);
+    }
+    70% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 20px hsl(var(--success) / 0);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 hsl(var(--success) / 0);
+    }
+  }
+
+  /* Bounce animation for pieces */
+  .piece-bounce {
+    animation: pieceBounce 0.3s ease-out;
+  }
+
+  @keyframes pieceBounce {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
