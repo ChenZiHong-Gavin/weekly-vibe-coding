@@ -6,12 +6,13 @@
 
 ## 目录
 
-- [关于项目](#关于项目)
-- [已实现的应用](#已实现的应用)
-- [技术栈](#技术栈)
-- [如何运行](#如何运行)
-- [贡献](#贡献)
-- [License](#license)
+- [weekly-vibe-coding](#weekly-vibe-coding)
+  - [目录](#目录)
+  - [关于项目](#关于项目)
+  - [已实现的应用](#已实现的应用)
+  - [如何运行](#如何运行)
+  - [贡献](#贡献)
+  - [License](#license)
 
 ## 关于项目
 
@@ -26,6 +27,8 @@
 
 2. **[Spin Art](https://chenzihong-gavin.github.io/weekly-vibe-coding/spin-art/)** (`apps/spin-art`)
     - 实时旋转绘画小工具，通过旋转画布轻松创作出绚丽的几何图案。
+3. **[Snap Puzzle](https://chenzihong-gavin.github.io/weekly-vibe-coding/snap-puzzle/)** (`apps/snap-puzzle`)
+    - 上传照片变成一个简单有趣的拼图游戏。
 
 
 ## 如何运行
