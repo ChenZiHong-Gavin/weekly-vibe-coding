@@ -69,7 +69,7 @@ jobs:
     
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
