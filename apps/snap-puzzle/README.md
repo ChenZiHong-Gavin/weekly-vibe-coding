@@ -1,73 +1,170 @@
-# Welcome to your Lovable project
+# 🧩 智能拼图生成器
 
-## Project info
+一个现代化的在线拼图游戏应用，让用户可以上传自己的图片并创建个性化的拼图游戏。
 
-**URL**: https://lovable.dev/projects/107d649a-43b9-40c3-b9a2-e554738f2999
+## ✨ 功能特色
 
-## How can I edit this code?
+### 🎯 核心功能
+- **智能图片切割** - 自动将上传的图片切割成拼图碎片
+- **多种难度等级** - 支持 3x3、4x4、5x5、6x6 等不同网格大小
+- **拖拽式操作** - 流畅的拖拽交互体验
+- **双向移动** - 拼图碎片可在拼图区域和碎片区域间自由移动
 
-There are several ways of editing your application.
+### 📊 游戏统计
+- **实时进度跟踪** - 显示已完成的拼图块数量
+- **计时功能** - 记录游戏用时
+- **步数统计** - 追踪移动次数
+- **完成庆祝** - 拼图完成时的成就提示
 
-**Use Lovable**
+### 🎨 用户体验
+- **响应式设计** - 适配各种屏幕尺寸
+- **现代化界面** - 基于 shadcn/ui 的精美组件
+- **流畅动画** - 丰富的交互动效
+- **中文界面** - 完整的中文用户界面
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/107d649a-43b9-40c3-b9a2-e554738f2999) and start prompting.
+## 🚀 快速开始
 
-Changes made via Lovable will be committed automatically to this repo.
+### 在线体验
+直接访问：[智能拼图生成器](https://lovable.dev/projects/107d649a-43b9-40c3-b9a2-e554738f2999)
 
-**Use your preferred IDE**
+### 本地开发
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+#### 环境要求
+- Node.js 16+ 
+- npm 或 yarn
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+#### 安装步骤
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```bash
+# 克隆项目
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 进入项目目录
+cd puzzle-game
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 安装依赖
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 启动开发服务器
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+访问 `http://localhost:5173` 开始使用。
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🎮 使用指南
 
-**Use GitHub Codespaces**
+### 1. 上传图片
+- 点击上传区域或拖拽图片文件
+- 支持 JPG、PNG、GIF 等常见格式
+- 建议图片大小不超过 5MB
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 2. 选择难度
+- 3x3：初级难度，适合新手
+- 4x4：中级难度，需要一定技巧
+- 5x5：高级难度，挑战专家
+- 6x6：大师难度，终极挑战
 
-## What technologies are used for this project?
+### 3. 开始游戏
+- 拼图碎片会随机散落在右侧区域
+- 通过拖拽将碎片放到正确位置
+- 观察进度、用时和步数统计
+- 完成拼图获得成就提示
 
-This project is built with:
+### 4. 游戏控制
+- **重新开始**：重置当前拼图
+- **更换难度**：选择不同的网格大小
+- **上传新图**：更换拼图图片
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🛠 技术栈
 
-## How can I deploy this project?
+### 前端框架
+- **React 18** - 现代化的用户界面库
+- **TypeScript** - 类型安全的 JavaScript
+- **Vite** - 快速的构建工具
 
-Simply open [Lovable](https://lovable.dev/projects/107d649a-43b9-40c3-b9a2-e554738f2999) and click on Share -> Publish.
+### UI 组件
+- **shadcn/ui** - 高质量的 React 组件库
+- **Tailwind CSS** - 实用优先的 CSS 框架
+- **Lucide React** - 精美的图标库
 
-## Can I connect a custom domain to my Lovable project?
+### 功能库
+- **react-dropzone** - 文件拖拽上传
+- **sonner** - 优雅的通知提示
+- **React DnD** - 拖拽交互实现
 
-Yes, you can!
+### 开发工具
+- **ESLint** - 代码质量检查
+- **PostCSS** - CSS 处理工具
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📁 项目结构
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+```
+src/
+├── components/           # React 组件
+│   ├── ui/              # shadcn/ui 基础组件
+│   ├── ImageUploader.tsx    # 图片上传组件
+│   ├── PuzzleBoard.tsx      # 拼图面板组件
+│   ├── PuzzleGame.tsx       # 主游戏组件
+│   └── PuzzleSettings.tsx   # 游戏设置组件
+├── hooks/               # 自定义 Hook
+├── lib/                # 工具函数
+├── pages/              # 页面组件
+└── index.css           # 全局样式
+```
+
+## 🎨 设计系统
+
+项目采用统一的设计系统，所有颜色、字体、间距等都通过 CSS 变量和 Tailwind 配置进行管理，确保视觉一致性。
+
+## 📱 响应式支持
+
+- **桌面端**：完整的双栏布局
+- **平板端**：自适应的堆叠布局  
+- **手机端**：优化的触摸操作
+
+## 🔧 开发指南
+
+### 添加新功能
+1. 在 `components/` 目录创建新组件
+2. 使用 TypeScript 确保类型安全
+3. 遵循现有的组件结构和命名规范
+4. 使用设计系统中的颜色和样式
+
+### 自定义样式
+- 优先使用 Tailwind CSS 类
+- 复杂样式通过 CSS 变量定义
+- 保持响应式设计原则
+
+## 🚀 部署
+
+### 使用 Lovable 部署
+1. 访问 [Lovable 项目页面](https://lovable.dev/projects/107d649a-43b9-40c3-b9a2-e554738f2999)
+2. 点击右上角的 "Publish" 按钮
+3. 选择部署设置并发布
+
+### 自定义域名
+在项目设置中可以连接自定义域名（需要付费计划）。
+
+## 🤝 贡献指南
+
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 项目
+2. 创建功能分支
+3. 提交更改
+4. 发起 Pull Request
+
+## 📄 许可证
+
+本项目采用 MIT 许可证。
+
+## 🔗 相关链接
+
+- [Lovable 文档](https://docs.lovable.dev/)
+- [shadcn/ui 组件库](https://ui.shadcn.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [React 官方文档](https://react.dev/)
+
+---
+
+**Made with ❤️ using Lovable**
