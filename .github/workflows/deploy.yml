@@ -68,7 +68,7 @@ jobs:
         npm run build
     
     - name: Build danmaku-magic
-        run: |
+      run: |
         cd apps/danmaku-magic
         npm run build
     
