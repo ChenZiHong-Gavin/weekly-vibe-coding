@@ -33,7 +33,7 @@ jobs:
         cache: 'npm'
         cache-dependency-path: 'apps/dice-verse/package-lock.json'
         
-    - name: Install dependencies
+    - name: Install dice-verse dependencies
       run: |
         cd apps/dice-verse
         npm ci
@@ -47,7 +47,7 @@ jobs:
         cd apps/dice-verse
         npm run build
 
-    - name: Install dependencies
+    - name: Install spin-art dependencies
       run: |
         cd apps/spin-art
         npm ci
@@ -57,7 +57,7 @@ jobs:
         cd apps/spin-art
         npm run build
 
-    - name: Install dependencies
+    - name: Install snap-puzzle dependencies
       run: |
         cd apps/snap-puzzle
         npm ci
@@ -66,6 +66,11 @@ jobs:
       run: |
         cd apps/snap-puzzle
         npm run build
+    
+    - name: Install danmaku-magic dependencies
+      run: |
+        cd apps/danmaku-magic
+        npm ci
     
     - name: Build danmaku-magic
       run: |
