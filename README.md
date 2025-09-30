@@ -31,7 +31,7 @@
 3. **[Snap Puzzle](https://chenzihong-gavin.github.io/weekly-vibe-coding/snap-puzzle/)** (`apps/snap-puzzle`)
     - 上传照片变成一个简单有趣的拼图游戏。
   
-4. **[Danmaku-magic](https://chenzihong-gavin.github.io/weekly-vibe-coding/danmaku-magic/)** (`apps/danmaku-magic`)
+4. **[Danmaku Magic](https://chenzihong-gavin.github.io/weekly-vibe-coding/danmaku-magic/)** (`apps/danmaku-magic`)
     - 一个可以让你在视频上添加动态弹幕的工具。
 
 
