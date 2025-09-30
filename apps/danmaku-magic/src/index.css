@@ -1,0 +1,276 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Bilibili-inspired Danmaku Animation System Design */
+
+@layer base {
+  :root {
+    /* Dark theme background */
+    --background: 220 25% 8%;
+    --foreground: 0 0% 95%;
+
+    /* Card components */
+    --card: 220 20% 12%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 220 20% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    /* Bilibili pink theme */
+    --primary: 330 85% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 330 85% 70%;
+
+    /* Secondary accents */
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 220 15% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 330 60% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 20%;
+    --input: 220 15% 18%;
+    --ring: 330 85% 60%;
+
+    --radius: 1rem;
+
+    /* Danmaku-specific colors */
+    --danmaku-bg: 220 25% 6%;
+    --danmaku-text: 0 0% 100%;
+    --danmaku-pink: 330 85% 65%;
+    --danmaku-blue: 210 85% 65%;
+    --danmaku-yellow: 50 85% 65%;
+    --danmaku-green: 120 85% 65%;
+    --danmaku-purple: 280 85% 65%;
+
+    /* Beautiful gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(330 85% 60%), hsl(330 85% 70%));
+    --gradient-hero: linear-gradient(135deg, hsl(330 85% 60%), hsl(280 85% 65%), hsl(210 85% 65%));
+    --gradient-bg: linear-gradient(180deg, hsl(220 25% 8%), hsl(220 25% 4%));
+    --gradient-card: linear-gradient(145deg, hsl(220 20% 12%), hsl(220 15% 15%));
+
+    /* Animations and effects */
+    --shadow-glow: 0 0 40px hsl(330 85% 60% / 0.3);
+    --shadow-subtle: 0 4px 20px hsl(220 25% 0% / 0.4);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background: var(--gradient-bg);
+    min-height: 100vh;
+  }
+}
+
+/* Danmaku Animation Keyframes */
+@layer base {
+  @keyframes firework-burst {
+    0% {
+      transform: scale(0) rotate(0deg);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2) rotate(180deg);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(2) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes flower-bloom {
+    0% {
+      transform: scale(0) rotate(-45deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) rotate(45deg);
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes dog-face-appear {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    20% {
+      transform: scale(1.2);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scale(0.9);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+  }
+
+  @keyframes float-up {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes rainbow-glow {
+    0% { color: hsl(var(--danmaku-pink)); text-shadow: 0 0 20px hsl(var(--danmaku-pink) / 0.5); }
+    20% { color: hsl(var(--danmaku-yellow)); text-shadow: 0 0 20px hsl(var(--danmaku-yellow) / 0.5); }
+    40% { color: hsl(var(--danmaku-green)); text-shadow: 0 0 20px hsl(var(--danmaku-green) / 0.5); }
+    60% { color: hsl(var(--danmaku-blue)); text-shadow: 0 0 20px hsl(var(--danmaku-blue) / 0.5); }
+    80% { color: hsl(var(--danmaku-purple)); text-shadow: 0 0 20px hsl(var(--danmaku-purple) / 0.5); }
+    100% { color: hsl(var(--danmaku-pink)); text-shadow: 0 0 20px hsl(var(--danmaku-pink) / 0.5); }
+  }
+}
+
+/* Component Classes */
+@layer components {
+  .danmaku-container {
+    @apply fixed inset-0 pointer-events-none overflow-hidden;
+    z-index: 10;
+  }
+
+  .danmaku-text {
+    @apply absolute font-bold text-lg pointer-events-none select-none;
+    font-family: 'Arial', sans-serif;
+    font-weight: 900;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    animation: rainbow-glow 3s infinite;
+  }
+
+  .pattern-firework .danmaku-text {
+    animation: firework-burst 2s ease-out forwards, rainbow-glow 2s infinite;
+  }
+
+  .pattern-flower .danmaku-text {
+    animation: flower-bloom 3s ease-in-out forwards, rainbow-glow 3s infinite;
+  }
+
+  .pattern-dog .danmaku-text {
+    animation: dog-face-appear 2s ease-out forwards, rainbow-glow 2s infinite;
+  }
+
+  .input-hero {
+    @apply bg-card/50 border-primary/30 text-foreground backdrop-blur-md;
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-subtle);
+    transition: var(--transition-smooth);
+  }
+
+  .input-hero:focus {
+    @apply border-primary ring-primary/20;
+    box-shadow: var(--shadow-glow);
+  }
+
+  .btn-danmaku {
+    background: var(--gradient-primary);
+    @apply text-primary-foreground font-bold shadow-lg;
+    box-shadow: var(--shadow-glow);
+    transition: var(--transition-spring);
+  }
+
+  .btn-danmaku:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 0 50px hsl(var(--primary) / 0.4);
+  }
+
+  .pattern-selector {
+    @apply bg-card/70 backdrop-blur-md rounded-xl p-1 border border-border/50;
+    background: var(--gradient-card);
+  }
+
+  .pattern-btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300;
+    background: transparent;
+  }
+
+  .pattern-btn:hover {
+    @apply bg-primary/20 text-primary;
+    transform: scale(1.05);
+  }
+
+  .pattern-btn.active {
+    background: var(--gradient-primary);
+    @apply text-primary-foreground shadow-lg;
+    box-shadow: var(--shadow-glow);
+  }
+}

@@ -27,8 +27,12 @@
 
 2. **[Spin Art](https://chenzihong-gavin.github.io/weekly-vibe-coding/spin-art/)** (`apps/spin-art`)
     - 实时旋转绘画小工具，通过旋转画布轻松创作出绚丽的几何图案。
+  
 3. **[Snap Puzzle](https://chenzihong-gavin.github.io/weekly-vibe-coding/snap-puzzle/)** (`apps/snap-puzzle`)
     - 上传照片变成一个简单有趣的拼图游戏。
+  
+4. **[Danmaku-magic](https://chenzihong-gavin.github.io/weekly-vibe-coding/danmaku-magic/)** (`apps/danmaku-magic`)
+    - 一个可以让你在视频上添加动态弹幕的工具。
 
 
 ## 如何运行

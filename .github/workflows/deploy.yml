@@ -67,12 +67,18 @@ jobs:
         cd apps/snap-puzzle
         npm run build
     
+    - name: Build danmaku-magic
+        run: |
+        cd apps/danmaku-magic
+        npm run build
+    
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
+        cp -r apps/danmaku-magic/dist/* dist/danmaku-magic/
         cp index.html dist/
  
     - name: Setup Pages
