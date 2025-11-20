@@ -25,17 +25,35 @@
 ### 专题一：想做什么就做什么
 1.  **[Dice Verse](https://chenzihong-gavin.github.io/weekly-vibe-coding/dice-verse/)** (`apps/dice-verse`)
     - 一个创意写作工具，让你在方格中用AI生成的骰子创作诗歌。
+      
+      <img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/8ceb06db-4a6f-4b69-bd0d-3c7c17aff3b8" />
+
 
 2. **[Spin Art](https://chenzihong-gavin.github.io/weekly-vibe-coding/spin-art/)** (`apps/spin-art`)
     - 实时旋转绘画小工具，通过旋转画布轻松创作出绚丽的几何图案。
   
+      <img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/3839b21c-3459-44e2-b73e-9100a187eb98" />
+
+  
 3. **[Snap Puzzle](https://chenzihong-gavin.github.io/weekly-vibe-coding/snap-puzzle/)** (`apps/snap-puzzle`)
     - 上传照片变成一个简单有趣的拼图游戏。
+  
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/bf5ec35c-b057-4ee7-bb9f-e36803875291" />
+
   
 4. **[Danmaku Magic](https://chenzihong-gavin.github.io/weekly-vibe-coding/danmaku-magic/)** (`apps/danmaku-magic`)
     - 一个可以让你在视频上添加动态弹幕的工具。
   
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/7898c5e6-136d-48f7-acd0-f5c7c2f21929" />
+
+
 5. **[Hairline Tracker](https://chenzihong-gavin.github.io/weekly-vibe-coding/hairline-tracker/)**(`apps/hairline-tracker`)
+    - 追踪记录你的发际线。
+  
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
+  
+
+
 
 ### 专题二：有审美的网站设计
 
