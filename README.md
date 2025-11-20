@@ -22,6 +22,7 @@
 
 ## 已实现的应用
 
+### 专题一：想做什么就做什么
 1.  **[Dice Verse](https://chenzihong-gavin.github.io/weekly-vibe-coding/dice-verse/)** (`apps/dice-verse`)
     - 一个创意写作工具，让你在方格中用AI生成的骰子创作诗歌。
 
@@ -34,6 +35,7 @@
 4. **[Danmaku Magic](https://chenzihong-gavin.github.io/weekly-vibe-coding/danmaku-magic/)** (`apps/danmaku-magic`)
     - 一个可以让你在视频上添加动态弹幕的工具。
 
+### 专题二：有审美的网站设计
 
 ## 如何运行
 
