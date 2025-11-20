@@ -34,6 +34,8 @@
   
 4. **[Danmaku Magic](https://chenzihong-gavin.github.io/weekly-vibe-coding/danmaku-magic/)** (`apps/danmaku-magic`)
     - 一个可以让你在视频上添加动态弹幕的工具。
+  
+5. **[Hairline Tracker](https://chenzihong-gavin.github.io/weekly-vibe-coding/hairline-tracker/)**(`apps/hairline-tracker`)
 
 ### 专题二：有审美的网站设计
 
