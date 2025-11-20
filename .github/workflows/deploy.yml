@@ -76,14 +76,25 @@ jobs:
       run: |
         cd apps/danmaku-magic
         npm run build
+
+    - name: Install hairline-tracker dependencies
+      run: |
+        cd apps/hairline-tracker
+        npm ci
+    
+    - name: Build hairline-tracker
+      run: |
+        cd apps/hairline-tracker
+        npm run build
     
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
         cp -r apps/danmaku-magic/dist/* dist/danmaku-magic/
+        cp -r apps/hairline-tracker/dist/* dist/hairline-tracker/
         cp index.html dist/
  
     - name: Setup Pages
