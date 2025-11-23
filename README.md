@@ -22,7 +22,7 @@
 
 ## 已实现的应用
 
-### 专题一：想做什么就做什么
+### 专题一：想做点什么就做点什么
 1.  **[Dice Verse](https://chenzihong-gavin.github.io/weekly-vibe-coding/dice-verse/)** (`apps/dice-verse`)
     - 一个创意写作工具，让你在方格中用AI生成的骰子创作诗歌。
       
@@ -52,7 +52,7 @@
   
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
   
-
+[vibe coding经验](https://mp.weixin.qq.com/s/6qSUykpcpV9Qzjf19CqxaA)
 
 
 ### 专题二：有审美的网站设计
