@@ -20,6 +20,12 @@
 
 每个应用都是一个独立的子项目，存放在 `apps` 目录下。
 
+欢迎关注我的公众号：【无所事事的执念】，解锁一些coding心得。
+
+### 近期文章
+1. 2025年11月23日 [快停止Vibe Gambling，因为它正在毁掉你](https://mp.weixin.qq.com/s/6qSUykpcpV9Qzjf19CqxaA)
+
+
 ## 已实现的应用
 
 ### 专题一：想做点什么就做点什么
@@ -51,11 +57,11 @@
     - 追踪记录你的发际线。
   
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
-  
-[vibe coding经验](https://mp.weixin.qq.com/s/6qSUykpcpV9Qzjf19CqxaA)
 
 
 ### 专题二：有审美的网站设计
+
+
 
 ## 如何运行
 
