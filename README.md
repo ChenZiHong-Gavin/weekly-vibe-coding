@@ -61,6 +61,13 @@
 
 ### 专题二：有审美的网站设计
 
+### 专题三：手势交互
+
+6. **[FaceOpera](https://chenzihong-gavin.github.io/weekly-vibe-coding/peking-opera/)** (`apps/peking-opera`)
+    - 实时AR京剧变脸，通过手势或触摸轻松切换传统脸谱。
+
+      <img width="400" alt="Gemini_Generated_Image_1dfzgi1dfzgi1dfz" src="https://github.com/user-attachments/assets/e1d7357e-6da0-4dc7-bde2-dba5efae2193" />
+
 
 
 ## 如何运行
