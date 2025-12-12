@@ -1,0 +1,6 @@
+allosaurus
+fastapi
+Levenshtein
+python-multipart
+uvicorn
+numpy
