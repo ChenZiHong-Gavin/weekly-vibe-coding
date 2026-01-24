@@ -9,7 +9,12 @@
 - [weekly-vibe-coding](#weekly-vibe-coding)
   - [目录](#目录)
   - [关于项目](#关于项目)
+    - [近期文章](#近期文章)
   - [已实现的应用](#已实现的应用)
+    - [专题一：想做点什么就做点什么](#专题一想做点什么就做点什么)
+    - [专题二：有审美的网站设计](#专题二有审美的网站设计)
+    - [专题三：手势交互](#专题三手势交互)
+    - [专题四：语音交互](#专题四语音交互)
   - [如何运行](#如何运行)
   - [贡献](#贡献)
   - [License](#license)
@@ -31,6 +36,7 @@
 ### 专题一：想做点什么就做点什么
 1.  **[Dice Verse](https://chenzihong-gavin.github.io/weekly-vibe-coding/dice-verse/)** (`apps/dice-verse`)
     - 一个创意写作工具，让你在方格中用AI生成的骰子创作诗歌。
+    - prompt: `prompts/dice-verse.md`
       
       <img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/8ceb06db-4a6f-4b69-bd0d-3c7c17aff3b8" />
 
