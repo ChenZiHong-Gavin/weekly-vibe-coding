@@ -36,7 +36,7 @@
 ### 专题一：想做点什么就做点什么
 1.  **[Dice Verse](https://chenzihong-gavin.github.io/weekly-vibe-coding/dice-verse/)** (`apps/dice-verse`)
     - 一个创意写作工具，让你在方格中用AI生成的骰子创作诗歌。
-    - prompt: `prompts/dice-verse.md`
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/dice-verse.md)
       
       <img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/8ceb06db-4a6f-4b69-bd0d-3c7c17aff3b8" />
 
@@ -80,6 +80,8 @@
     - 《哈利波特》魔法咒语练习，通过前端录音与后端音素识别，比对用户的发音与目标咒语的音素，让你能够念对魔法，施展魔法。
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/304c161a-3b66-447e-8f93-a6dc99a97e01" />
+
+### 专题五：地理信息交互
 
 
 ## 如何运行
