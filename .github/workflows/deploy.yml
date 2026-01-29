@@ -98,14 +98,14 @@ jobs:
         npm run build
     
         
-    - name: Install ai-drum-master dependencies
+    - name: Install air-drum-master dependencies
       run: |
-        cd apps/ai-drum-master
+        cd apps/air-drum-master
         npm ci
     
-    - name: Build ai-drum-master
+    - name: Build air-drum-master
       run: |
-        cd apps/ai-drum-master
+        cd apps/air-drum-master
         npm run build
 
     - name: Copy all builds to dist
@@ -117,7 +117,7 @@ jobs:
         cp -r apps/danmaku-magic/dist/* dist/danmaku-magic/
         cp -r apps/hairline-tracker/dist/* dist/hairline-tracker/
         cp -r apps/peking-opera/dist/* dist/peking-opera/
-        cp -r apps/ai-drum-master/dist/* dist/ai-drum-master/
+        cp -r apps/air-drum-master/dist/* dist/air-drum-master/
         cp index.html dist/
  
     - name: Setup Pages
