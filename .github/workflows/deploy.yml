@@ -97,15 +97,27 @@ jobs:
         cd apps/peking-opera
         npm run build
     
+        
+    - name: Install ai-drum-master dependencies
+      run: |
+        cd apps/ai-drum-master
+        npm ci
+    
+    - name: Build ai-drum-master
+      run: |
+        cd apps/ai-drum-master
+        npm run build
+
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,ai-drum-master}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
         cp -r apps/danmaku-magic/dist/* dist/danmaku-magic/
         cp -r apps/hairline-tracker/dist/* dist/hairline-tracker/
         cp -r apps/peking-opera/dist/* dist/peking-opera/
+        cp -r apps/ai-drum-master/dist/* dist/ai-drum-master/
         cp index.html dist/
  
     - name: Setup Pages

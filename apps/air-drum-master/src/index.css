@@ -1,0 +1,330 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Orbitron:wght@400;500;700;900&display=swap');
+
+@layer base {
+  :root {
+    /* Taiko Festival Theme */
+    --background: 220 25% 8%;
+    --foreground: 45 100% 96%;
+
+    --card: 220 20% 12%;
+    --card-foreground: 45 100% 96%;
+
+    --popover: 220 20% 12%;
+    --popover-foreground: 45 100% 96%;
+
+    /* Don (Red Drum) - Warm Festival Orange-Red */
+    --primary: 15 95% 55%;
+    --primary-foreground: 45 100% 98%;
+
+    /* Kat (Blue Drum) - Deep Indigo */
+    --secondary: 220 85% 50%;
+    --secondary-foreground: 45 100% 98%;
+
+    --muted: 220 15% 18%;
+    --muted-foreground: 220 10% 60%;
+
+    /* Accent - Festival Gold */
+    --accent: 45 100% 55%;
+    --accent-foreground: 220 25% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 100% 98%;
+
+    --border: 220 20% 20%;
+    --input: 220 20% 15%;
+    --ring: 15 95% 55%;
+
+    --radius: 0.75rem;
+
+    /* Game-specific tokens */
+    --don: 15 95% 55%;
+    --don-glow: 15 100% 65%;
+    --kat: 220 85% 50%;
+    --kat-glow: 220 100% 65%;
+    --perfect: 45 100% 55%;
+    --good: 190 90% 50%;
+    --miss: 0 70% 50%;
+    --combo: 280 80% 60%;
+    
+    /* Gradients */
+    --gradient-don: linear-gradient(135deg, hsl(15 95% 55%), hsl(25 100% 60%));
+    --gradient-kat: linear-gradient(135deg, hsl(220 85% 50%), hsl(240 90% 60%));
+    --gradient-gold: linear-gradient(135deg, hsl(45 100% 55%), hsl(35 100% 65%));
+    --gradient-bg: radial-gradient(ellipse at center, hsl(220 25% 12%) 0%, hsl(220 25% 6%) 100%);
+    
+    /* Shadows */
+    --shadow-don: 0 0 30px hsl(15 95% 55% / 0.5);
+    --shadow-kat: 0 0 30px hsl(220 85% 50% / 0.5);
+    --shadow-gold: 0 0 40px hsl(45 100% 55% / 0.6);
+
+    --sidebar-background: 220 25% 10%;
+    --sidebar-foreground: 45 100% 96%;
+    --sidebar-primary: 15 95% 55%;
+    --sidebar-primary-foreground: 45 100% 98%;
+    --sidebar-accent: 220 20% 15%;
+    --sidebar-accent-foreground: 45 100% 96%;
+    --sidebar-border: 220 20% 20%;
+    --sidebar-ring: 15 95% 55%;
+  }
+
+  .dark {
+    --background: 220 25% 8%;
+    --foreground: 45 100% 96%;
+    --card: 220 20% 12%;
+    --card-foreground: 45 100% 96%;
+    --popover: 220 20% 12%;
+    --popover-foreground: 45 100% 96%;
+    --primary: 15 95% 55%;
+    --primary-foreground: 45 100% 98%;
+    --secondary: 220 85% 50%;
+    --secondary-foreground: 45 100% 98%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 45 100% 55%;
+    --accent-foreground: 220 25% 8%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 45 100% 98%;
+    --border: 220 20% 20%;
+    --input: 220 20% 15%;
+    --ring: 15 95% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    background: var(--gradient-bg);
+  }
+}
+
+@layer components {
+  .game-title {
+    font-family: 'Orbitron', sans-serif;
+    @apply font-black tracking-wider;
+  }
+
+  .score-display {
+    font-family: 'Orbitron', sans-serif;
+    @apply font-bold tabular-nums;
+  }
+
+  .drum-don {
+    background: var(--gradient-don);
+    box-shadow: var(--shadow-don);
+  }
+
+  .drum-kat {
+    background: var(--gradient-kat);
+    box-shadow: var(--shadow-kat);
+  }
+
+  .drum-boom {
+    background: linear-gradient(135deg, #000, #333);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), 0 0 10px hsl(var(--accent) / 0.5);
+    @apply border-2 border-accent;
+  }
+
+  .drum-air {
+    background: linear-gradient(135deg, #fff, #ddd);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    @apply border-2 border-muted;
+  }
+
+  .judgment-perfect {
+    color: hsl(var(--perfect));
+    text-shadow: var(--shadow-gold);
+  }
+
+  .judgment-good {
+    color: hsl(var(--good));
+  }
+
+  .judgment-miss {
+    color: hsl(var(--miss));
+  }
+
+  .combo-display {
+    background: linear-gradient(135deg, hsl(var(--combo)), hsl(280 90% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .note-don {
+    @apply rounded-full;
+    background: var(--gradient-don);
+    box-shadow: 0 0 20px hsl(var(--don) / 0.6);
+  }
+
+  .note-kat {
+    background: var(--gradient-kat);
+    box-shadow: 0 0 20px hsl(var(--kat) / 0.6);
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  }
+
+  .note-boom {
+    @apply rounded-full border-4 border-accent;
+    background: linear-gradient(135deg, #000, #333);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), 0 0 10px hsl(var(--accent) / 0.5);
+  }
+
+  .note-air {
+    @apply rounded-full border-2 border-muted;
+    background: linear-gradient(135deg, #fff, #ddd);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+
+  .track-glow {
+    box-shadow: inset 0 0 60px hsl(var(--primary) / 0.1);
+  }
+
+  .hit-zone {
+    @apply border-4;
+    border-color: hsl(var(--accent) / 0.8);
+    box-shadow: 0 0 30px hsl(var(--accent) / 0.3);
+  }
+}
+
+@layer utilities {
+  .text-shadow-glow {
+    text-shadow: 0 0 20px currentColor;
+  }
+
+  .animate-pulse-fast {
+    animation: pulse 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-hit-feedback {
+    animation: hitFeedback 0.3s ease-out forwards;
+  }
+
+  .animate-note-spawn {
+    animation: noteSpawn 0.2s ease-out;
+  }
+
+  .animate-combo-pop {
+    animation: comboPop 0.15s ease-out;
+  }
+
+  .animate-judgment {
+    animation: judgment 0.5s ease-out forwards;
+  }
+
+  .animate-drum-hit {
+    animation: drumHit 0.15s ease-out;
+  }
+
+  .animate-particle {
+    animation: particle 0.6s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes hitFeedback {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes noteSpawn {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes comboPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes judgment {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(-20px) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-60px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes drumHit {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes particle {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx, 50px), var(--ty, -50px)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
