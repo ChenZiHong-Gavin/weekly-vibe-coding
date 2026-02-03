@@ -65,23 +65,23 @@
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
 
 
-### 专题二：有审美的网站设计
-
-### 专题三：手势交互
+### 专题二：手势交互
 
 6. **[FaceOpera](https://chenzihong-gavin.github.io/weekly-vibe-coding/peking-opera/)** (`apps/peking-opera`)
     - 实时AR京剧变脸，通过手势或触摸轻松切换传统脸谱。
 
       <img width="400" alt="Gemini_Generated_Image_1dfzgi1dfzgi1dfz" src="https://github.com/user-attachments/assets/e1d7357e-6da0-4dc7-bde2-dba5efae2193" />
 
-### 专题四：语音交互
+### 专题三：语音交互
 
 7.  **[Spellbook](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/tree/main/apps/spellbook)** (`apps/spellbook`)
     - 《哈利波特》魔法咒语练习，通过前端录音与后端音素识别，比对用户的发音与目标咒语的音素，让你能够念对魔法，施展魔法。
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/304c161a-3b66-447e-8f93-a6dc99a97e01" />
 
-### 专题五：地理信息交互
+### 专题四：地理信息交互
+
+### 专题五：有审美的网站设计
 
 
 ## 如何运行
