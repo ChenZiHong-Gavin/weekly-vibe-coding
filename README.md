@@ -11,6 +11,7 @@
   - [关于项目](#关于项目)
     - [近期文章](#近期文章)
   - [已实现的应用](#已实现的应用)
+    - [专题零：创意原点](#专题零创意原点)
     - [专题一：想做点什么就做点什么](#专题一想做点什么就做点什么)
     - [专题二：有审美的网站设计](#专题二有审美的网站设计)
     - [专题三：手势交互](#专题三手势交互)
@@ -32,6 +33,11 @@
 
 
 ## 已实现的应用
+
+### 专题零：Prompt Playground
+
+0. **[Prompt Playground](https://chenzihong-gavin.github.io/weekly-vibe-coding/prompt-playground/)** (`apps/prompt-playground`)
+    - Weekly Vibe Coding 的项目展示主页，汇集了所有创意应用的展示平台。
 
 ### 专题一：想做点什么就做点什么
 1.  **[Dice Verse](https://chenzihong-gavin.github.io/weekly-vibe-coding/dice-verse/)** (`apps/dice-verse`)
