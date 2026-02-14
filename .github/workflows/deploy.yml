@@ -101,7 +101,7 @@ jobs:
     - name: Install air-drum-master dependencies
       run: |
         cd apps/air-drum-master
-        npm ci
+        npm install
     
     - name: Build air-drum-master
       run: |
