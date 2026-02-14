@@ -13,9 +13,10 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter basename="/weekly-vibe-coding/prompt-playground">
+      <BrowserRouter basename="/weekly-vibe-coding">
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/prompt-playground" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

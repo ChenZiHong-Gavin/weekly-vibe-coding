@@ -120,7 +120,7 @@ jobs:
 
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,ai-drum-master,prompt-playground}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,prompt-playground}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
@@ -129,7 +129,7 @@ jobs:
         cp -r apps/peking-opera/dist/* dist/peking-opera/
         cp -r apps/air-drum-master/dist/* dist/air-drum-master/
         cp -r apps/prompt-playground/dist/* dist/prompt-playground/
-        cp index.html dist/
+        cp -r apps/prompt-playground/dist/* dist/
  
     - name: Setup Pages
       uses: actions/configure-pages@v4
