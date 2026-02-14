@@ -108,9 +108,19 @@ jobs:
         cd apps/air-drum-master
         npm run build
 
+    - name: Install prompt-playground dependencies
+      run: |
+        cd apps/prompt-playground
+        npm ci
+    
+    - name: Build prompt-playground
+      run: |
+        cd apps/prompt-playground
+        npm run build
+
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,ai-drum-master}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,ai-drum-master,prompt-playground}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
@@ -118,6 +128,7 @@ jobs:
         cp -r apps/hairline-tracker/dist/* dist/hairline-tracker/
         cp -r apps/peking-opera/dist/* dist/peking-opera/
         cp -r apps/air-drum-master/dist/* dist/air-drum-master/
+        cp -r apps/prompt-playground/dist/* dist/prompt-playground/
         cp index.html dist/
  
     - name: Setup Pages
