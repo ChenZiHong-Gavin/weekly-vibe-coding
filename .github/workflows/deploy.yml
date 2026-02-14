@@ -111,7 +111,7 @@ jobs:
     - name: Install prompt-playground dependencies
       run: |
         cd apps/prompt-playground
-        npm ci
+        npm install
     
     - name: Build prompt-playground
       run: |
