@@ -41,6 +41,9 @@
     - Weekly Vibe Coding 的项目展示主页，汇集了所有创意应用的展示平台。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/prompt-playground.md)
 
+       <img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/64878ac4-8ef9-4e1b-b5e6-db0ac40ba05e" />
+
+
 ### 专题一：想做点什么就做点什么
 1.  **[Dice Verse](https://chenzihong-gavin.github.io/weekly-vibe-coding/dice-verse/)** (`apps/dice-verse`)
     - 一个创意写作工具，让你在方格中用AI生成的骰子创作诗歌。
