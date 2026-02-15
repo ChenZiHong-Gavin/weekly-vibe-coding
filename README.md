@@ -39,6 +39,7 @@
 
 0. **[Prompt Playground](https://chenzihong-gavin.github.io/weekly-vibe-coding/prompt-playground/)** (`apps/prompt-playground`)
     - Weekly Vibe Coding 的项目展示主页，汇集了所有创意应用的展示平台。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/prompt-playground.md)
 
 ### 专题一：想做点什么就做点什么
 1.  **[Dice Verse](https://chenzihong-gavin.github.io/weekly-vibe-coding/dice-verse/)** (`apps/dice-verse`)
