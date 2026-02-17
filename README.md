@@ -83,9 +83,14 @@
 
       <img width="400" alt="Gemini_Generated_Image_1dfzgi1dfzgi1dfz" src="https://github.com/user-attachments/assets/e1d7357e-6da0-4dc7-bde2-dba5efae2193" />
 
+7. **[Air Drum Master](https://chenzihong-gavin.github.io/weekly-vibe-coding/air-drum-master/)** (`apps/air-drum-master`)
+    - 隔空架子鼓，通过摄像头识别手势，让你在空气中敲击架子鼓。
+
+    <img width="400" alt="image" src="https://github.com/user-attachments/assets/7517c57b-7b0b-4720-96f3-33979857d471" />
+
 ### 专题三：语音交互
 
-7.  **[Spellbook](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/tree/main/apps/spellbook)** (`apps/spellbook`)
+8.  **[Spellbook](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/tree/main/apps/spellbook)** (`apps/spellbook`)
     - 《哈利波特》魔法咒语练习，通过前端录音与后端音素识别，比对用户的发音与目标咒语的音素，让你能够念对魔法，施展魔法。
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/304c161a-3b66-447e-8f93-a6dc99a97e01" />
