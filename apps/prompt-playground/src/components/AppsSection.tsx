@@ -107,6 +107,15 @@ const categories = [
         colorClass: "icon-teal",
         prompt: "",
       },
+      {
+        title: "Air Drum Master",
+        description: "通过手势识别模拟架子鼓演奏，体验空气架子鼓的乐趣。",
+        icon: "🥁",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/air-drum-master/",
+        status: "live" as const,
+        colorClass: "icon-orange",
+        prompt: "",
+      },
     ],
   },
   {
