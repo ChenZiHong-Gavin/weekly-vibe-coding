@@ -1,7 +1,8 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { audioAnalyzer } from '@/core/AudioAnalyzer';
+import { soundManager } from '@/core/SoundManager';
 import { Music, Upload, Play, Drum } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Difficulty } from '@/types/game';
@@ -16,7 +17,29 @@ export function MenuScreen({ onStartDemo, onStartWithAudio }: MenuScreenProps) {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('normal');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { setAudioFile, setCurrentBeatMap, audioFile } = useGameStore();
+  const { setAudioFile, setCurrentBeatMap, audioFile, leftHand, rightHand } = useGameStore();
+  
+  const isDon = !leftHand && rightHand;
+  const isKat = leftHand && !rightHand;
+  const isBoom = leftHand && rightHand;
+  const isAir = !leftHand && !rightHand;
+
+  // Sound effects for tutorial
+  useEffect(() => {
+    if (isDon) soundManager.playDon();
+  }, [isDon]);
+
+  useEffect(() => {
+    if (isKat) soundManager.playKat();
+  }, [isKat]);
+
+  useEffect(() => {
+    if (isBoom) soundManager.playBoom();
+  }, [isBoom]);
+
+  useEffect(() => {
+    if (isAir) soundManager.playAir();
+  }, [isAir]);
   
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -169,38 +192,58 @@ export function MenuScreen({ onStartDemo, onStartWithAudio }: MenuScreenProps) {
       >
         <div className="text-muted-foreground text-sm mb-6">游戏玩法说明</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-card/50 rounded-xl p-4 border border-border">
-            <div className="w-12 h-12 mx-auto mb-2 rounded-full drum-don flex items-center justify-center">
+          <div 
+            className={`
+              bg-card/50 rounded-xl p-4 border transition-all duration-200
+              ${isDon ? 'border-red-500 bg-red-500/10 scale-105 shadow-lg shadow-red-500/20 ring-2 ring-red-500/50' : 'border-border'}
+            `}
+          >
+            <div className={`w-12 h-12 mx-auto mb-2 rounded-full drum-don flex items-center justify-center transition-transform ${isDon ? 'scale-110' : ''}`}>
               <span className="text-white font-bold">咚</span>
             </div>
-            <div className="text-foreground font-medium mb-1 text-sm">红鼓 (Don)</div>
+            <div className={`font-medium mb-1 text-sm transition-colors ${isDon ? 'text-red-500 font-bold' : 'text-foreground'}`}>红鼓 (Don)</div>
             <div className="text-muted-foreground text-[10px] leading-tight">
               屏幕中只有右手
             </div>
           </div>
-          <div className="bg-card/50 rounded-xl p-4 border border-border">
-            <div className="w-12 h-12 mx-auto mb-2 rounded-full drum-kat flex items-center justify-center">
+          <div 
+            className={`
+              bg-card/50 rounded-xl p-4 border transition-all duration-200
+              ${isKat ? 'border-blue-500 bg-blue-500/10 scale-105 shadow-lg shadow-blue-500/20 ring-2 ring-blue-500/50' : 'border-border'}
+            `}
+          >
+            <div className={`w-12 h-12 mx-auto mb-2 rounded-full drum-kat flex items-center justify-center transition-transform ${isKat ? 'scale-110' : ''}`}>
               <span className="text-white font-bold">咔</span>
             </div>
-            <div className="text-foreground font-medium mb-1 text-sm">蓝鼓 (Kat)</div>
+            <div className={`font-medium mb-1 text-sm transition-colors ${isKat ? 'text-blue-500 font-bold' : 'text-foreground'}`}>蓝鼓 (Kat)</div>
             <div className="text-muted-foreground text-[10px] leading-tight">
               屏幕中只有左手
             </div>
           </div>
-          <div className="bg-card/50 rounded-xl p-4 border border-border">
-            <div className="w-12 h-12 mx-auto mb-2 rounded-full drum-boom flex items-center justify-center">
+          <div 
+            className={`
+              bg-card/50 rounded-xl p-4 border transition-all duration-200
+              ${isBoom ? 'border-zinc-500 bg-zinc-500/10 scale-105 shadow-lg shadow-zinc-500/20 ring-2 ring-zinc-500/50' : 'border-border'}
+            `}
+          >
+            <div className={`w-12 h-12 mx-auto mb-2 rounded-full drum-boom flex items-center justify-center transition-transform ${isBoom ? 'scale-110' : ''}`}>
               <span className="text-white font-bold text-xs">BOOM</span>
             </div>
-            <div className="text-foreground font-medium mb-1 text-sm">黑鼓 (Boom)</div>
+            <div className={`font-medium mb-1 text-sm transition-colors ${isBoom ? 'text-zinc-500 font-bold' : 'text-foreground'}`}>黑鼓 (Boom)</div>
             <div className="text-muted-foreground text-[10px] leading-tight">
               屏幕中有双手
             </div>
           </div>
-          <div className="bg-card/50 rounded-xl p-4 border border-border">
-            <div className="w-12 h-12 mx-auto mb-2 rounded-full drum-air flex items-center justify-center">
+          <div 
+            className={`
+              bg-card/50 rounded-xl p-4 border transition-all duration-200
+              ${isAir ? 'border-zinc-300 bg-zinc-100/10 scale-105 shadow-lg shadow-zinc-300/20 ring-2 ring-zinc-300/50' : 'border-border'}
+            `}
+          >
+            <div className={`w-12 h-12 mx-auto mb-2 rounded-full drum-air flex items-center justify-center transition-transform ${isAir ? 'scale-110' : ''}`}>
               <span className="text-black font-bold text-xs">AIR</span>
             </div>
-            <div className="text-foreground font-medium mb-1 text-sm">白鼓 (Air)</div>
+            <div className={`font-medium mb-1 text-sm transition-colors ${isAir ? 'text-zinc-300 font-bold' : 'text-foreground'}`}>白鼓 (Air)</div>
             <div className="text-muted-foreground text-[10px] leading-tight">
               屏幕中没有手
             </div>

@@ -140,8 +140,8 @@ export function GameScreen() {
     }
   }, [gameState, gameTime, currentBeatMap, handleGameEnd]);
   
-  // Enable hand detection when in game
-  const enableHandDetection = gameState === 'playing' || gameState === 'countdown';
+  // Enable hand detection globally to support menu interaction
+  const enableHandDetection = true;
   
   return (
     <div className="min-h-screen overflow-hidden relative">
