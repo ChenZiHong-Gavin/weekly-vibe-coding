@@ -36,7 +36,7 @@ jobs:
     - name: Install dice-verse dependencies
       run: |
         cd apps/dice-verse
-        npm ci
+        npm install
         
     - name: Build dice-verse
       env:
@@ -50,7 +50,7 @@ jobs:
     - name: Install spin-art dependencies
       run: |
         cd apps/spin-art
-        npm ci
+        npm install
 
     - name: Build spin-art
       run: |
@@ -60,7 +60,7 @@ jobs:
     - name: Install snap-puzzle dependencies
       run: |
         cd apps/snap-puzzle
-        npm ci
+        npm install
 
     - name: Build snap-puzzle
       run: |
@@ -70,7 +70,7 @@ jobs:
     - name: Install danmaku-magic dependencies
       run: |
         cd apps/danmaku-magic
-        npm ci
+        npm install
     
     - name: Build danmaku-magic
       run: |
@@ -80,7 +80,7 @@ jobs:
     - name: Install hairline-tracker dependencies
       run: |
         cd apps/hairline-tracker
-        npm ci
+        npm install
     
     - name: Build hairline-tracker
       run: |
@@ -90,7 +90,7 @@ jobs:
     - name: Install peking-opera dependencies
       run: |
         cd apps/peking-opera
-        npm ci
+        npm install
     
     - name: Build peking-opera
       run: |
@@ -100,7 +100,7 @@ jobs:
     - name: Install pi-matchmaker dependencies
       run: |
         cd apps/pi-matchmaker
-        npm ci
+        npm install
 
     - name: Build pi-matchmaker
       run: |
