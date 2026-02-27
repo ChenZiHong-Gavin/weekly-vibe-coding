@@ -104,7 +104,7 @@
 9. **[Pi Matchmaker](https://chenzihong-gavin.github.io/weekly-vibe-coding/pi-matchmaker/)** (`apps/pi-matchmaker`)
     - 一个小网页，查找两个人的生日在圆周率上的相对位置，用于测姻缘。
 
-      <img width="2167" height="1322" alt="image" src="https://github.com/user-attachments/assets/cb379715-1f45-445a-8309-224b700ccab0" />
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/cb379715-1f45-445a-8309-224b700ccab0" />
 
 
 
