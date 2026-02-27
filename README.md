@@ -86,7 +86,8 @@
 7. **[Air Drum Master](https://chenzihong-gavin.github.io/weekly-vibe-coding/air-drum-master/)** (`apps/air-drum-master`)
     - 隔空架子鼓，通过摄像头识别手势，让你在空气中敲击架子鼓。
 
-    <img width="400" alt="image" src="https://github.com/user-attachments/assets/7517c57b-7b0b-4720-96f3-33979857d471" />
+    <img width="400" alt="image" src="https://github.com/user-attachments/assets/105c1366-6049-4632-ace9-50ff90286ac7" />
+
 
 ### 专题三：语音交互
 
