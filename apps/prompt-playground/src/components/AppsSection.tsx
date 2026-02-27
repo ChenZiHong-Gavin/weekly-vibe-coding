@@ -20,15 +20,6 @@ const categories = [
         prompt: diceVersePromptRaw,
       },
       {
-        title: "Pi Matchmaker",
-        description: "在圆周率前10万位中寻找你的生日或纪念日。",
-        icon: "🥧",
-        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/pi-matchmaker/",
-        status: "live" as const,
-        colorClass: "icon-pink",
-        prompt: piMatchmakerPromptRaw,
-      },
-      {
         title: "Spin Art",
         description: "实时旋转绘画小工具，通过旋转画布轻松创作出绚丽的几何图案。",
         icon: "🎨",
@@ -114,6 +105,20 @@ const categories = [
         status: "coming" as const,
         colorClass: "icon-pink",
         prompt: "",
+      },
+    ],
+  },
+  {
+    title: "专题六：数学小工具",
+    apps: [
+      {
+        title: "Pi Matchmaker",
+        description: "在圆周率前10万位中寻找你的生日或纪念日。",
+        icon: "🥧",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/pi-matchmaker/",
+        status: "live" as const,
+        colorClass: "icon-pink",
+        prompt: piMatchmakerPromptRaw,
       },
     ],
   },
