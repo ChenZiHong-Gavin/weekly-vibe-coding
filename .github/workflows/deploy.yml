@@ -96,6 +96,16 @@ jobs:
       run: |
         cd apps/peking-opera
         npm run build
+
+    - name: Install pi-matchmaker dependencies
+      run: |
+        cd apps/pi-matchmaker
+        npm ci
+
+    - name: Build pi-matchmaker
+      run: |
+        cd apps/pi-matchmaker
+        npm run build
     
         
     - name: Install air-drum-master dependencies
@@ -120,7 +130,7 @@ jobs:
 
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,prompt-playground}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
@@ -128,6 +138,7 @@ jobs:
         cp -r apps/hairline-tracker/dist/* dist/hairline-tracker/
         cp -r apps/peking-opera/dist/* dist/peking-opera/
         cp -r apps/air-drum-master/dist/* dist/air-drum-master/
+        cp -r apps/pi-matchmaker/dist/* dist/pi-matchmaker/
         cp -r apps/prompt-playground/dist/* dist/prompt-playground/
         cp -r apps/prompt-playground/dist/* dist/
  

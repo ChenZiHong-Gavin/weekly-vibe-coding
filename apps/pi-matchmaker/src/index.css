@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 230 25% 7%;
+    --foreground: 45 30% 90%;
+
+    --card: 230 20% 12%;
+    --card-foreground: 45 30% 90%;
+
+    --popover: 230 20% 12%;
+    --popover-foreground: 45 30% 90%;
+
+    --primary: 38 90% 55%;
+    --primary-foreground: 230 25% 7%;
+
+    --secondary: 230 15% 18%;
+    --secondary-foreground: 45 20% 80%;
+
+    --muted: 230 15% 15%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 280 60% 65%;
+    --accent-foreground: 45 30% 95%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 230 15% 20%;
+    --input: 230 15% 20%;
+    --ring: 38 90% 55%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 230 20% 10%;
+    --sidebar-foreground: 45 30% 90%;
+    --sidebar-primary: 38 90% 55%;
+    --sidebar-primary-foreground: 230 25% 7%;
+    --sidebar-accent: 230 15% 18%;
+    --sidebar-accent-foreground: 45 30% 90%;
+    --sidebar-border: 230 15% 20%;
+    --sidebar-ring: 38 90% 55%;
+
+    --glow-gold: 0 0 30px hsl(38 90% 55% / 0.3);
+    --glow-purple: 0 0 30px hsl(280 60% 65% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'Space Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .text-glow-gold {
+    text-shadow: 0 0 20px hsl(38 90% 55% / 0.5), 0 0 40px hsl(38 90% 55% / 0.2);
+  }
+
+  .text-glow-purple {
+    text-shadow: 0 0 20px hsl(280 60% 65% / 0.5), 0 0 40px hsl(280 60% 65% / 0.2);
+  }
+
+  .box-glow-gold {
+    box-shadow: 0 0 20px hsl(38 90% 55% / 0.15), 0 0 40px hsl(38 90% 55% / 0.05);
+  }
+
+  .box-glow-purple {
+    box-shadow: 0 0 20px hsl(280 60% 65% / 0.15), 0 0 40px hsl(280 60% 65% / 0.05);
+  }
+
+  .pi-highlight {
+    @apply text-primary font-bold;
+    text-shadow: 0 0 10px hsl(38 90% 55% / 0.6);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(38 90% 55%), hsl(280 60% 65%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
