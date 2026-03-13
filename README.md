@@ -76,14 +76,17 @@
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
 
 
+6. **[PaperNovel](https://chenzihong-gavin.github.io/weekly-vibe-coding/arxiv-to-novel/)** (`apps/arxiv-to-novel`)
+    - 将任意 arXiv 学术论文转化为引人入胜的小说，支持 10 种文学风格。
+
 ### 专题二：手势交互
 
-6. **[FaceOpera](https://chenzihong-gavin.github.io/weekly-vibe-coding/peking-opera/)** (`apps/peking-opera`)
+7. **[FaceOpera](https://chenzihong-gavin.github.io/weekly-vibe-coding/peking-opera/)** (`apps/peking-opera`)
     - 实时AR京剧变脸，通过手势或触摸轻松切换传统脸谱。
 
       <img width="400" alt="Gemini_Generated_Image_1dfzgi1dfzgi1dfz" src="https://github.com/user-attachments/assets/e1d7357e-6da0-4dc7-bde2-dba5efae2193" />
 
-7. **[Air Drum Master](https://chenzihong-gavin.github.io/weekly-vibe-coding/air-drum-master/)** (`apps/air-drum-master`)
+8. **[Air Drum Master](https://chenzihong-gavin.github.io/weekly-vibe-coding/air-drum-master/)** (`apps/air-drum-master`)
     - 隔空架子鼓，通过摄像头识别手势，让你在空气中敲击架子鼓。
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/105c1366-6049-4632-ace9-50ff90286ac7" />
@@ -91,7 +94,7 @@
 
 ### 专题三：语音交互
 
-8.  **[Spellbook](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/tree/main/apps/spellbook)** (`apps/spellbook`)
+9.  **[Spellbook](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/tree/main/apps/spellbook)** (`apps/spellbook`)
     - 《哈利波特》魔法咒语练习，通过前端录音与后端音素识别，比对用户的发音与目标咒语的音素，让你能够念对魔法，施展魔法。
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/304c161a-3b66-447e-8f93-a6dc99a97e01" />
@@ -102,7 +105,7 @@
 
 ### 专题六：数学小工具
 
-9. **[Pi Matchmaker](https://chenzihong-gavin.github.io/weekly-vibe-coding/pi-matchmaker/)** (`apps/pi-matchmaker`)
+10. **[Pi Matchmaker](https://chenzihong-gavin.github.io/weekly-vibe-coding/pi-matchmaker/)** (`apps/pi-matchmaker`)
     - 一个小网页，查找两个人的生日在圆周率上的相对位置，用于测姻缘。
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/cb379715-1f45-445a-8309-224b700ccab0" />
