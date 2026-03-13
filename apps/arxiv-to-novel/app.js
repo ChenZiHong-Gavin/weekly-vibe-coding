@@ -418,6 +418,8 @@ function renderGenrePicker() {
 
 
 // ── Settings Modal ───────────────────────────────────
+let settingsModalTimer = null;
+
 function loadSettingsUI() {
   const s = loadSettings();
   document.getElementById("apiKey").value = s.apiKey || "";
@@ -426,12 +428,25 @@ function loadSettingsUI() {
 }
 
 function showSettingsModal() {
+  if (settingsModalTimer) {
+    clearTimeout(settingsModalTimer);
+    settingsModalTimer = null;
+  }
   loadSettingsUI();
-  document.getElementById("settingsModal").style.display = "flex";
+  const modal = document.getElementById("settingsModal");
+  modal.style.display = "flex";
+  // Force reflow to enable transition
+  modal.offsetHeight;
+  modal.classList.add("visible");
 }
 
 function hideSettingsModal() {
-  document.getElementById("settingsModal").style.display = "none";
+  const modal = document.getElementById("settingsModal");
+  modal.classList.remove("visible");
+  settingsModalTimer = setTimeout(() => {
+    modal.style.display = "none";
+    settingsModalTimer = null;
+  }, 300);
 }
 
 function doSaveSettings() {

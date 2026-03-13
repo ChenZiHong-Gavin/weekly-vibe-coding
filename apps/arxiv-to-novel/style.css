@@ -1052,7 +1052,7 @@ h2 {
     transition: opacity 0.3s ease;
 }
 
-.modal-overlay[style*="display: block"] {
+.modal-overlay.visible {
     opacity: 1;
     pointer-events: auto;
 }
@@ -1068,7 +1068,7 @@ h2 {
     transition: transform 0.3s ease;
 }
 
-.modal-overlay[style*="display: block"] .modal-card {
+.modal-overlay.visible .modal-card {
     transform: translateY(0);
 }
 
