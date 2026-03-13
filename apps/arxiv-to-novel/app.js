@@ -306,7 +306,7 @@ function chunkText(text, maxChars = 6000) {
 
 // ── OpenAI Streaming (direct from browser) ───────────
 
-async function* streamChatCompletion(messages) {
+async function* streamChatCompletion(messages, signal) {
   const settings = getSettings();
 
   if (!settings.apiKey) {
@@ -329,6 +329,7 @@ async function* streamChatCompletion(messages) {
       temperature: 0.85,
       max_tokens: 4096,
     }),
+    signal: signal,
   });
 
   if (!response.ok) {
@@ -466,10 +467,14 @@ function doSaveSettings() {
 }
 
 
+let controller = null;
+
 // ── Event Binding ────────────────────────────────────
 function bindEvents() {
   document.getElementById("btnConvert").addEventListener("click", startConvert);
+  document.getElementById("btnStop").addEventListener("click", stopConvert);
   document.getElementById("btnCopy").addEventListener("click", copyNovel);
+  document.getElementById("btnDownload").addEventListener("click", downloadNovel);
   document.getElementById("btnSettings").addEventListener("click", showSettingsModal);
   document.getElementById("btnCloseSettings").addEventListener("click", hideSettingsModal);
   document.getElementById("btnSaveSettings").addEventListener("click", doSaveSettings);
@@ -504,11 +509,13 @@ async function startConvert() {
 
   // UI state
   isConverting = true;
+  controller = new AbortController();
   const btn = document.getElementById("btnConvert");
-  btn.querySelector(".btn-text").style.display = "none";
-  btn.querySelector(".btn-loading").style.display = "inline-flex";
-  btn.disabled = true;
-
+  const btnStop = document.getElementById("btnStop");
+  
+  btn.style.display = "none";
+  btnStop.style.display = "inline-flex";
+  
   const progressArea = document.getElementById("progressArea");
   const novelOutput = document.getElementById("novelOutput");
   progressArea.style.display = "block";
@@ -517,11 +524,13 @@ async function startConvert() {
 
   try {
     // Step 1: Fetch paper
+    if (controller.signal.aborted) throw new Error("已停止");
     document.getElementById("paperTitle").textContent = "正在获取论文...";
     document.getElementById("paperAuthors").textContent = "从 ar5iv 提取全文中...";
 
     const paper = await fetchPaper(url);
 
+    if (controller.signal.aborted) throw new Error("已停止");
     document.getElementById("paperTitle").textContent = paper.title;
     document.getElementById("paperAuthors").textContent = paper.authors.join(", ") || "Unknown";
 
@@ -540,6 +549,8 @@ async function startConvert() {
 
     // Step 3: Stream each chunk through LLM
     for (let idx = 0; idx < totalChunks; idx++) {
+      if (controller.signal.aborted) throw new Error("已停止");
+      
       setChunkStatus(idx, "active");
       updateProgress(idx, totalChunks);
       ensureChapterEl(idx, totalChunks);
@@ -550,7 +561,7 @@ async function startConvert() {
       ];
 
       let chapterText = "";
-      for await (const token of streamChatCompletion(messages)) {
+      for await (const token of streamChatCompletion(messages, controller.signal)) {
         chapterText += token;
         renderChapterContent(idx, chapterText);
       }
@@ -561,14 +572,56 @@ async function startConvert() {
     updateProgress(totalChunks, totalChunks);
 
   } catch (err) {
-    alert("转换出错：" + err.message);
-    console.error(err);
+    if (err.name === 'AbortError' || err.message === "已停止") {
+      console.log("Conversion stopped by user");
+    } else {
+      alert("转换出错：" + err.message);
+      console.error(err);
+    }
   } finally {
     isConverting = false;
+    controller = null;
+    btn.style.display = "inline-flex";
     btn.querySelector(".btn-text").style.display = "inline-flex";
     btn.querySelector(".btn-loading").style.display = "none";
     btn.disabled = false;
+    btnStop.style.display = "none";
   }
+}
+
+function stopConvert() {
+  if (controller) {
+    controller.abort();
+  }
+}
+
+function downloadNovel() {
+  const title = document.getElementById("novelTitle").textContent.trim();
+  if (!title || title === "—") {
+    alert("暂无内容可下载");
+    return;
+  }
+  
+  let content = `# ${title}\n\n`;
+  const meta = document.getElementById("novelGenre").textContent;
+  content += `> 风格：${meta}\n\n---\n\n`;
+
+  const chapters = document.querySelectorAll("#novelContent .chapter");
+  chapters.forEach(ch => {
+    const chTitle = ch.querySelector(".chapter-title").innerText;
+    const chBody = ch.querySelector(".chapter-body").innerText; // innerText preserves newlines better than textContent usually
+    content += `## ${chTitle}\n\n${chBody}\n\n`;
+  });
+
+  const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${title}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 

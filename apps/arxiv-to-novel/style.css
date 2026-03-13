@@ -132,6 +132,18 @@ h2 {
     box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4);
 }
 
+.btn-danger {
+    background: #ff7675;
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 118, 117, 0.3);
+}
+
+.btn-danger:hover {
+    background: #d63031;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 118, 117, 0.4);
+}
+
 .btn-outline {
     background: white;
     color: var(--text);

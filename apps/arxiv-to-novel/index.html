@@ -249,6 +249,9 @@
                             <span class="spinner"></span> 创作中...
                         </span>
                     </button>
+                    <button class="btn btn-danger btn-lg btn-full" id="btnStop" style="display:none; margin-top: 10px;">
+                        ⏹ 停止生成
+                    </button>
                 </div>
 
                 <!-- Progress -->
@@ -275,7 +278,10 @@
                         <span id="novelGenre">—</span>
                         <span id="novelChapters">—</span>
                     </div>
-                    <button class="btn btn-outline btn-sm" id="btnCopy">📋 复制全文</button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-outline btn-sm" id="btnDownload">📥 下载全文</button>
+                        <button class="btn btn-outline btn-sm" id="btnCopy">📋 复制全文</button>
+                    </div>
                 </div>
                 <div class="novel-content" id="novelContent">
                     <!-- Chapters rendered here -->
