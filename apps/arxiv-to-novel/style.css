@@ -1,0 +1,67 @@
+
+/* ── Annotated Paragraphs (Marginalia) ─────────────── */
+.novel-block {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 32px;
+  margin-bottom: 24px;
+  align-items: start;
+  position: relative;
+}
+
+.novel-block.no-note {
+  grid-template-columns: 1fr;
+}
+
+.novel-text {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #2D3436;
+  text-indent: 2em;
+  text-align: justify;
+}
+
+.novel-note {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #4A5568;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(108, 92, 231, 0.15);
+  border-left: 3px solid var(--primary);
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  margin-top: 4px; /* Align visually with text */
+}
+
+/* Add a small icon or label for the note */
+.novel-note::before {
+  content: "💡 知识点";
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Mobile responsive */
+@media (max-width: 900px) {
+  .novel-block {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .novel-note {
+    margin-left: 0;
+    margin-right: 0;
+    background: rgba(108, 92, 231, 0.06);
+    border: none;
+    border-left: 3px solid var(--primary);
+  }
+}

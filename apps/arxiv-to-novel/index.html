@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaperNovel — 将 arXiv 论文变成小说</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ═══════ NAV ═══════ -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="#" class="logo">
+                <span class="logo-icon">📖</span>
+                <span class="logo-text">PaperNovel</span>
+            </a>
+            <div class="nav-links">
+                <a href="#how">工作原理</a>
+                <a href="#genres">小说风格</a>
+                <a href="#demo">示例阅读</a>
+                <a href="#convert">开始转换</a>
+            </div>
+            <div class="nav-right">
+                <button class="nav-btn" id="btnSettings">⚙️ API 设置</button>
+                <a href="https://github.com/ChenZiHong-Gavin/weekly-vibe-coding" target="_blank" rel="noopener" class="nav-github" title="GitHub">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════ SETTINGS MODAL ═══════ -->
+    <div class="modal-overlay" id="settingsModal" style="display:none">
+        <div class="clay-card modal-card">
+            <div class="modal-header">
+                <h3>⚙️ API 设置</h3>
+                <button class="modal-close" id="btnCloseSettings">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="settings-note">所有配置仅保存在你的浏览器本地，不会发送到任何服务器。</p>
+                <div class="setting-group">
+                    <label for="apiKey">OpenAI API Key</label>
+                    <input type="password" id="apiKey" placeholder="sk-..." />
+                </div>
+                <div class="setting-group">
+                    <label for="baseUrl">API Base URL</label>
+                    <input type="text" id="baseUrl" placeholder="https://api.openai.com/v1" />
+                </div>
+                <div class="setting-group">
+                    <label for="modelName">模型名称</label>
+                    <input type="text" id="modelName" placeholder="gpt-4o" />
+                </div>
+                <button class="btn btn-primary btn-full" id="btnSaveSettings">💾 保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ HERO ═══════ -->
+    <header class="hero">
+        <div class="hero-badge">✨ 纯前端 · 无需后端 · AI 驱动的论文小说化</div>
+        <h1>把枯燥的 <span class="gradient-text">arXiv 论文</span><br>变成引人入胜的小说</h1>
+        <p class="hero-sub">粘贴一个 arXiv 链接，选择你喜欢的文学风格，AI 会将学术论文改写为一部完整的小说 —— 保留所有知识点，但妙趣横生。全程运行在你的浏览器中，数据不经过任何中间服务器。</p>
+        <div class="hero-actions">
+            <a href="#convert" class="btn btn-primary btn-lg">
+                开始转换 <span class="btn-arrow">→</span>
+            </a>
+            <a href="#how" class="btn btn-outline btn-lg">了解更多</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat"><span class="stat-num">10+</span><span class="stat-label">小说风格</span></div>
+            <div class="stat"><span class="stat-num">∞</span><span class="stat-label">上下文长度</span></div>
+            <div class="stat"><span class="stat-num">SSE</span><span class="stat-label">实时流式输出</span></div>
+        </div>
+        <!-- Floating cards decoration -->
+        <div class="hero-visual">
+            <div class="float-card card-paper">
+                <div class="float-card-icon">📄</div>
+                <div class="float-card-title">Attention Is All You Need</div>
+                <div class="float-card-sub">Vaswani et al., 2017</div>
+                <div class="float-card-bar"><div class="bar-fill" style="width:100%"></div></div>
+            </div>
+            <div class="float-card card-arrow">
+                <div class="arrow-icon">🔮</div>
+                <div class="arrow-text">AI 改写中...</div>
+            </div>
+            <div class="float-card card-novel">
+                <div class="float-card-icon">📚</div>
+                <div class="float-card-title">《注意力法则》</div>
+                <div class="float-card-sub">科幻 · 12 章 · 3.2万字</div>
+                <div class="float-card-bar"><div class="bar-fill bar-fill-novel" style="width:65%"></div></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══════ HOW IT WORKS ═══════ -->
+    <section id="how" class="section">
+        <div class="section-badge">🎯 工作原理</div>
+        <h2>三步将论文变成小说</h2>
+        <p class="section-sub">无需后端服务器，一切在浏览器中完成</p>
+        <div class="steps-grid">
+            <div class="clay-card step-card">
+                <div class="step-num">01</div>
+                <div class="step-icon">🔗</div>
+                <h3>粘贴链接</h3>
+                <p>输入任意 arXiv 论文链接，浏览器直接从 ar5iv 提取全文内容、标题、作者等元数据。</p>
+            </div>
+            <div class="clay-card step-card">
+                <div class="step-num">02</div>
+                <div class="step-icon">✂️</div>
+                <h3>智能分块</h3>
+                <p>论文按段落边界智能切分为适合 LLM 处理的 chunk，确保每块语义完整。</p>
+            </div>
+            <div class="clay-card step-card">
+                <div class="step-num">03</div>
+                <div class="step-icon">✍️</div>
+                <h3>流式创作</h3>
+                <p>浏览器直连 OpenAI API，逐章改写，实时流式输出。开篇建世界观，终章升华主题。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════ GENRES ═══════ -->
+    <section id="genres" class="section section-alt">
+        <div class="section-badge">📚 小说风格</div>
+        <h2>选择你喜欢的文学风格</h2>
+        <p class="section-sub">从科幻到武侠，总有一款适合你的论文</p>
+        <div class="genres-grid" id="genresGrid">
+            <!-- Filled by JS -->
+        </div>
+    </section>
+
+    <!-- ═══════ TESTIMONIALS ═══════ -->
+    <section class="section">
+        <div class="section-badge">💬 用户评价</div>
+        <h2>他们这样说</h2>
+        <div class="testimonials-grid">
+            <div class="clay-card testimonial-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"我把 Transformer 的论文转成了武侠小说，注意力机制变成了'心法口诀'，太绝了！"</p>
+                <div class="testimonial-author">
+                    <div class="avatar avatar-1">Z</div>
+                    <div><strong>张同学</strong><br><small>NLP 研究生</small></div>
+                </div>
+            </div>
+            <div class="clay-card testimonial-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"用恐怖风格改写了一篇关于黑洞的论文，霍金辐射的描写让我起了一身鸡皮疙瘩。"</p>
+                <div class="testimonial-author">
+                    <div class="avatar avatar-2">L</div>
+                    <div><strong>李博士</strong><br><small>天体物理博后</small></div>
+                </div>
+            </div>
+            <div class="clay-card testimonial-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"终于能在地铁上'看小说'来复习论文了，效率提升的同时还很享受阅读过程。"</p>
+                <div class="testimonial-author">
+                    <div class="avatar avatar-3">W</div>
+                    <div><strong>王同学</strong><br><small>CV 方向本科生</small></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════ DEMO ═══════ -->
+    <section id="demo" class="section section-alt">
+        <div class="section-badge">📖 完整示例</div>
+        <h2>《注意力法则》—— 当 Transformer 成为科幻小说</h2>
+        <p class="section-sub">基于论文 <em>Attention Is All You Need</em> (Vaswani et al., 2017) 的科幻改写，点击章节阅读</p>
+
+        <div class="demo-wrapper">
+            <!-- Demo Book Cover -->
+            <div class="demo-cover clay-card">
+                <div class="demo-cover-inner">
+                    <div class="demo-book-emoji">📚</div>
+                    <h3 class="demo-book-title">注意力法则</h3>
+                    <p class="demo-book-subtitle">The Law of Attention</p>
+                    <div class="demo-book-divider"></div>
+                    <p class="demo-book-meta">🚀 科幻 · 6 章 · 约 8000 字</p>
+                    <p class="demo-book-author">原作：Vaswani, Shazeer, Parmar et al.</p>
+                    <p class="demo-book-author">AI 改写 · PaperNovel</p>
+                </div>
+                <div class="demo-toc">
+                    <h4>目录</h4>
+                    <div class="demo-toc-list" id="demoTocList">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Reader -->
+            <div class="demo-reader clay-card" id="demoReader">
+                <div class="demo-reader-nav">
+                    <button class="btn btn-outline btn-sm" id="demoPrev" disabled>← 上一章</button>
+                    <span class="demo-chapter-indicator" id="demoChapterIndicator">第 1 / 6 章</span>
+                    <button class="btn btn-outline btn-sm" id="demoNext">下一章 →</button>
+                </div>
+                <div class="demo-reader-content" id="demoReaderContent">
+                    <!-- filled by JS -->
+                </div>
+                <div class="demo-reader-nav demo-reader-nav-bottom">
+                    <button class="btn btn-outline btn-sm" id="demoPrevBottom" disabled>← 上一章</button>
+                    <button class="btn btn-primary btn-sm" id="demoNextBottom">继续阅读 →</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════ CONVERTER ═══════ -->
+    <section id="convert" class="section">
+        <div class="section-badge">🚀 开始创作</div>
+        <h2>将论文变成你的专属小说</h2>
+        <p class="section-sub">粘贴 arXiv 链接，选择风格，点击开始</p>
+
+        <div class="converter-wrapper">
+            <div class="clay-card converter-card">
+                <!-- Input Area -->
+                <div class="converter-input">
+                    <label for="arxivUrl">arXiv 论文链接</label>
+                    <div class="input-row">
+                        <span class="input-icon">🔗</span>
+                        <input type="text" id="arxivUrl" placeholder="https://arxiv.org/abs/1706.03762" />
+                    </div>
+
+                    <label>小说风格</label>
+                    <div class="genre-picker" id="genrePicker">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <div class="options-row">
+                        <div class="option-group">
+                            <label for="chunkSize">Chunk 大小 (字符数)</label>
+                            <input type="number" id="chunkSize" value="6000" min="1000" max="20000" step="1000" />
+                        </div>
+                        <div class="option-group">
+                            <label for="language">输出语言</label>
+                            <select id="language">
+                                <option value="中文" selected>中文</option>
+                                <option value="English">English</option>
+                                <option value="日本語">日本語</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg btn-full" id="btnConvert">
+                        <span class="btn-text">✨ 开始转换</span>
+                        <span class="btn-loading" style="display:none">
+                            <span class="spinner"></span> 创作中...
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Progress -->
+                <div class="converter-progress" id="progressArea" style="display:none">
+                    <div class="progress-header">
+                        <h3 id="paperTitle">—</h3>
+                        <p id="paperAuthors">—</p>
+                    </div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+                        </div>
+                        <span class="progress-text" id="progressText">0%</span>
+                    </div>
+                    <div class="chunk-indicators" id="chunkIndicators"></div>
+                </div>
+            </div>
+
+            <!-- Novel Output -->
+            <div class="clay-card novel-output" id="novelOutput" style="display:none">
+                <div class="novel-header">
+                    <h2 id="novelTitle">—</h2>
+                    <div class="novel-meta">
+                        <span id="novelGenre">—</span>
+                        <span id="novelChapters">—</span>
+                    </div>
+                    <button class="btn btn-outline btn-sm" id="btnCopy">📋 复制全文</button>
+                </div>
+                <div class="novel-content" id="novelContent">
+                    <!-- Chapters rendered here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════ CTA ═══════ -->
+    <section class="cta-section">
+        <h2>准备好让论文活起来了吗？</h2>
+        <p>输入一个 arXiv 链接，几分钟后你就有了一部小说。纯前端运行，完全开源。</p>
+        <div class="cta-actions">
+            <a href="#convert" class="btn btn-primary btn-lg">立即开始 <span class="btn-arrow">→</span></a>
+        </div>
+        <div class="cta-notes">
+            <span>🔒 数据不离开浏览器</span>
+            <span>⚡ 实时流式输出</span>
+            <span>🆓 完全开源</span>
+        </div>
+    </section>
+
+    <!-- ═══════ FOOTER ═══════ -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="logo-icon">📖</span>
+                <span class="logo-text">PaperNovel</span>
+                <p>让每一篇论文都值得睡前阅读。</p>
+            </div>
+            <div class="footer-links">
+                <div>
+                    <h4>产品</h4>
+                    <a href="#how">工作原理</a>
+                    <a href="#genres">小说风格</a>
+                    <a href="#convert">在线转换</a>
+                </div>
+                <div>
+                    <h4>资源</h4>
+                    <a href="https://github.com/ChenZiHong-Gavin/weekly-vibe-coding" target="_blank">GitHub</a>
+                    <a href="#how">使用说明</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 PaperNovel · Made with ❤️ and AI · 纯前端，无需后端</p>
+        </div>
+    </footer>
+
+    <script src="demo-novel.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
