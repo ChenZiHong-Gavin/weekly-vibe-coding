@@ -662,8 +662,6 @@ function renderChapterContent(index, fullText) {
   if (!chapterEl) return;
   const body = chapterEl.querySelector(".chapter-body");
   body.innerHTML = renderNovelText(fullText);
-  // Auto-scroll
-  chapterEl.scrollIntoView({ behavior: "smooth", block: "end" });
 }
 
 function renderNovelText(text) {
