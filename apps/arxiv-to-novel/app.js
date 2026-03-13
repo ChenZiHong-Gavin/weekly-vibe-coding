@@ -1,5 +1,5 @@
 /**
- * PaperNovel – Pure Frontend
+ * Paper2Novel – Pure Frontend
  * No backend needed. All logic runs in the browser:
  *   1. Fetch paper from ar5iv (HTML) or arXiv API (metadata)
  *   2. Chunk text by character/paragraph boundaries
@@ -635,17 +635,41 @@ function renderNovelText(text) {
       .replace(/\n/g, "<br>");
       
     const noteHtml = note ? `<div class="novel-note">${note}</div>` : "";
-    const blockClass = note ? "novel-block" : "novel-block no-note";
+    
+    // Add toggle button if note exists
+    const toggleBtn = note ? `<button class="note-toggle" aria-label="查看注释">💡</button>` : "";
     
     html += `
-      <div class="${blockClass}">
-        <div class="novel-text">${content}</div>
+      <div class="novel-block">
+        <div class="novel-text">${content}${toggleBtn}</div>
         ${noteHtml}
       </div>`;
   }
   
   return html;
 }
+
+// ── Event Delegation for Notes ─────────────────────────
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".note-toggle");
+  if (!btn) return;
+  
+  // Prevent default button behavior
+  e.preventDefault();
+  e.stopPropagation();
+  
+  // Toggle active state on button
+  btn.classList.toggle("active");
+  
+  // Find the note (it should be in the parent .novel-block, next to .novel-text)
+  const block = btn.closest(".novel-block");
+  if (block) {
+    const note = block.querySelector(".novel-note");
+    if (note) {
+      note.classList.toggle("visible");
+    }
+  }
+});
 
 function copyNovel() {
   const content = document.getElementById("novelContent");
@@ -714,7 +738,7 @@ function renderDemoChapter(index) {
 
     // Check for special formatting
     if (text.startsWith("<strong")) {
-      html += `<div class="novel-block no-note"><div class="novel-text" style="text-indent:0">${text}</div></div>`;
+      html += `<div class="novel-block"><div class="novel-text" style="text-indent:0">${text}</div></div>`;
     } else if (text.startsWith("——")) {
       html += `<div class="demo-separator">${text}</div>`;
     } else {
@@ -724,11 +748,11 @@ function renderDemoChapter(index) {
         .replace(/\*(.+?)\*/g, "<em>$1</em>");
       
       const noteHtml = note ? `<div class="novel-note">${note}</div>` : "";
-      const blockClass = note ? "novel-block" : "novel-block no-note";
+      const toggleBtn = note ? `<button class="note-toggle" aria-label="查看注释">💡</button>` : "";
       
       html += `
-        <div class="${blockClass}">
-          <div class="novel-text">${processed}</div>
+        <div class="novel-block">
+          <div class="novel-text">${processed}${toggleBtn}</div>
           ${noteHtml}
         </div>`;
     }
