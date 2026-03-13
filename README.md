@@ -75,10 +75,6 @@
   
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
 
-
-6. **[Paper2Novel](https://chenzihong-gavin.github.io/weekly-vibe-coding/arxiv-to-novel/)** (`apps/arxiv-to-novel`)
-    - 将任意 arXiv 学术论文转化为引人入胜的小说，支持 10 种文学风格。
-
 ### 专题二：手势交互
 
 7. **[FaceOpera](https://chenzihong-gavin.github.io/weekly-vibe-coding/peking-opera/)** (`apps/peking-opera`)
@@ -111,6 +107,10 @@
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/cb379715-1f45-445a-8309-224b700ccab0" />
 
 
+### 专题七：学习必备
+
+11. **[Paper2Novel](https://chenzihong-gavin.github.io/weekly-vibe-coding/arxiv-to-novel/)** (`apps/arxiv-to-novel`)
+    - 将任意 arXiv 学术论文转化为引人入胜的小说，支持 10 种文学风格。
 
 
 ## 如何运行

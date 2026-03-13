@@ -55,15 +55,6 @@ const categories = [
         colorClass: "icon-orange",
         prompt: "",
       },
-      {
-        title: "Paper2Novel",
-        description: "将任意 arXiv 学术论文转化为引人入胜的小说，支持 10 种文学风格。",
-        icon: "📖",
-        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/arxiv-to-novel/",
-        status: "live" as const,
-        colorClass: "icon-teal",
-        prompt: "",
-      },
     ],
   },
   {
@@ -128,6 +119,20 @@ const categories = [
         status: "live" as const,
         colorClass: "icon-pink",
         prompt: piMatchmakerPromptRaw,
+      },
+    ],
+  },
+  {
+    title: "专题七：学习必备",
+    apps: [
+      {
+        title: "Paper2Novel",
+        description: "将任意 arXiv 学术论文转化为引人入胜的小说，支持 10 种文学风格。",
+        icon: "📖",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/arxiv-to-novel/",
+        status: "live" as const,
+        colorClass: "icon-teal",
+        prompt: "",
       },
     ],
   },
