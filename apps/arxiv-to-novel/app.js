@@ -125,44 +125,90 @@ const CORS_PROXIES = [
   (url) => url, // direct (works when deployed on HTTPS)
   (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
 ];
 
 async function fetchWithCorsProxy(url) {
-  let lastError;
-  for (const proxy of CORS_PROXIES) {
+  // If running from file:// (origin 'null'), direct fetch will always fail CORS.
+  const isLocalFile = window.location.protocol === 'file:' || window.location.origin === 'null';
+  
+  // Filter out direct proxy if we're on local file system
+  const availableProxies = CORS_PROXIES.filter((_, i) => !(isLocalFile && i === 0));
+
+  // Create an array of fetch promises
+  const promises = availableProxies.map(async (proxy) => {
+    const proxiedUrl = proxy(url);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout per request
+    
     try {
-      const proxiedUrl = proxy(url);
-      const resp = await fetch(proxiedUrl);
+      const resp = await fetch(proxiedUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       return resp;
     } catch (e) {
-      lastError = e;
-      console.warn(`Fetch failed for ${url} via proxy:`, e.message);
+      clearTimeout(timeoutId);
+      throw e;
     }
+  });
+
+  try {
+    // Promise.any resolves as soon as ANY of the promises resolves successfully
+    // It will reject ONLY if ALL promises reject
+    return await Promise.any(promises);
+  } catch (aggregateError) {
+    console.error(`All proxies failed for ${url}:`, aggregateError.errors);
+    throw new Error(`所有网络代理请求均失败，请检查网络连接或稍后再试。`);
   }
-  throw lastError;
 }
 
-async function fetchPaperFromAr5iv(arxivId) {
-  const htmlUrl = `https://ar5iv.labs.arxiv.org/html/${arxivId}`;
-  const resp = await fetchWithCorsProxy(htmlUrl);
-  if (!resp.ok) throw new Error(`ar5iv 请求失败: ${resp.status}`);
-  const html = await resp.text();
+async function fetchPaperHtml(arxivId) {
+  // arXiv recently started offering official HTML for new papers!
+  // We try official arXiv first, then fallback to ar5iv.
+  const endpoints = [
+    `https://arxiv.org/html/${arxivId}`,
+    `https://ar5iv.labs.arxiv.org/html/${arxivId}`
+  ];
+
+  let html = null;
+  let lastError = null;
+
+  for (const url of endpoints) {
+    try {
+      const resp = await fetchWithCorsProxy(url);
+      const text = await resp.text();
+      // Verify it's actually an HTML paper (both arXiv and ar5iv use LaTeXML classes)
+      // Some proxies might return a "Processing" page or error page that isn't the paper.
+      if (text.includes("ltx_document") || text.includes("ltx_title") || text.includes("ltx_para")) {
+        html = text;
+        break;
+      } else {
+        console.warn(`URL returned content but missing LaTeXML markers: ${url}`);
+      }
+    } catch (e) {
+      lastError = e;
+      console.warn(`Failed fetching HTML from ${url}:`, e.message);
+    }
+  }
+
+  if (!html) {
+    throw new Error(`无法获取论文的 HTML 版本。可能该论文不支持 HTML 格式，或网络代理均失效。`);
+  }
 
   // Parse using DOMParser (browser native!)
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
   // Extract title
-  const titleEl = doc.querySelector("h1.ltx_title");
+  const titleEl = doc.querySelector("h1.ltx_title, .title");
   const title = titleEl ? titleEl.textContent.trim() : "Unknown";
 
   // Extract authors
-  const authorEls = doc.querySelectorAll(".ltx_personname");
+  const authorEls = doc.querySelectorAll(".ltx_personname, .authors a");
   const authors = Array.from(authorEls).map(el => el.textContent.trim());
 
   // Extract abstract
-  const abstractEl = doc.querySelector(".ltx_abstract");
+  const abstractEl = doc.querySelector(".ltx_abstract, .abstract");
   let abstract = "";
   if (abstractEl) {
     abstract = abstractEl.textContent.replace(/^Abstract\s*/i, "").trim();
@@ -171,7 +217,7 @@ async function fetchPaperFromAr5iv(arxivId) {
   // Extract body text - all paragraphs and headings
   const allTextParts = [];
   const elements = doc.querySelectorAll(
-    "h2, h3, h4, h5, h6, .ltx_para, .ltx_p, p.ltx_p"
+    "h2, h3, h4, h5, h6, .ltx_para, .ltx_p, p.ltx_p, section p"
   );
   for (const el of elements) {
     const text = el.textContent.trim();
@@ -186,7 +232,7 @@ async function fetchPaperFromAr5iv(arxivId) {
 
   const fullText = allTextParts.join("\n\n");
   if (fullText.length < 500) {
-    throw new Error("从 ar5iv 提取的文本太短");
+    throw new Error("提取的 HTML 文本太短，可能解析失败");
   }
 
   return { title, authors, abstract, fullText };
@@ -218,21 +264,22 @@ async function fetchMetadataFromApi(arxivId) {
 async function fetchPaper(url) {
   const arxivId = parseArxivId(url);
 
-  // Try ar5iv HTML first
+  // Try HTML (arXiv official -> ar5iv)
   try {
-    const paper = await fetchPaperFromAr5iv(arxivId);
+    const paper = await fetchPaperHtml(arxivId);
     if (paper.fullText && paper.fullText.length > 500) {
       return paper;
     }
   } catch (e) {
-    console.warn("ar5iv fetch failed, trying metadata API:", e.message);
+    console.warn("HTML fetch failed, trying metadata API:", e.message);
   }
 
   // Fallback: at least get metadata. PDF parsing is not feasible in pure frontend
   // without heavy WASM libraries, so we'll inform the user.
   const meta = await fetchMetadataFromApi(arxivId);
   if (meta.abstract && meta.abstract.length > 100) {
-    // Use abstract as a last resort
+    // Alert user that we only got the abstract
+    alert("⚠️ 无法获取该论文的全文（HTML版本不存在或被拦截）。将使用论文的【摘要】部分进行生成测试。");
     return {
       title: meta.title,
       authors: meta.authors,
@@ -242,7 +289,7 @@ async function fetchPaper(url) {
   }
 
   throw new Error(
-    "无法提取论文全文。ar5iv 可能尚未收录此论文。请尝试较新的论文（通常 2019 年后的都有 HTML 版本）。"
+    "无法提取论文内容。该论文可能不支持 HTML 格式，请尝试 2024 年后的较新论文。"
   );
 }
 
