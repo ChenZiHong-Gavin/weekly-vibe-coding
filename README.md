@@ -111,6 +111,9 @@
 
 11. **[Paper2Novel](https://chenzihong-gavin.github.io/weekly-vibe-coding/arxiv-to-novel/)** (`apps/arxiv-to-novel`)
     - 将任意 arXiv 学术论文转化为引人入胜的小说，支持 10 种文学风格。
+   
+      <img width="400"  alt="image" src="https://github.com/user-attachments/assets/1d0f5935-3d33-4e2b-8bfd-413b64eb69df" />
+
 
 
 ## 如何运行
