@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Target, TrendingUp, Calendar, Zap } from "lucide-react";
 
 const ProgressSection = () => {
-  const progress = 7; // Current number of completed apps
+  const progress = 12; // Current number of completed apps
   const target = 100;
   const percentage = (progress / target) * 100;
 

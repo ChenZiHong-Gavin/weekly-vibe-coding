@@ -1,0 +1,162 @@
+// ============================
+// Chapter 1: 觉醒 — 基础移动
+// ============================
+
+import type { Level, Chapter } from '@/types';
+
+const levels: Level[] = [
+  {
+    id: 'ch1-1',
+    chapter: 1,
+    index: 1,
+    title: '第一步',
+    subtitle: 'First Step',
+    story: '你在一个终端里醒来。屏幕上是陌生的代码。试试按 j 向下移动光标。',
+    task: '将光标移动到第 5 行（包含 "target" 的行）',
+    initialCode: [
+      '// You wake up here...',
+      '',
+      'function start() {',
+      '  console.log("loading...");',
+      '  const target = "reach me";',
+      '  return target;',
+      '}',
+    ],
+    initialCursor: { line: 0, col: 0 },
+    goals: [
+      { type: 'cursor', position: { line: 4, col: 0 }, description: '到达第 5 行' },
+    ],
+    newCommands: [
+      { keys: 'j', name: '向下', description: '光标下移一行' },
+      { keys: 'k', name: '向上', description: '光标上移一行' },
+    ],
+    hints: ['按 j 向下移动光标', '按 k 可以向上移动'],
+    starThresholds: [8, 5, 4],
+  },
+  {
+    id: 'ch1-2',
+    chapter: 1,
+    index: 2,
+    title: '横向穿越',
+    subtitle: 'Horizontal Traverse',
+    story: '你学会了上下移动。现在试试左右——按 l 向右，h 向左。',
+    task: '将光标移动到 "world" 的 w 字符上',
+    initialCode: [
+      'const greeting = "hello world";',
+    ],
+    initialCursor: { line: 0, col: 0 },
+    goals: [
+      { type: 'cursor', position: { line: 0, col: 24 }, description: '光标到达 "world" 的 w' },
+    ],
+    newCommands: [
+      { keys: 'h', name: '向左', description: '光标左移一列' },
+      { keys: 'l', name: '向右', description: '光标右移一列' },
+    ],
+    hints: ['按 l 向右移动光标，一次一格', 'h 向左，但这关你只需要向右'],
+    starThresholds: [30, 26, 24],
+  },
+  {
+    id: 'ch1-3',
+    chapter: 1,
+    index: 3,
+    title: 'L 形路线',
+    subtitle: 'L-Shape Route',
+    story: '目标在右下方。你需要同时运用上下左右四个方向。',
+    task: '将光标移动到 "exit" 的 e 字符上',
+    initialCode: [
+      'function navigate() {',
+      '  const path = "safe";',
+      '  const wall = "danger";',
+      '  const exit = "freedom";',
+      '  return exit;',
+      '}',
+    ],
+    initialCursor: { line: 0, col: 0 },
+    goals: [
+      { type: 'cursor', position: { line: 3, col: 8 }, description: '到达 "exit"' },
+    ],
+    newCommands: [],
+    hints: ['先按 j 到第 4 行，再按 l 到 "exit"', '用 hjkl 组合移动，找最短路径'],
+    starThresholds: [15, 12, 11],
+  },
+  {
+    id: 'ch1-4',
+    chapter: 1,
+    index: 4,
+    title: '多目标收集',
+    subtitle: 'Multi-Target Collection',
+    story: '代码中有多个关键位置需要你依次到达。按顺序访问所有目标！',
+    task: '先到达第 2 行的 "a"，然后到达第 5 行的 "b"',
+    initialCode: [
+      '// Checkpoint run',
+      'const a = "first";',
+      'const x = "skip";',
+      'const y = "skip";',
+      'const b = "second";',
+      '// Done!',
+    ],
+    initialCursor: { line: 0, col: 0 },
+    goals: [
+      { type: 'cursor', position: { line: 4, col: 6 }, description: '到达变量 b' },
+    ],
+    newCommands: [],
+    hints: ['用 j 快速向下', '不需要每行都停留'],
+    starThresholds: [12, 8, 6],
+  },
+  {
+    id: 'ch1-5',
+    chapter: 1,
+    index: 5,
+    title: '蛇形走位',
+    subtitle: 'Snake Walk',
+    story: '真正的 Vim 用户从不用方向键。用 hjkl 导航穿过这段代码吧。',
+    task: '到达最后一行的 "end" 位置',
+    initialCode: [
+      'start ->',
+      '  -> turn right',
+      '  go down',
+      '    -> turn right again',
+      '    go down',
+      '      -> the end',
+    ],
+    initialCursor: { line: 0, col: 0 },
+    goals: [
+      { type: 'cursor', position: { line: 5, col: 9 }, description: '到达 "end"' },
+    ],
+    newCommands: [],
+    hints: ['下 → 右 → 下 → 右 → 下 → 右', '试着找到步数最少的路线'],
+    starThresholds: [20, 16, 14],
+  },
+  {
+    id: 'ch1-6',
+    chapter: 1,
+    index: 6,
+    title: '极速初体验',
+    subtitle: 'Speed Trial',
+    story: '你已经掌握了 hjkl。来测试一下你的速度吧——在 20 秒内到达所有目标！',
+    task: '到达第 4 行第 10 列的位置',
+    initialCode: [
+      'if (ready) {',
+      '  prepare();',
+      '  load();',
+      '  execute(target);',
+      '  cleanup();',
+      '}',
+    ],
+    initialCursor: { line: 0, col: 0 },
+    goals: [
+      { type: 'cursor', position: { line: 3, col: 10 }, description: '到达 "target"' },
+    ],
+    newCommands: [],
+    hints: ['j j j 到第 4 行', '然后 l 到第 10 列'],
+    starThresholds: [18, 14, 13],
+  },
+];
+
+export const chapter1: Chapter = {
+  id: 1,
+  title: '觉醒',
+  subtitle: 'Awakening',
+  description: '学会用 h j k l 控制光标——这是 Vim 的第一步。',
+  levels,
+};

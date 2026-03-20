@@ -5,6 +5,7 @@ import AppCard from "./AppCard";
 import diceVersePromptRaw from "@prompts/dice-verse.md?raw";
 import piMatchmakerPromptRaw from "@prompts/pi-matchmaker.md?raw";
 import airDrumMasterPromptRaw from "@prompts/air-drum-master.md?raw";
+import vimChaserPromptRaw from "@prompts/vim-chaser.md?raw";
 
 const categories = [
   {
@@ -133,6 +134,15 @@ const categories = [
         status: "live" as const,
         colorClass: "icon-teal",
         prompt: "",
+      },
+      {
+        title: "Vim Chaser",
+        description: "在「追逐、解谜」中学会 Vim 的网页游戏。三种模式：冒险（10章63关）、极速（60秒追逐）、Code Golf（最少按键挑战），覆盖 120+ 命令。",
+        icon: "⌨️",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/vim-chaser/",
+        status: "live" as const,
+        colorClass: "icon-green",
+        prompt: vimChaserPromptRaw,
       },
     ],
   },

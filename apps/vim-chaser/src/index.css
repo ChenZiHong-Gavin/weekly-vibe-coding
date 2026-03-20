@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    background: #0a0e17;
+    color: #e2e8f0;
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  #root {
+    height: 100vh;
+  }
+
+  *:focus {
+    outline: none;
+  }
+
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #334155; }
+}
+
+/* ---- CRT 扫描线效果 ---- */
+.crt-overlay {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  mix-blend-mode: multiply;
+}
+
+/* ---- Glow 文字 ---- */
+.glow-text {
+  text-shadow:
+    0 0 10px rgba(0, 255, 159, 0.5),
+    0 0 20px rgba(0, 255, 159, 0.3),
+    0 0 40px rgba(0, 255, 159, 0.15);
+}
+
+.glow-text-amber {
+  text-shadow:
+    0 0 10px rgba(255, 190, 11, 0.5),
+    0 0 20px rgba(255, 190, 11, 0.3);
+}
+
+/* ---- 粒子容器 ---- */
+.particles-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: particle-float linear infinite;
+  opacity: 0;
+}
+
+@keyframes particle-float {
+  0% { transform: translateY(100vh) scale(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.3; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+/* ---- ON FIRE 效果 ---- */
+.on-fire-border {
+  box-shadow:
+    inset 0 0 30px rgba(255, 0, 110, 0.15),
+    0 0 50px rgba(255, 0, 110, 0.1);
+  border-color: rgba(255, 0, 110, 0.5) !important;
+}
+
+/* ---- 命中闪烁 ---- */
+@keyframes hit-flash {
+  0% { background: rgba(0, 255, 159, 0.3); }
+  100% { background: transparent; }
+}
+
+.hit-flash {
+  animation: hit-flash 0.3s ease-out;
+}
+
+/* ---- 星星弹出 ---- */
+@keyframes star-bounce {
+  0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+  50% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.star-bounce {
+  animation: star-bounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ---- 连击计数器 ---- */
+@keyframes combo-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.combo-pop {
+  animation: combo-pop 0.2s ease-out;
+}
+
+/* ---- 选项按钮悬浮 ---- */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+.hover-float:hover {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* ---- 录制指示器 ---- */
+@keyframes recording-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.recording-dot {
+  animation: recording-pulse 1s ease-in-out infinite;
+}

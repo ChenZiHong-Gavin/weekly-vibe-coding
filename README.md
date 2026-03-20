@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-10%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-12%2F100-blue)
 
 用提示词实现一百个idea。
 
@@ -17,6 +17,8 @@
     - [专题三：语音交互](#专题三语音交互)
     - [专题四：地理信息交互](#专题四地理信息交互)
     - [专题五：有审美的网站设计](#专题五有审美的网站设计)
+    - [专题六：数学小工具](#专题六数学小工具)
+    - [专题七：学习必备](#专题七学习必备)
   - [如何运行](#如何运行)
   - [贡献](#贡献)
   - [License](#license)
@@ -114,6 +116,9 @@
    
       <img width="400"  alt="image" src="https://github.com/user-attachments/assets/1d0f5935-3d33-4e2b-8bfd-413b64eb69df" />
 
+12. **[Vim Chaser](https://chenzihong-gavin.github.io/weekly-vibe-coding/vim-chaser/)** (`apps/vim-chaser`)
+    - 一个在「追逐、战斗、解谜」中不知不觉学会 Vim 的网页游戏。三种模式：🎯 冒险模式（10章63关故事驱动教学）、⚡ 极速模式（60秒计时追逐）、🏌️ Code Golf（最少按键挑战），覆盖 120+ Vim 命令。
+    - 技术栈：React + Vite + TypeScript + Tailwind CSS + Web Audio API
 
 
 ## 如何运行
