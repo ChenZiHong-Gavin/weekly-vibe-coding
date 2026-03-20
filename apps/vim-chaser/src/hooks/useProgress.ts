@@ -84,7 +84,7 @@ export function useProgress() {
   }, []);
 
   const getTitle = useCallback(() => {
-    let current = TITLES[0];
+    let current: (typeof TITLES)[number] = TITLES[0];
     for (const t of TITLES) {
       if (progress.xp >= t.xp) current = t;
     }

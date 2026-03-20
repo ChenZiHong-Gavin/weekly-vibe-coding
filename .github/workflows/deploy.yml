@@ -128,9 +128,19 @@ jobs:
         cd apps/prompt-playground
         npm run build
 
+    - name: Install vim-chaser dependencies
+      run: |
+        cd apps/vim-chaser
+        npm install
+
+    - name: Build vim-chaser
+      run: |
+        cd apps/vim-chaser
+        npm run build
+
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
@@ -141,6 +151,7 @@ jobs:
         cp -r apps/pi-matchmaker/dist/* dist/pi-matchmaker/
         cp -r apps/prompt-playground/dist/* dist/prompt-playground/
         cp -r apps/prompt-playground/dist/* dist/
+        cp -r apps/vim-chaser/dist/* dist/vim-chaser/
         cp apps/arxiv-to-novel/index.html apps/arxiv-to-novel/style.css apps/arxiv-to-novel/app.js apps/arxiv-to-novel/demo-novel.js dist/arxiv-to-novel/
  
     - name: Setup Pages
