@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Target, TrendingUp, Calendar, Zap } from "lucide-react";
 
 const ProgressSection = () => {
-  const progress = 12; // Current number of completed apps
+  const progress = 14; // Current number of completed apps
   const target = 100;
   const percentage = (progress / target) * 100;
 
@@ -58,9 +58,9 @@ const ProgressSection = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { icon: <Target className="w-5 h-5 icon-orange" />, value: "100", label: "目标" },
-            { icon: <TrendingUp className="w-5 h-5 icon-teal" />, value: "7", label: "已完成" },
+            { icon: <TrendingUp className="w-5 h-5 icon-teal" />, value: "14", label: "已完成" },
             { icon: <Calendar className="w-5 h-5 icon-pink" />, value: "每周", label: "更新频率" },
-            { icon: <Zap className="w-5 h-5 icon-purple" />, value: "5", label: "专题系列" },
+            { icon: <Zap className="w-5 h-5 icon-purple" />, value: "8", label: "专题系列" },
           ].map((stat, index) => (
             <motion.div
               key={index}

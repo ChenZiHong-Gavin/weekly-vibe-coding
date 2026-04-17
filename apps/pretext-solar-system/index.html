@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pretext Solar System</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html, body {
+      background: radial-gradient(ellipse at 50% 40%, #0f0f14 0%, #0a0a0c 100%);
+      color: #e8e4dc;
+      height: 100vh;
+      overflow: hidden;
+    }
+    body {
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    }
+
+    /* Stars behind everything */
+    #stars-canvas {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    }
+
+    #stage { position: relative; width: 100vw; height: 100vh; overflow: hidden; z-index: 1; }
+
+    .line {
+      position: absolute;
+      white-space: pre;
+      z-index: 1;
+      color: #e8e4dc;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .headline-line {
+      position: absolute;
+      white-space: pre;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+      z-index: 2;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .drop-cap {
+      position: absolute;
+      pointer-events: none;
+      z-index: 2;
+      font-weight: 700;
+      color: #c4a35a;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10;
+      will-change: transform;
+    }
+
+    .planet-label {
+      position: absolute;
+      pointer-events: none;
+      z-index: 11;
+      font: 600 9px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .orbit-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hint {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font: 400 12px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: rgba(255,255,255,0.20);
+      z-index: 100;
+      background: rgba(0,0,0,0.4);
+      padding: 7px 16px;
+      border-radius: 999px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .stats {
+      position: fixed;
+      bottom: 12px;
+      left: 16px;
+      z-index: 100;
+      font: 400 11px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: rgba(255,255,255,0.25);
+      display: flex;
+      gap: 16px;
+    }
+    .stats b { color: rgba(255,255,255,0.50); font-weight: 600; }
+
+    .speed-ctrl {
+      position: fixed;
+      bottom: 12px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font: 400 11px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: rgba(255,255,255,0.25);
+    }
+    .speed-ctrl input { width: 60px; accent-color: #c4a35a; }
+  </style>
+</head>
+<body>
+  <canvas id="stars-canvas"></canvas>
+  <div id="stage"></div>
+  <div class="hint">Planets orbit through the text · pretext computes every line · Zero DOM reads · Click to pause</div>
+  <div class="stats">
+    <span>layout()/frame: <b id="s-calls">0</b></span>
+    <span>frame: <b id="s-ms">0</b>ms</span>
+    <span>lines: <b id="s-lines">0</b></span>
+  </div>
+  <div class="speed-ctrl">
+    <span>Speed</span>
+    <input type="range" id="speed" min="0" max="200" value="30" />
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

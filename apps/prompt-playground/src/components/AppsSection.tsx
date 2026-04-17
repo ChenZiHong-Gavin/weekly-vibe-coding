@@ -3,9 +3,18 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import AppCard from "./AppCard";
 import diceVersePromptRaw from "@prompts/dice-verse.md?raw";
-import piMatchmakerPromptRaw from "@prompts/pi-matchmaker.md?raw";
+import spinArtPromptRaw from "@prompts/spin-art.md?raw";
+import snapPuzzlePromptRaw from "@prompts/snap-puzzle.md?raw";
+import danmakuMagicPromptRaw from "@prompts/danmaku-magic.md?raw";
+import hairlineTrackerPromptRaw from "@prompts/hairline-tracker.md?raw";
+import pekingOperaPromptRaw from "@prompts/peking-opera.md?raw";
 import airDrumMasterPromptRaw from "@prompts/air-drum-master.md?raw";
+import spellbookPromptRaw from "@prompts/spellbook.md?raw";
+import piMatchmakerPromptRaw from "@prompts/pi-matchmaker.md?raw";
+import arxivToNovelPromptRaw from "@prompts/arxiv-to-novel.md?raw";
 import vimChaserPromptRaw from "@prompts/vim-chaser.md?raw";
+import pretextSolarSystemPromptRaw from "@prompts/pretext-solar-system.md?raw";
+import louisXviSortPromptRaw from "@prompts/louis-xvi-sort.md?raw";
 
 const categories = [
   {
@@ -27,7 +36,7 @@ const categories = [
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/spin-art/",
         status: "live" as const,
         colorClass: "icon-teal",
-        prompt: "",
+        prompt: spinArtPromptRaw,
       },
       {
         title: "Snap Puzzle",
@@ -36,7 +45,7 @@ const categories = [
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/snap-puzzle/",
         status: "live" as const,
         colorClass: "icon-pink",
-        prompt: "",
+        prompt: snapPuzzlePromptRaw,
       },
       {
         title: "Danmaku Magic",
@@ -45,7 +54,7 @@ const categories = [
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/danmaku-magic/",
         status: "live" as const,
         colorClass: "icon-purple",
-        prompt: "",
+        prompt: danmakuMagicPromptRaw,
       },
       {
         title: "Hairline Tracker",
@@ -54,7 +63,7 @@ const categories = [
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/hairline-tracker/",
         status: "live" as const,
         colorClass: "icon-orange",
-        prompt: "",
+        prompt: hairlineTrackerPromptRaw,
       },
     ],
   },
@@ -68,7 +77,7 @@ const categories = [
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/peking-opera/",
         status: "live" as const,
         colorClass: "icon-teal",
-        prompt: "",
+        prompt: pekingOperaPromptRaw,
       },
       {
         title: "Air Drum Master",
@@ -77,7 +86,7 @@ const categories = [
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/air-drum-master/",
         status: "live" as const,
         colorClass: "icon-orange",
-        prompt: "",
+        prompt: airDrumMasterPromptRaw,
       },
     ],
   },
@@ -91,7 +100,7 @@ const categories = [
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/spellbook/",
         status: "live" as const,
         colorClass: "icon-purple",
-        prompt: "",
+        prompt: spellbookPromptRaw,
       },
     ],
   },
@@ -106,6 +115,20 @@ const categories = [
         status: "coming" as const,
         colorClass: "icon-pink",
         prompt: "",
+      },
+    ],
+  },
+  {
+    title: "专题五：有审美的网站设计",
+    apps: [
+      {
+        title: "Pretext Solar System",
+        description: "基于 pretext 排版引擎的太阳系动态文字排版演示，行星运行时文字实时环绕避让。",
+        icon: "🪐",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/pretext-solar-system/",
+        status: "live" as const,
+        colorClass: "icon-teal",
+        prompt: pretextSolarSystemPromptRaw,
       },
     ],
   },
@@ -133,7 +156,7 @@ const categories = [
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/arxiv-to-novel/",
         status: "live" as const,
         colorClass: "icon-teal",
-        prompt: "",
+        prompt: arxivToNovelPromptRaw,
       },
       {
         title: "Vim Chaser",
@@ -143,6 +166,20 @@ const categories = [
         status: "live" as const,
         colorClass: "icon-green",
         prompt: vimChaserPromptRaw,
+      },
+    ],
+  },
+  {
+    title: "专题八：抽象排序算法",
+    apps: [
+      {
+        title: "Louis XVI Sort",
+        description: "路易十六排序可视化器 👑 — 以法国大革命为主题的排序算法演示，比右邻居大就「砍头」，配有断头台音效。",
+        icon: "⚔️",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/louis-xvi-sort/",
+        status: "live" as const,
+        colorClass: "icon-orange",
+        prompt: louisXviSortPromptRaw,
       },
     ],
   },

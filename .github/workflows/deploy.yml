@@ -138,9 +138,29 @@ jobs:
         cd apps/vim-chaser
         npm run build
 
+    - name: Install louis-xvi-sort dependencies
+      run: |
+        cd apps/louis-xvi-sort
+        npm install
+
+    - name: Build louis-xvi-sort
+      run: |
+        cd apps/louis-xvi-sort
+        npm run build
+
+    - name: Install pretext-solar-system dependencies
+      run: |
+        cd apps/pretext-solar-system
+        npm install
+
+    - name: Build pretext-solar-system
+      run: |
+        cd apps/pretext-solar-system
+        npm run build
+
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
@@ -153,6 +173,8 @@ jobs:
         cp -r apps/prompt-playground/dist/* dist/
         cp -r apps/vim-chaser/dist/* dist/vim-chaser/
         cp apps/arxiv-to-novel/index.html apps/arxiv-to-novel/style.css apps/arxiv-to-novel/app.js apps/arxiv-to-novel/demo-novel.js dist/arxiv-to-novel/
+        cp -r apps/louis-xvi-sort/dist/* dist/louis-xvi-sort/
+        cp -r apps/pretext-solar-system/dist/* dist/pretext-solar-system/
  
     - name: Setup Pages
       uses: actions/configure-pages@v4
