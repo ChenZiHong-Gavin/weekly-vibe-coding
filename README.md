@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-12%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-14%2F100-blue)
 
 用提示词实现一百个idea。
 
@@ -19,6 +19,7 @@
     - [专题五：有审美的网站设计](#专题五有审美的网站设计)
     - [专题六：数学小工具](#专题六数学小工具)
     - [专题七：学习必备](#专题七学习必备)
+    - [专题八：抽象排序算法](#专题八抽象排序算法)
   - [如何运行](#如何运行)
   - [贡献](#贡献)
   - [License](#license)
@@ -101,6 +102,10 @@
 
 ### 专题五：有审美的网站设计
 
+13. **[Pretext Solar System](https://chenzihong-gavin.github.io/weekly-vibe-coding/pretext-solar-system/)** (`apps/pretext-solar-system`)
+    - 基于 `@chenglou/pretext` 排版引擎的太阳系动态文字排版演示。深邃星空中，八大行星沿椭圆轨道运行，报纸式双栏长文实时环绕行星流动排版，配合首字下沉、大标题等经典排版细节。
+    - 技术栈：TypeScript + Vite + @chenglou/pretext + Canvas
+
 ### 专题六：数学小工具
 
 10. **[Pi Matchmaker](https://chenzihong-gavin.github.io/weekly-vibe-coding/pi-matchmaker/)** (`apps/pi-matchmaker`)
@@ -119,6 +124,13 @@
 12. **[Vim Chaser](https://chenzihong-gavin.github.io/weekly-vibe-coding/vim-chaser/)** (`apps/vim-chaser`)
     - 一个在「追逐、战斗、解谜」中不知不觉学会 Vim 的网页游戏。三种模式：🎯 冒险模式（10章63关故事驱动教学）、⚡ 极速模式（60秒计时追逐）、🏌️ Code Golf（最少按键挑战），覆盖 120+ Vim 命令。
     - 技术栈：React + Vite + TypeScript + Tailwind CSS + Web Audio API
+
+
+### 专题八：抽象排序算法
+
+14. **[Louis XVI Sort](https://chenzihong-gavin.github.io/weekly-vibe-coding/louis-xvi-sort/)** (`apps/louis-xvi-sort`)
+    - 路易十六排序可视化器 👑 — 一个以法国大革命为主题的排序算法演示。从右到左扫描数组，凡是比右邻居大的元素一律"砍头"（值降为邻居值）。配有伪代码高亮、柱状图动画、断头台音效，支持速度调节与单步执行。
+    - 技术栈：React + Vite + TypeScript + Tailwind CSS + Framer Motion + Web Audio API
 
 
 ## 如何运行
