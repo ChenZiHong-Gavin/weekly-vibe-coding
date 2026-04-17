@@ -123,7 +123,8 @@
 
 12. **[Vim Chaser](https://chenzihong-gavin.github.io/weekly-vibe-coding/vim-chaser/)** (`apps/vim-chaser`)
     - 一个在「追逐、战斗、解谜」中不知不觉学会 Vim 的网页游戏。三种模式：🎯 冒险模式（10章63关故事驱动教学）、⚡ 极速模式（60秒计时追逐）、🏌️ Code Golf（最少按键挑战），覆盖 120+ Vim 命令。
-    - 技术栈：React + Vite + TypeScript + Tailwind CSS + Web Audio API
+   
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/15359009-981f-4c47-90d9-f99d721156f4" />
 
 
 ### 专题八：抽象排序算法
