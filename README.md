@@ -45,7 +45,7 @@
     - Weekly Vibe Coding 的项目展示主页，汇集了所有创意应用的展示平台。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/prompt-playground.md)
 
-       <img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/64878ac4-8ef9-4e1b-b5e6-db0ac40ba05e" />
+       <img width="400" alt="image" src="https://github.com/user-attachments/assets/64878ac4-8ef9-4e1b-b5e6-db0ac40ba05e" />
 
 
 ### 专题一：想做点什么就做点什么
@@ -53,13 +53,13 @@
     - 一个创意写作工具，让你在方格中用AI生成的骰子创作诗歌。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/dice-verse.md)
       
-      <img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/8ceb06db-4a6f-4b69-bd0d-3c7c17aff3b8" />
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/8ceb06db-4a6f-4b69-bd0d-3c7c17aff3b8" />
 
 
 2. **[Spin Art](https://chenzihong-gavin.github.io/weekly-vibe-coding/spin-art/)** (`apps/spin-art`)
     - 实时旋转绘画小工具，通过旋转画布轻松创作出绚丽的几何图案。
   
-      <img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/3839b21c-3459-44e2-b73e-9100a187eb98" />
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/3839b21c-3459-44e2-b73e-9100a187eb98" />
 
   
 3. **[Snap Puzzle](https://chenzihong-gavin.github.io/weekly-vibe-coding/snap-puzzle/)** (`apps/snap-puzzle`)
@@ -105,7 +105,9 @@
 
 13. **[Pretext Solar System](https://chenzihong-gavin.github.io/weekly-vibe-coding/pretext-solar-system/)** (`apps/pretext-solar-system`)
     - 基于 `@chenglou/pretext` 排版引擎的太阳系动态文字排版演示。深邃星空中，八大行星沿椭圆轨道运行，报纸式双栏长文实时环绕行星流动排版，配合首字下沉、大标题等经典排版细节。
-    - 技术栈：TypeScript + Vite + @chenglou/pretext + Canvas
+    
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/4f9c9b57-d4f4-46d3-9e45-1b0e44e92e17" />
+
 
 ### 专题六：数学小工具
 
@@ -132,7 +134,9 @@
 
 14. **[Louis XVI Sort](https://chenzihong-gavin.github.io/weekly-vibe-coding/louis-xvi-sort/)** (`apps/louis-xvi-sort`)
     - 路易十六排序可视化器 👑 — 一个以法国大革命为主题的排序算法演示。从右到左扫描数组，凡是比右邻居大的元素一律"砍头"（值降为邻居值）。配有伪代码高亮、柱状图动画、断头台音效，支持速度调节与单步执行。
-    - 技术栈：React + Vite + TypeScript + Tailwind CSS + Framer Motion + Web Audio API
+
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/abdd2573-30cb-4818-ae0d-13d8ac3b9662" />
+
 
 
 ### 专题九：假装是真的
@@ -140,6 +144,9 @@
 15. **[Real-to-AI](https://chenzihong-gavin.github.io/weekly-vibe-coding/real-to-ai/)** (`apps/real-to-ai`)
     - 把真实照片伪装成AI生成的截图。支持 ChatGPT 对话、Midjourney、Stable Diffusion WebUI、ComfyUI 四种模板，含手机/桌面双布局，导出高清PNG。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/real-to-ai.md)
+   
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/854ec939-9ca6-4e9e-aa8d-90269d7ec73d" />
+
 
 
 ## 如何运行
