@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-14%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-15%2F100-blue)
 
 用提示词实现一百个idea。
 
@@ -20,6 +20,7 @@
     - [专题六：数学小工具](#专题六数学小工具)
     - [专题七：学习必备](#专题七学习必备)
     - [专题八：抽象排序算法](#专题八抽象排序算法)
+    - [专题九：假装是真的](#专题九假装是真的)
   - [如何运行](#如何运行)
   - [贡献](#贡献)
   - [License](#license)
@@ -132,6 +133,13 @@
 14. **[Louis XVI Sort](https://chenzihong-gavin.github.io/weekly-vibe-coding/louis-xvi-sort/)** (`apps/louis-xvi-sort`)
     - 路易十六排序可视化器 👑 — 一个以法国大革命为主题的排序算法演示。从右到左扫描数组，凡是比右邻居大的元素一律"砍头"（值降为邻居值）。配有伪代码高亮、柱状图动画、断头台音效，支持速度调节与单步执行。
     - 技术栈：React + Vite + TypeScript + Tailwind CSS + Framer Motion + Web Audio API
+
+
+### 专题九：假装是真的
+
+15. **[Real-to-AI](https://chenzihong-gavin.github.io/weekly-vibe-coding/real-to-ai/)** (`apps/real-to-ai`)
+    - 把真实照片伪装成AI生成的截图。支持 ChatGPT 对话、Midjourney、Stable Diffusion WebUI、ComfyUI 四种模板，含手机/桌面双布局，导出高清PNG。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/real-to-ai.md)
 
 
 ## 如何运行

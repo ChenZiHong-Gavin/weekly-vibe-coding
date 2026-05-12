@@ -15,6 +15,7 @@ import arxivToNovelPromptRaw from "@prompts/arxiv-to-novel.md?raw";
 import vimChaserPromptRaw from "@prompts/vim-chaser.md?raw";
 import pretextSolarSystemPromptRaw from "@prompts/pretext-solar-system.md?raw";
 import louisXviSortPromptRaw from "@prompts/louis-xvi-sort.md?raw";
+import realToAiPromptRaw from "@prompts/real-to-ai.md?raw";
 
 const categories = [
   {
@@ -180,6 +181,20 @@ const categories = [
         status: "live" as const,
         colorClass: "icon-orange",
         prompt: louisXviSortPromptRaw,
+      },
+    ],
+  },
+  {
+    title: "专题九：假装是真的",
+    apps: [
+      {
+        title: "Real-to-AI",
+        description: "把真实照片伪装成AI生成的截图，支持ChatGPT、Midjourney、SD WebUI、ComfyUI四种模板。",
+        icon: "🎭",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/real-to-ai/",
+        status: "live" as const,
+        colorClass: "icon-purple",
+        prompt: realToAiPromptRaw,
       },
     ],
   },

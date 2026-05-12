@@ -158,9 +158,19 @@ jobs:
         cd apps/pretext-solar-system
         npm run build
 
+    - name: Install real-to-ai dependencies
+      run: |
+        cd apps/real-to-ai
+        npm install
+
+    - name: Build real-to-ai
+      run: |
+        cd apps/real-to-ai
+        npm run build
+
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
@@ -175,6 +185,7 @@ jobs:
         cp apps/arxiv-to-novel/index.html apps/arxiv-to-novel/style.css apps/arxiv-to-novel/app.js apps/arxiv-to-novel/demo-novel.js dist/arxiv-to-novel/
         cp -r apps/louis-xvi-sort/dist/* dist/louis-xvi-sort/
         cp -r apps/pretext-solar-system/dist/* dist/pretext-solar-system/
+        cp -r apps/real-to-ai/dist/* dist/real-to-ai/
  
     - name: Setup Pages
       uses: actions/configure-pages@v4
