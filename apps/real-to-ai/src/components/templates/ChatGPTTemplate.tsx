@@ -52,7 +52,7 @@ function MobileLayout({ state }: { state: AppState }) {
   const prompt = state.prompt || 'Generate a photorealistic image of this scene'
 
   return (
-    <div id="preview-output" className="w-full max-w-md mx-auto bg-[#212121] rounded-xl overflow-hidden flex flex-col" style={{ fontFamily: '"Söhne", ui-sans-serif, system-ui, -apple-system, sans-serif', height: '720px' }}>
+    <div id="preview-output" className="w-full max-w-md mx-auto bg-[#212121] rounded-xl overflow-hidden flex flex-col" style={{ fontFamily: '"Söhne", ui-sans-serif, system-ui, -apple-system, sans-serif', height: '820px' }}>
       {/* Mobile header */}
       <div className="flex items-center justify-between px-4 h-12 shrink-0">
         <div className="flex items-center gap-4">
@@ -106,21 +106,6 @@ function MobileLayout({ state }: { state: AppState }) {
                 className="w-full object-cover"
               />
             </div>
-
-            {/* Long text with "展开" button — mimics the screenshot */}
-            <div className="relative">
-              <div className="text-[15px] text-[#ececec] leading-[1.6] max-h-[200px] overflow-hidden" style={{ maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)' }}>
-                {prompt}
-              </div>
-              <div className="flex items-center justify-center gap-2 mt-1 pointer-events-none">
-                <span className="text-[14px] text-[#ececec]">展开</span>
-                <div className="w-7 h-7 rounded-full border border-[#555] flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-[#ececec]">
-                    <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -169,7 +154,7 @@ function DesktopLayout({ state }: { state: AppState }) {
   const activeIdx = 1
 
   return (
-    <div id="preview-output" className="w-full max-w-4xl mx-auto bg-[#212121] rounded-xl overflow-hidden text-[14px]" style={{ fontFamily: '"Söhne", ui-sans-serif, system-ui, -apple-system, sans-serif' }}>
+    <div id="preview-output" className="w-full max-w-5xl mx-auto bg-[#212121] rounded-xl overflow-hidden text-[14px]" style={{ fontFamily: '"Söhne", ui-sans-serif, system-ui, -apple-system, sans-serif' }}>
       {/* Browser chrome bar */}
       <div className="bg-[#1f1f1f] flex items-center gap-2 px-3 h-9 border-b border-[#333]">
         <div className="flex gap-1.5 shrink-0">
@@ -189,7 +174,7 @@ function DesktopLayout({ state }: { state: AppState }) {
         </div>
       </div>
 
-      <div className="flex" style={{ height: '580px' }}>
+      <div className="flex" style={{ height: '720px' }}>
         {/* Left sidebar */}
         <div className="w-[200px] bg-[#171717] flex flex-col shrink-0 border-r border-[#2a2a2a]">
           <div className="p-2 space-y-0.5">
