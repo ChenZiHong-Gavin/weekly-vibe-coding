@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-15%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-16%2F100-blue)
 
 用提示词实现一百个idea。
 
@@ -90,6 +90,9 @@
     - 隔空架子鼓，通过摄像头识别手势，让你在空气中敲击架子鼓。
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/105c1366-6049-4632-ace9-50ff90286ac7" />
+
+16. **[Marionette](https://chenzihong-gavin.github.io/weekly-vibe-coding/marionette/)** (`apps/marionette`)
+    - 手势操控提线木偶，通过 MediaPipe 实时追踪五根手指，用物理模拟的提线控制一个手绘风格的布偶。
 
 
 ### 专题三：语音交互

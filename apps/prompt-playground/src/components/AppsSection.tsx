@@ -16,6 +16,7 @@ import vimChaserPromptRaw from "@prompts/vim-chaser.md?raw";
 import pretextSolarSystemPromptRaw from "@prompts/pretext-solar-system.md?raw";
 import louisXviSortPromptRaw from "@prompts/louis-xvi-sort.md?raw";
 import realToAiPromptRaw from "@prompts/real-to-ai.md?raw";
+import marionettePromptRaw from "@prompts/marionette.md?raw";
 
 const categories = [
   {
@@ -88,6 +89,15 @@ const categories = [
         status: "live" as const,
         colorClass: "icon-orange",
         prompt: airDrumMasterPromptRaw,
+      },
+      {
+        title: "Marionette",
+        description: "手势操控提线木偶，五根手指通过物理模拟的提线控制手绘风格布偶。",
+        icon: "🪆",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/marionette/",
+        status: "live" as const,
+        colorClass: "icon-pink",
+        prompt: marionettePromptRaw,
       },
     ],
   },

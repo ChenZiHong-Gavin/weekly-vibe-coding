@@ -170,7 +170,7 @@ jobs:
 
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
@@ -186,6 +186,7 @@ jobs:
         cp -r apps/louis-xvi-sort/dist/* dist/louis-xvi-sort/
         cp -r apps/pretext-solar-system/dist/* dist/pretext-solar-system/
         cp -r apps/real-to-ai/dist/* dist/real-to-ai/
+        cp apps/marionette/index.html dist/marionette/
  
     - name: Setup Pages
       uses: actions/configure-pages@v4

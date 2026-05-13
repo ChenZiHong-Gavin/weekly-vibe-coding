@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提线木偶 | Rag Doll Marionette</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; background: #0a0a15; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        video { display: none; }
+        #overlay {
+            position: fixed; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: rgba(10,10,21,0.95);
+            color: #e8c088;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            z-index: 10;
+            transition: opacity 0.8s;
+        }
+        #overlay.hidden { opacity: 0; pointer-events: none; }
+        #overlay h1 { font-size: 2.5em; margin-bottom: 0.3em; }
+        #overlay p { color: rgba(255,255,255,0.5); font-size: 1em; }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid rgba(232,192,136,0.2);
+            border-top-color: #e8c088;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 1.5em 0;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #hint {
+            position: fixed; bottom: 24px;
+            left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,0.35);
+            font: 13px/1.8 'Segoe UI', system-ui, sans-serif;
+            text-align: center;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<video id="video" playsinline></video>
+<div id="overlay">
+    <h1>提线木偶</h1>
+    <div class="spinner"></div>
+    <p id="status">正在加载手势识别模型...</p>
+</div>
+<div id="hint">
+    举起手掌 · 张开五指 · 控制木偶<br>
+    拇指·食指·中指·无名指·小指 → 左脚·左手·头·右手·右脚
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script>
+(() => {
+'use strict';
+
+// ── Config ──────────────────────────────────
+const GRAVITY    = 900;
+const DAMPING    = 0.97;
+const STRING_PULL = 0.12;
+const ITERATIONS = 10;
+
+// ── Canvas ──────────────────────────────────
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+const video  = document.getElementById('video');
+const dpr    = Math.min(window.devicePixelRatio || 1, 1.5);
+
+function resize() {
+    canvas.width  = window.innerWidth  * dpr;
+    canvas.height = window.innerHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+resize();
+window.addEventListener('resize', () => { resize(); buildStageGrad(); buildPuppet(); });
+
+const W = () => window.innerWidth;
+const H = () => window.innerHeight;
+
+// cached gradient — recreated only on resize
+let stageGrad = null;
+function buildStageGrad() {
+    stageGrad = ctx.createLinearGradient(0, 0, 0, H());
+    stageGrad.addColorStop(0,   'rgba(10,10,21,0.4)');
+    stageGrad.addColorStop(0.7, 'rgba(10,10,21,0)');
+    stageGrad.addColorStop(1,   'rgba(10,10,21,0.6)');
+}
+
+// ── Verlet Physics ──────────────────────────
+class Pt {
+    constructor(x, y) {
+        this.x = x; this.y = y;
+        this.px = x; this.py = y;
+        this.ax = 0; this.ay = 0;
+    }
+    update(dt) {
+        const vx = (this.x - this.px) * DAMPING;
+        const vy = (this.y - this.py) * DAMPING;
+        this.px = this.x;
+        this.py = this.y;
+        this.x += vx + this.ax * dt * dt;
+        this.y += vy + this.ay * dt * dt;
+        this.ax = 0; this.ay = 0;
+    }
+}
+
+class Link {
+    constructor(a, b, len, stiff) {
+        this.a = a; this.b = b;
+        this.len = len; this.stiff = stiff || 1;
+    }
+    solve() {
+        const dx = this.b.x - this.a.x;
+        const dy = this.b.y - this.a.y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        const f = (this.len - d) / d * 0.5 * this.stiff;
+        const fx = dx * f, fy = dy * f;
+        this.a.x -= fx; this.a.y -= fy;
+        this.b.x += fx; this.b.y += fy;
+    }
+}
+
+// ── Puppet Skeleton ─────────────────────────
+let S;
+let P = {};
+let links = [];
+let handAlpha = 0;
+let targets = null;
+
+function buildPuppet() {
+    S = Math.min(W(), H()) * 0.0028;
+    const cx = W() / 2, cy = H() * 0.45;
+
+    const def = {
+        headTop:   [0,   -80],
+        head:      [0,   -60],
+        neck:      [0,   -44],
+        shoulderL: [-24, -42],
+        shoulderR: [24,  -42],
+        elbowL:    [-38, -22],
+        elbowR:    [38,  -22],
+        handL:     [-44,   0],
+        handR:     [44,    0],
+        chest:     [0,   -26],
+        hip:       [0,    -4],
+        hipL:      [-13,  -1],
+        hipR:      [13,   -1],
+        kneeL:     [-16,  30],
+        kneeR:     [16,   30],
+        footL:     [-18,  60],
+        footR:     [18,   60],
+    };
+
+    P = {};
+    for (const [k, [rx, ry]] of Object.entries(def)) {
+        P[k] = new Pt(cx + rx * S, cy + ry * S);
+    }
+
+    const bones = [
+        ['headTop','head'],   ['head','neck'],
+        ['neck','shoulderL'], ['neck','shoulderR'],
+        ['shoulderL','elbowL'], ['elbowL','handL'],
+        ['shoulderR','elbowR'], ['elbowR','handR'],
+        ['neck','chest'], ['chest','hip'],
+        ['hip','hipL'], ['hip','hipR'],
+        ['hipL','kneeL'], ['kneeL','footL'],
+        ['hipR','kneeR'], ['kneeR','footR'],
+        ['shoulderL','shoulderR'],
+        ['shoulderL','chest'], ['shoulderR','chest'],
+        ['hipL','hipR'],
+    ];
+
+    links = bones.map(([a, b]) => {
+        const pa = P[a], pb = P[b];
+        return new Link(pa, pb, Math.hypot(pb.x - pa.x, pb.y - pa.y));
+    });
+    cachePvalues();
+}
+
+let Pvalues = [];   // cached particle array — rebuilt in buildPuppet
+function cachePvalues() { Pvalues = Object.values(P); }
+
+buildPuppet();
+
+const stringOffY = { headTop: 55, handL: 85, handR: 85, kneeL: 140, kneeR: 140 };
+
+const controlMap = {
+    headTop: 'head',
+    handL:   'leftHand',
+    handR:   'rightHand',
+    kneeL:   'leftFoot',
+    kneeR:   'rightFoot',
+};
+const controlEntries = Object.entries(controlMap);
+
+function updatePuppet(dt) {
+    for (let i = 0; i < Pvalues.length; i++) { Pvalues[i].ax = 0; Pvalues[i].ay = GRAVITY; }
+
+    if (handAlpha < 0.01) {
+        const a = P.headTop;
+        a.x += (W() / 2 - a.x) * 0.03;
+        a.y += (H() * 0.12 - a.y) * 0.03;
+        a.px = a.x; a.py = a.y;
+    }
+
+    if (handAlpha > 0 && targets) {
+        const pull = STRING_PULL * handAlpha;
+        for (let i = 0; i < controlEntries.length; i++) {
+            const pt = P[controlEntries[i][0]], t = targets[controlEntries[i][1]];
+            if (!t) continue;
+            const tx = t.x;
+            const ty = t.y + stringOffY[controlEntries[i][0]] * S;
+            pt.x  += (tx - pt.x)  * pull;
+            pt.y  += (ty - pt.y)  * pull;
+            pt.px += (tx - pt.px) * pull * 0.5;
+            pt.py += (ty - pt.py) * pull * 0.5;
+        }
+    }
+
+    for (let i = 0; i < Pvalues.length; i++) Pvalues[i].update(dt);
+
+    for (let i = 0; i < ITERATIONS; i++)
+        for (let j = 0; j < links.length; j++) links[j].solve();
+
+    const floor = H() - 30;
+    const wBound = W() - 20;
+    for (let i = 0; i < Pvalues.length; i++) {
+        const p = Pvalues[i];
+        if (p.y > floor)  p.y = floor;
+        if (p.x < 20)     p.x = 20;
+        if (p.x > wBound) p.x = wBound;
+        if (p.y < 10)     p.y = 10;
+    }
+}
+
+// ── Rag Doll Colors ─────────────────────────
+const R = {
+    red:     '#E44030',
+    redDk:   '#B82820',
+    redLt:   '#F06050',
+    face:    '#F0A830',
+    faceLt:  '#F5C840',
+    hair:    '#EFE040',
+    hairDk:  '#D8C830',
+    stitch:  '#28AA6A',
+    stitchDk:'#1E8850',
+    button:  '#4488DD',
+    buttonDk:'#3060AA',
+    shoe:    '#3CB860',
+    shoeDk:  '#2A8A48',
+    string:  '#DC5030',
+    bar:     '#9B6840',
+    barDk:   '#704020',
+    barLt:   '#B88050',
+    tie:     '#E85038',
+    eye:     '#2A1A0A',
+    mouth:   '#8B5A2A',
+};
+const DASH = [7, 5];
+const PI = Math.PI;
+
+// ── Hand-drawn helpers ─────────────────────
+let _seed = 1;
+function rand() { _seed = (_seed * 16807 + 0) % 2147483647; return (_seed & 0x7fffffff) / 0x7fffffff; }
+
+function wobblyCircle(cx, cy, r, steps) {
+    steps = steps || 36;
+    ctx.beginPath();
+    for (let i = 0; i <= steps; i++) {
+        const a = (i / steps) * PI * 2;
+        const wobble = r * (0.97 + rand() * 0.06);
+        const px = cx + Math.cos(a) * wobble;
+        const py = cy + Math.sin(a) * wobble;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+}
+
+function wobblyLine(x1, y1, x2, y2) {
+    const mx = (x1 + x2) / 2 + (rand() - 0.5) * 3;
+    const my = (y1 + y2) / 2 + (rand() - 0.5) * 3;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.quadraticCurveTo(mx, my, x2, y2);
+}
+
+// ── Rag Doll Rendering ─────────────────────
+
+function capsulePath(len, hw) {
+    ctx.beginPath();
+    ctx.arc(len, 0, hw, -PI/2, PI/2);
+    ctx.arc(0,   0, hw, PI/2,  PI*1.5);
+    ctx.closePath();
+}
+
+function wobbyCapsulePath(len, hw, steps) {
+    steps = steps || 12;
+    ctx.beginPath();
+    // top arc (right end)
+    for (let i = 0; i <= steps; i++) {
+        const a = -PI/2 + (PI / steps) * i;
+        const wobble = hw * (0.96 + rand() * 0.08);
+        const px = len + Math.cos(a) * wobble;
+        const py = Math.sin(a) * wobble;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    // bottom arc (left end)
+    for (let i = 0; i <= steps; i++) {
+        const a = PI/2 + (PI / steps) * i;
+        const wobble = hw * (0.96 + rand() * 0.08);
+        const px = Math.cos(a) * wobble;
+        const py = Math.sin(a) * wobble;
+        ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+}
+
+function drawCapsule(x1, y1, x2, y2, w, fill, stitch) {
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    const len = Math.hypot(x2 - x1, y2 - y1);
+    const hw = w / 2;
+
+    ctx.save();
+    ctx.translate(x1, y1);
+    ctx.rotate(angle);
+
+    // shadow
+    ctx.save();
+    ctx.translate(2, 3);
+    capsulePath(len, hw + 1);
+    ctx.fillStyle = 'rgba(0,0,0,0.10)';
+    ctx.fill();
+    ctx.restore();
+
+    // fill with wobbly outline
+    _seed = Math.floor(x1 * 7 + y1 * 13) & 0x7fffffff || 1;
+    wobbyCapsulePath(len, hw);
+    ctx.fillStyle = fill;
+    ctx.fill();
+
+    // dark outline
+    ctx.strokeStyle = R.redDk;
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+
+    // inset stitch
+    if (stitch) {
+        const ins = Math.min(4.5, w * 0.18);
+        const ihw = hw - ins;
+        if (ihw > 2) {
+            _seed = Math.floor(x1 * 3 + y1 * 11) & 0x7fffffff || 1;
+            wobbyCapsulePath(len, ihw);
+            ctx.setLineDash(DASH);
+            ctx.strokeStyle = stitch;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+    }
+
+    ctx.restore();
+}
+
+function drawClothJoint(x, y, r) {
+    _seed = Math.floor(x * 7 + y * 11) & 0x7fffffff || 1;
+    ctx.fillStyle = R.red;
+    wobblyCircle(x, y, r);
+    ctx.fill();
+    ctx.strokeStyle = R.redDk;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.beginPath(); ctx.arc(x - r*0.25, y - r*0.25, r*0.35, 0, PI*2); ctx.fill();
+}
+
+function drawHand(x, y, r) {
+    _seed = Math.floor(x * 5 + y * 9) & 0x7fffffff || 1;
+    ctx.fillStyle = R.red;
+    wobblyCircle(x, y, r);
+    ctx.fill();
+    ctx.strokeStyle = R.redDk;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.setLineDash(DASH);
+    ctx.strokeStyle = R.stitch;
+    ctx.lineWidth = 1.8;
+    wobblyCircle(x, y, r * 0.6);
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
+
+function drawShoe(fx, fy, kx, ky) {
+    const angle = Math.atan2(fy - ky, fx - kx);
+    ctx.save();
+    ctx.translate(fx, fy);
+    ctx.rotate(angle);
+    _seed = Math.floor(fx * 7 + fy * 3) & 0x7fffffff || 1;
+
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.beginPath();
+    ctx.ellipse(S*3 + 1, S*1 + 2, S*10, S*6, 0, 0, PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = R.shoe;
+    ctx.beginPath();
+    ctx.ellipse(S*3, S*1, S*10, S*6, 0, 0, PI*2);
+    ctx.fill();
+    ctx.strokeStyle = R.shoeDk; ctx.lineWidth = 2; ctx.stroke();
+
+    ctx.setLineDash(DASH);
+    ctx.strokeStyle = R.stitchDk;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.ellipse(S*3, S*1, S*7, S*3.5, 0, 0, PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.restore();
+}
+
+function drawButtons(nx, ny, hx, hy) {
+    for (let i = 0; i < 2; i++) {
+        const t = 0.32 + i * 0.36;
+        const bx = nx + (hx - nx) * t;
+        const by = ny + (hy - ny) * t;
+        const br = S * 4;
+
+        ctx.fillStyle = R.button;
+        ctx.beginPath(); ctx.arc(bx, by, br, 0, PI*2); ctx.fill();
+        ctx.strokeStyle = R.buttonDk; ctx.lineWidth = 1.5; ctx.stroke();
+
+        ctx.fillStyle = R.buttonDk;
+        const hs = br * 0.35;
+        for (const [dx, dy] of [[-1,-1],[1,-1],[-1,1],[1,1]]) {
+            ctx.beginPath();
+            ctx.arc(bx + dx*hs, by + dy*hs, S*0.7, 0, PI*2);
+            ctx.fill();
+        }
+    }
+}
+
+function drawPigtails(hx, hy, hr) {
+    const pw = hr * 0.55;
+    const pLen = hr * 1.6;
+
+    for (const side of [-1, 1]) {
+        const topX = hx + side * hr * 0.6;
+        const topY = hy + hr * 0.05;
+        const botX = hx + side * hr * 0.85;
+        const botY = hy + hr * 1.6;
+
+        const angle = Math.atan2(botY - topY, botX - topX);
+        const len = Math.hypot(botX - topX, botY - topY);
+        const topHW = pw * 0.5;
+        const botHW = pw * 0.3;
+
+        ctx.save();
+        ctx.translate(topX, topY);
+        ctx.rotate(angle);
+
+        // shadow
+        ctx.save();
+        ctx.translate(1, 3);
+        ctx.beginPath();
+        ctx.arc(0,   0, topHW, PI/2, PI*1.5);
+        ctx.lineTo(len, -botHW);
+        ctx.arc(len, 0, botHW, -PI/2, PI/2);
+        ctx.lineTo(0, topHW);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0,0,0,0.08)';
+        ctx.fill();
+        ctx.restore();
+
+        // fill
+        ctx.beginPath();
+        ctx.arc(0,   0, topHW, PI/2, PI*1.5);
+        ctx.lineTo(len, -botHW);
+        ctx.arc(len, 0, botHW, -PI/2, PI/2);
+        ctx.lineTo(0, topHW);
+        ctx.closePath();
+        ctx.fillStyle = R.hair;
+        ctx.fill();
+        ctx.strokeStyle = R.hairDk;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // stitch
+        const ins = 4;
+        const itHW = topHW - ins;
+        const ibHW = botHW - ins;
+        if (itHW > 1 && ibHW > 1) {
+            ctx.beginPath();
+            ctx.arc(0,   0, itHW, PI/2, PI*1.5);
+            ctx.lineTo(len, -ibHW);
+            ctx.arc(len, 0, ibHW, -PI/2, PI/2);
+            ctx.lineTo(0, itHW);
+            ctx.closePath();
+            ctx.setLineDash(DASH);
+            ctx.strokeStyle = R.stitch;
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        ctx.restore();
+    }
+}
+
+function drawHairCap(hx, hy, hr) {
+    ctx.fillStyle = R.hair;
+    ctx.beginPath();
+    ctx.arc(hx, hy, hr * 1.04, PI * 1.15, -PI * 0.15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = R.hairDk;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.setLineDash(DASH);
+    ctx.strokeStyle = R.stitch;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(hx, hy, hr * 0.88, PI * 1.1, -PI * 0.1);
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
+
+function drawHead(hx, hy, hr) {
+    _seed = 42;
+
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.10)';
+    wobblyCircle(hx + 3, hy + 3, hr, 48);
+    ctx.fill();
+
+    // face gradient
+    const grad = ctx.createRadialGradient(hx - hr*0.2, hy - hr*0.2, hr*0.1, hx, hy, hr);
+    grad.addColorStop(0, R.faceLt);
+    grad.addColorStop(1, R.face);
+    _seed = 42;
+    ctx.fillStyle = grad;
+    wobblyCircle(hx, hy, hr, 48);
+    ctx.fill();
+
+    // outline
+    ctx.strokeStyle = '#D08820';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // inset stitch circle
+    _seed = 77;
+    ctx.setLineDash(DASH);
+    ctx.strokeStyle = R.stitch;
+    ctx.lineWidth = 2;
+    wobblyCircle(hx, hy, hr * 0.83, 40);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // button eyes
+    const ey = hy - hr * 0.1;
+    const es = hr * 0.3;
+    const er = hr * 0.12;
+
+    for (const side of [-1, 1]) {
+        const ex = hx + side * es;
+
+        ctx.fillStyle = R.eye;
+        ctx.beginPath(); ctx.arc(ex, ey, er, 0, PI*2); ctx.fill();
+
+        ctx.strokeStyle = '#4A3A2A';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(ex, ey, er, 0, PI*2); ctx.stroke();
+
+        // X cross stitch
+        ctx.strokeStyle = '#887060';
+        ctx.lineWidth = 2;
+        const cs = er * 0.55;
+        ctx.beginPath();
+        ctx.moveTo(ex - cs, ey - cs); ctx.lineTo(ex + cs, ey + cs);
+        ctx.moveTo(ex + cs, ey - cs); ctx.lineTo(ex - cs, ey + cs);
+        ctx.stroke();
+    }
+
+    // stitched mouth
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = R.mouth;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(hx, hy + hr * 0.18, hr * 0.25, 0.2, PI - 0.2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // rosy cheeks
+    ctx.fillStyle = 'rgba(220,130,110,0.3)';
+    ctx.beginPath(); ctx.ellipse(hx - es*1.2, hy + hr*0.12, er*2, er*1.3, 0, 0, PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(hx + es*1.2, hy + hr*0.12, er*2, er*1.3, 0, 0, PI*2); ctx.fill();
+}
+
+function drawCrossBar(cx, cy, alpha) {
+    const sz = S * 26;
+    const thick = S * 5;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.lineCap = 'round';
+
+    // bar shadows
+    ctx.lineWidth = thick + 2;
+    ctx.strokeStyle = 'rgba(0,0,0,0.13)';
+    ctx.beginPath();
+    ctx.moveTo(cx - sz + 2, cy - sz*0.15 + 3);
+    ctx.lineTo(cx + sz + 2, cy + sz*0.15 + 3);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx + sz*0.65 + 2, cy - sz*0.35 + 3);
+    ctx.lineTo(cx - sz*0.65 + 2, cy + sz*0.35 + 3);
+    ctx.stroke();
+
+    // bar 1
+    ctx.lineWidth = thick;
+    ctx.strokeStyle = R.bar;
+    ctx.beginPath();
+    ctx.moveTo(cx - sz, cy - sz*0.15);
+    ctx.lineTo(cx + sz, cy + sz*0.15);
+    ctx.stroke();
+
+    // bar highlight
+    ctx.lineWidth = thick * 0.3;
+    ctx.strokeStyle = R.barLt;
+    ctx.beginPath();
+    ctx.moveTo(cx - sz + 3, cy - sz*0.15 - thick*0.18);
+    ctx.lineTo(cx + sz - 3, cy + sz*0.15 - thick*0.18);
+    ctx.stroke();
+
+    // bar 2
+    ctx.lineWidth = thick;
+    ctx.strokeStyle = R.bar;
+    ctx.beginPath();
+    ctx.moveTo(cx + sz*0.65, cy - sz*0.35);
+    ctx.lineTo(cx - sz*0.65, cy + sz*0.35);
+    ctx.stroke();
+
+    ctx.lineWidth = thick * 0.3;
+    ctx.strokeStyle = R.barLt;
+    ctx.beginPath();
+    ctx.moveTo(cx + sz*0.65 - 1, cy - sz*0.35 - thick*0.18);
+    ctx.lineTo(cx - sz*0.65 - 1, cy + sz*0.35 - thick*0.18);
+    ctx.stroke();
+
+    // wrapped string ties at ends and center
+    const tieR = S * 3.5;
+    const ties = [
+        [cx - sz, cy - sz*0.15],
+        [cx + sz, cy + sz*0.15],
+        [cx + sz*0.65, cy - sz*0.35],
+        [cx - sz*0.65, cy + sz*0.35],
+        [cx, cy],
+    ];
+    for (const [tx, ty] of ties) {
+        // wrap
+        ctx.fillStyle = R.tie;
+        ctx.beginPath();
+        ctx.ellipse(tx, ty, tieR * 1.2, tieR * 0.8, 0, 0, PI*2);
+        ctx.fill();
+        ctx.strokeStyle = '#C04030'; ctx.lineWidth = 1; ctx.stroke();
+        // highlight
+        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.beginPath(); ctx.arc(tx - tieR*0.2, ty - tieR*0.3, tieR*0.35, 0, PI*2); ctx.fill();
+    }
+
+    ctx.restore();
+}
+
+function drawString(x1, y1, x2, y2, alpha) {
+    ctx.save();
+    ctx.globalAlpha = 0.7 * alpha;
+    ctx.strokeStyle = R.string;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([]);
+    // slight curve for hand-drawn feel
+    const mx = (x1 + x2) / 2 + (x2 - x1) * 0.02;
+    const my = (y1 + y2) / 2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.quadraticCurveTo(mx, my, x2, y2);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawStringKnot(x, y, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = R.tie;
+    ctx.beginPath(); ctx.ellipse(x, y, S * 3, S * 2, 0, 0, PI*2); ctx.fill();
+    ctx.strokeStyle = '#C04030'; ctx.lineWidth = 0.8; ctx.stroke();
+    ctx.restore();
+}
+
+// ── Render puppet ───────────────────────────
+function renderPuppet() {
+    const hr  = S * 26;   // head radius (large for rag doll)
+    const bw  = S * 18;   // body (torso) width
+    const aw  = S * 14;   // arm width
+    const lw  = S * 14;   // leg width
+    const jr  = S * 5.5;  // cloth joint radius
+    const hwr = S * 7;    // hand radius
+
+    // ── Strings, cross bar, knots ──
+    if (handAlpha > 0.01 && targets) {
+        for (let i = 0; i < controlEntries.length; i++) {
+            const t = targets[controlEntries[i][1]];
+            if (t) drawString(t.x, t.y, P[controlEntries[i][0]].x, P[controlEntries[i][0]].y, handAlpha);
+        }
+        drawCrossBar(targets.head.x, targets.head.y, handAlpha);
+        const tv = [targets.rightHand, targets.rightFoot, targets.head, targets.leftFoot, targets.leftHand];
+        for (let i = 0; i < tv.length; i++) drawStringKnot(tv[i].x, tv[i].y, handAlpha);
+    }
+
+    // ── Hair pigtails (behind body) ──
+    drawPigtails(P.head.x, P.head.y, hr);
+
+    // ── Legs ──
+    drawCapsule(P.hipL.x, P.hipL.y, P.kneeL.x, P.kneeL.y, lw, R.red, R.stitch);
+    drawCapsule(P.hipR.x, P.hipR.y, P.kneeR.x, P.kneeR.y, lw, R.red, R.stitch);
+    drawCapsule(P.kneeL.x, P.kneeL.y, P.footL.x, P.footL.y, lw*0.85, R.red, R.stitch);
+    drawCapsule(P.kneeR.x, P.kneeR.y, P.footR.x, P.footR.y, lw*0.85, R.red, R.stitch);
+
+    // ── Shoes ──
+    drawShoe(P.footL.x, P.footL.y, P.kneeL.x, P.kneeL.y);
+    drawShoe(P.footR.x, P.footR.y, P.kneeR.x, P.kneeR.y);
+
+    // ── Torso ──
+    drawCapsule(P.neck.x, P.neck.y, P.hip.x, P.hip.y, bw, R.red, R.stitch);
+    drawButtons(P.neck.x, P.neck.y, P.hip.x, P.hip.y);
+
+    // ── Arms ──
+    drawCapsule(P.shoulderL.x, P.shoulderL.y, P.elbowL.x, P.elbowL.y, aw, R.red, R.stitch);
+    drawCapsule(P.shoulderR.x, P.shoulderR.y, P.elbowR.x, P.elbowR.y, aw, R.red, R.stitch);
+    drawCapsule(P.elbowL.x, P.elbowL.y, P.handL.x, P.handL.y, aw*0.85, R.red, R.stitch);
+    drawCapsule(P.elbowR.x, P.elbowR.y, P.handR.x, P.handR.y, aw*0.85, R.red, R.stitch);
+
+    // ── Hands ──
+    drawHand(P.handL.x, P.handL.y, hwr);
+    drawHand(P.handR.x, P.handR.y, hwr);
+
+    // ── Cloth joints ──
+    for (const k of ['hipL','hipR','kneeL','kneeR','shoulderL','shoulderR','elbowL','elbowR']) {
+        drawClothJoint(P[k].x, P[k].y, jr);
+    }
+
+    // ── Head ──
+    drawHead(P.head.x, P.head.y, hr);
+
+    // ── Hair cap (on top of head) ──
+    drawHairCap(P.head.x, P.head.y, hr);
+}
+
+// ── Mouse fallback ──────────────────────────
+let mouseMode = false;
+canvas.addEventListener('mousemove', (e) => {
+    if (mouseMode) {
+        const mx = e.clientX, my = e.clientY;
+        targets = {
+            head:      { x: mx,            y: my },
+            leftHand:  { x: mx + 90 * S,   y: my + 20 * S },
+            rightHand: { x: mx - 90 * S,   y: my + 20 * S },
+            leftFoot:  { x: mx + 30 * S,   y: my + 40 * S },
+            rightFoot: { x: mx - 30 * S,   y: my + 40 * S },
+        };
+        handAlpha = Math.min(1, handAlpha + 0.08);
+    }
+});
+canvas.addEventListener('mouseleave', () => {
+    if (mouseMode) { handAlpha = 0; targets = null; }
+});
+
+// ── MediaPipe ───────────────────────────────
+let mpHands = null;
+let processing = false;
+let fingerScreenPos = null;
+
+function initMediaPipe() {
+    if (typeof Hands === 'undefined') {
+        document.getElementById('status').textContent = '模型加载失败，请刷新重试';
+        enableMouseFallback();
+        return;
+    }
+
+    mpHands = new Hands({
+        locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+    });
+
+    mpHands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.7,
+        minTrackingConfidence: 0.5,
+    });
+
+    mpHands.onResults(results => {
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+            const lm = results.multiHandLandmarks[0];
+            const w = W(), h = H();
+            const palmX = (1 - (lm[0].x + lm[9].x) / 2) * w;
+            const palmY = ((lm[0].y + lm[9].y) / 2) * h;
+            const AMP = 1.5;
+            const fingerJoints = [
+                { idx: 12, key: 'head',      rx: 0,   ry: 0  },
+                { idx: 8,  key: 'leftHand',  rx: 50,  ry: 10 },
+                { idx: 16, key: 'rightHand', rx: -50, ry: 10 },
+                { idx: 4,  key: 'leftFoot',  rx: 18,  ry: 25 },
+                { idx: 20, key: 'rightFoot', rx: -18, ry: 25 },
+            ];
+            targets = {};
+            fingerScreenPos = [];
+            for (let i = 0; i < fingerJoints.length; i++) {
+                const f = fingerJoints[i];
+                const fx = (1 - lm[f.idx].x) * w;
+                const fy = lm[f.idx].y * h;
+                fingerScreenPos.push({ x: fx, y: fy, key: f.key });
+                targets[f.key] = {
+                    x: palmX + f.rx * S + (fx - palmX) * AMP,
+                    y: palmY + f.ry * S + (fy - palmY) * AMP,
+                };
+            }
+            handAlpha = Math.min(1, handAlpha + 0.06);
+        } else {
+            handAlpha = Math.max(0, handAlpha - 0.025);
+            if (handAlpha <= 0) { targets = null; fingerScreenPos = null; }
+        }
+    });
+
+    document.getElementById('status').textContent = '正在请求摄像头权限...';
+
+    navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
+    }).then(stream => {
+        video.srcObject = stream;
+        return video.play();
+    }).then(() => {
+        document.getElementById('overlay').classList.add('hidden');
+    }).catch(err => {
+        console.warn('Camera failed:', err);
+        document.getElementById('status').textContent =
+            '无法访问摄像头，已启用鼠标控制模式';
+        enableMouseFallback();
+        setTimeout(() => {
+            document.getElementById('overlay').classList.add('hidden');
+        }, 2000);
+    });
+}
+
+function enableMouseFallback() {
+    mouseMode = true;
+    document.getElementById('hint').innerHTML =
+        '移动鼠标控制木偶（摄像头不可用）';
+}
+
+// ── Main loop ───────────────────────────────
+let lastT = performance.now();
+
+function loop(now) {
+    const dt = Math.min((now - lastT) / 1000, 0.033);
+    lastT = now;
+    const w = W(), h = H();
+
+    if (mpHands && !processing && video.readyState >= 2) {
+        processing = true;
+        mpHands.send({ image: video }).finally(() => { processing = false; });
+    }
+
+    ctx.clearRect(0, 0, w, h);
+
+    // camera background (mirrored, dim) — draw at native video size for speed
+    if (video.readyState >= 2) {
+        ctx.save();
+        ctx.globalAlpha = 0.12;
+        ctx.translate(w, 0); ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, w, h);
+        ctx.restore();
+    }
+
+    // stage gradient (cached)
+    if (!stageGrad) buildStageGrad();
+    ctx.fillStyle = stageGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // stage floor
+    ctx.strokeStyle = 'rgba(232,192,136,0.06)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.1, h - 30);
+    ctx.lineTo(w * 0.9, h - 30);
+    ctx.stroke();
+
+    updatePuppet(dt);
+    renderPuppet();
+
+    // finger tracking visual feedback
+    if (fingerScreenPos && handAlpha > 0) {
+        ctx.save();
+        ctx.globalAlpha = handAlpha * 0.7;
+        const labels = { head: '头', leftHand: '左手', rightHand: '右手', leftFoot: '左脚', rightFoot: '右脚' };
+        for (let i = 0; i < fingerScreenPos.length; i++) {
+            const fp = fingerScreenPos[i];
+            ctx.beginPath();
+            ctx.arc(fp.x, fp.y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(255,200,80,0.9)';
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            ctx.font = `${11}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText(labels[fp.key], fp.x, fp.y - 14);
+        }
+        ctx.restore();
+    }
+
+    requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+initMediaPipe();
+
+})();
+</script>
+</body>
+</html>
