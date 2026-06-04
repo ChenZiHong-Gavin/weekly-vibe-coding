@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>剪纸折纸 — Planet Slide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #fef9ef; }
+.scene-3d { position: relative; width: 100%; height: 100%; overflow: hidden; user-select: none; font-family: "Caveat","PingFang SC","Microsoft YaHei",cursive,handwriting,sans-serif; }
+.scene-3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.paper-texture { position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: multiply; opacity: 0.08; background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(180,160,140,0.2) 3px, rgba(180,160,140,0.2) 4px); background-size: 5px 5px; }
+.title-block { position: absolute; top: 12%; left: 8%; z-index: 10; text-align: left; pointer-events: none; max-width: 48%; }
+.title-block h1 { font-size: clamp(3rem, 7vw, 6rem); font-weight: 700; margin: 0; letter-spacing: 0.03em; line-height: 1.15; color: #4a3728; text-shadow: 3px 3px 0 rgba(180,140,100,0.15), 0 6px 16px rgba(100,60,20,0.1); }
+.title-block .subtitle { margin-top: 0.6rem; font-size: clamp(1.5rem, 3vw, 2.2rem); color: rgba(100,70,40,0.45); letter-spacing: 0.06em; font-weight: 400; }
+.title-block .meta { margin-top: 1.8rem; font-size: clamp(1.2rem, 2vw, 1.6rem); color: rgba(100,70,40,0.4); letter-spacing: 0.04em; font-weight: 400; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div class="scene-3d" id="scene3d">
+  <div class="paper-texture"></div>
+  <div class="title-block">
+    <h1>剪纸折纸</h1>
+    <p class="subtitle">折纸星球与纸叠山</p>
+    <div class="meta"><span>Style #4</span></div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+const container = document.getElementById('scene3d');
+let W = container.clientWidth, H = container.clientHeight;
+
+const scene = new THREE.Scene();
+const bgC = document.createElement('canvas'); bgC.width=2; bgC.height=512;
+const bgCtx = bgC.getContext('2d'); const g = bgCtx.createLinearGradient(0,0,0,512);
+g.addColorStop(0,'#fef9ef'); g.addColorStop(0.3,'#fdf2e0'); g.addColorStop(0.6,'#fce8d5'); g.addColorStop(1,'#d4e8f0');
+bgCtx.fillStyle=g; bgCtx.fillRect(0,0,2,512);
+scene.background = new THREE.CanvasTexture(bgC);
+
+const camera = new THREE.PerspectiveCamera(50, W/H, 1, 2000);
+camera.position.set(0, 55, 340); camera.lookAt(0, 25, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2;
+container.insertBefore(renderer.domElement, container.firstChild);
+
+scene.add(new THREE.AmbientLight(0xfff8ee, 0.7));
+scene.add(new THREE.DirectionalLight(0xffeedd, 1.0).translateX(100).translateY(150).translateZ(200) || (new THREE.DirectionalLight(0xffeedd, 1.0)).position.set(100,150,200));
+const bl = new THREE.DirectionalLight(0xddccbb, 0.4); bl.position.set(-50, 30, -100); scene.add(bl);
+
+const tc = new Uint8Array([120,160,200,255]);
+const tg = new THREE.DataTexture(tc, 4, 1, THREE.RedFormat); tg.minFilter=THREE.NearestFilter; tg.magFilter=THREE.NearestFilter; tg.needsUpdate=true;
+function pMesh(geo, color, sc=0x5a4738) {
+  const grp = new THREE.Group();
+  grp.add(new THREE.Mesh(geo, new THREE.MeshToonMaterial({ color, gradientMap: tg })));
+  const o = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: sc, side: THREE.BackSide })); o.scale.setScalar(1.03); grp.add(o);
+  const sh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.08, side: THREE.DoubleSide, depthWrite: false })); sh.position.set(3,-4,-2); grp.add(sh);
+  return grp;
+}
+
+// ── Half-sphere paper ground ──
+const groundGeo = new THREE.SphereGeometry(300, 48, 24, 0, Math.PI*2, 0, Math.PI/2);
+const ground = pMesh(groundGeo, 0xeeddcc, 0x7a6050); ground.position.set(0, -293, 0); scene.add(ground);
+// Paper fold rings on ground
+for (let i = 1; i <= 6; i++) {
+  const r = 300 * Math.sin((i/6)*Math.PI/2);
+  const y = -293 + 300 * Math.cos((i/6)*Math.PI/2);
+  const ringGeo = new THREE.TorusGeometry(r, 0.6, 8, 64);
+  const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0x9a8a70, transparent: true, opacity: 0.2 }));
+  ring.position.y = y; ring.rotation.x = Math.PI/2; scene.add(ring);
+}
+
+// ── Paper-cut layered mountains (bottom follows half-sphere ground curve) ──
+const R = 300, GCY = -293; // ground sphere radius & center Y
+function groundY(x, z) { return Math.sqrt(Math.max(0, R*R - x*x - z*z)) + GCY; }
+
+const mountainLayers = [
+  { color: 0xe8d5c0, outline: 0x5a4030, z: -50,  scale: 1.0, peakH: 130 },
+  { color: 0xd4b898, outline: 0x5a4030, z: -80,  scale: 0.90, peakH: 120 },
+  { color: 0xc09a78, outline: 0x4a3020, z: -110, scale: 0.80, peakH: 110 },
+  { color: 0xa87858, outline: 0x4a3020, z: -140, scale: 0.70, peakH: 100 },
+  { color: 0x8a5a3a, outline: 0x3a2010, z: -170, scale: 0.60, peakH: 90 },
+];
+
+for (const ml of mountainLayers) {
+  const w = 200 * ml.scale;
+  // Sample ground curve for this layer's depth — the mountain bottom hugs the sphere
+  const samples = 60;
+  const bottomPts = [];
+  for (let i = 0; i <= samples; i++) {
+    const x = -w + (2 * w * i) / samples;
+    bottomPts.push({ x, y: groundY(x, ml.z) });
+  }
+
+  const shape = new THREE.Shape();
+  // Start at left edge on the ground
+  shape.moveTo(bottomPts[0].x, bottomPts[0].y - 2);
+  // Draw upward to first peak then back down along the ground curve
+  // Walk along the ground silhouette, adding peaks above it
+  const peaks = [
+    { cx: -0.72, cy: 0.72, px: -0.65, py: 0.62 },  // peak 1
+    { cx: -0.42, cy: 0.55, px: -0.22, py: 1.0 },    // peak 2 (tallest)
+    { cx: 0.05, cy: 0.55, px: 0.20, py: 0.75 },      // peak 3
+    { cx: 0.38, cy: 0.40, px: 0.52, py: 0.68 },      // peak 4
+    { cx: 0.68, cy: 0.45, px: 0.82, py: 0.55 },      // peak 5
+  ];
+
+  // Build top profile: for each segment between ground sample points, pull up to peaks
+  // Simpler: draw the mountain profile line across peaks, then drop down to ground
+  const peakH = ml.peakH;
+  shape.lineTo(-w * 0.85, groundY(-w * 0.85, ml.z) + peakH * 0.25);
+  shape.bezierCurveTo(
+    -w * 0.80, groundY(-w * 0.80, ml.z) + peakH * 0.55,
+    -w * 0.72, groundY(-w * 0.72, ml.z) + peakH * 0.70,
+    -w * 0.65, groundY(-w * 0.65, ml.z) + peakH * 0.62
+  );
+  shape.bezierCurveTo(
+    -w * 0.58, groundY(-w * 0.58, ml.z) + peakH * 0.48,
+    -w * 0.52, groundY(-w * 0.52, ml.z) + peakH * 0.25,
+    -w * 0.45, groundY(-w * 0.45, ml.z) + peakH * 0.18
+  );
+  // Peak 2 — tallest
+  shape.bezierCurveTo(
+    -w * 0.38, groundY(-w * 0.38, ml.z) + peakH * 0.40,
+    -w * 0.28, groundY(-w * 0.28, ml.z) + peakH * 0.95,
+    -w * 0.22, groundY(-w * 0.22, ml.z) + peakH * 1.0
+  );
+  shape.bezierCurveTo(
+    -w * 0.16, groundY(-w * 0.16, ml.z) + peakH * 0.90,
+    -w * 0.08, groundY(-w * 0.08, ml.z) + peakH * 0.55,
+    -w * 0.02, groundY(-w * 0.02, ml.z) + peakH * 0.35
+  );
+  // Peak 3
+  shape.bezierCurveTo(
+    w * 0.05, groundY(w * 0.05, ml.z) + peakH * 0.45,
+    w * 0.15, groundY(w * 0.15, ml.z) + peakH * 0.72,
+    w * 0.22, groundY(w * 0.22, ml.z) + peakH * 0.75
+  );
+  shape.bezierCurveTo(
+    w * 0.30, groundY(w * 0.30, ml.z) + peakH * 0.60,
+    w * 0.38, groundY(w * 0.38, ml.z) + peakH * 0.30,
+    w * 0.44, groundY(w * 0.44, ml.z) + peakH * 0.20
+  );
+  // Peak 4
+  shape.bezierCurveTo(
+    w * 0.50, groundY(w * 0.50, ml.z) + peakH * 0.38,
+    w * 0.58, groundY(w * 0.58, ml.z) + peakH * 0.65,
+    w * 0.65, groundY(w * 0.65, ml.z) + peakH * 0.68
+  );
+  shape.bezierCurveTo(
+    w * 0.72, groundY(w * 0.72, ml.z) + peakH * 0.52,
+    w * 0.76, groundY(w * 0.76, ml.z) + peakH * 0.25,
+    w * 0.80, groundY(w * 0.80, ml.z) + peakH * 0.18
+  );
+  // Peak 5
+  shape.bezierCurveTo(
+    w * 0.85, groundY(w * 0.85, ml.z) + peakH * 0.32,
+    w * 0.92, groundY(w * 0.92, ml.z) + peakH * 0.52,
+    w, groundY(w, ml.z) + peakH * 0.35
+  );
+
+  // Drop down to right edge on the ground
+  shape.lineTo(w, groundY(w, ml.z) - 2);
+  // Follow the ground curve back to the left (bottom edge)
+  for (let i = samples; i >= 0; i--) {
+    shape.lineTo(bottomPts[i].x, bottomPts[i].y - 2);
+  }
+  shape.closePath();
+
+  const extGeo = new THREE.ExtrudeGeometry(shape, { depth: 4, bevelEnabled: true, bevelThickness: 0.8, bevelSize: 0.4, bevelSegments: 2 });
+  const mountain = pMesh(extGeo, ml.color, ml.outline);
+  mountain.position.set(0, 0, 0);
+  scene.add(mountain);
+}
+
+// ── Origami planet hovering above ──
+const planet = new THREE.Group(); planet.position.set(0, 55, -30);
+const icoGeo = new THREE.IcosahedronGeometry(26, 2);
+planet.add(pMesh(icoGeo, 0xe8c8a0, 0x6b4a2a));
+planet.add(new THREE.Mesh(new THREE.IcosahedronGeometry(26.2, 2), new THREE.MeshToonMaterial({ color: 0xf0d0a0, gradientMap: tg, transparent: true, opacity: 0.3 })));
+planet.add(new THREE.Mesh(new THREE.IcosahedronGeometry(26.3, 2), new THREE.MeshBasicMaterial({ color: 0x5a3a20, wireframe: true, transparent: true, opacity: 0.12 })));
+scene.add(planet);
+
+// ── Paper birds ──
+const birds = [];
+for (let i = 0; i < 6; i++) {
+  const bg = new THREE.Group();
+  const body = pMesh(new THREE.ConeGeometry(2.5, 7, 4), 0xfaf0e0, 0x6a5030); body.rotation.x=Math.PI*0.3; bg.add(body);
+  for (const s of [-1,1]) {
+    const wing = pMesh(new THREE.BoxGeometry(5, 0.3, 1.5), 0xf8ece0, 0x6a5030); wing.position.set(s*2.5,0.5,0); wing.rotation.z=s*0.3; bg.add(wing);
+  }
+  bg.position.set(-80+Math.random()*160, 80+Math.random()*60, -50-Math.random()*40);
+  bg.userData={by:bg.position.y,bx:bg.position.x,bA:3+Math.random()*5,bS:0.5+Math.random()*1,oR:20+Math.random()*40,oS:0.1+Math.random()*0.3,ph:Math.random()*Math.PI*2};
+  scene.add(bg); birds.push(bg);
+}
+
+// ── Post ──
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W,H), 0.15, 0.5, 0.9));
+const OutlineShader = {
+  uniforms: { tDiffuse: { value: null }, resolution: { value: new THREE.Vector2(W,H) }, edgeStrength: { value: 0.6 }, edgeColor: { value: new THREE.Vector3(0.29,0.19,0.13) } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+  fragmentShader: `uniform sampler2D tDiffuse; uniform vec2 resolution; uniform float edgeStrength; uniform vec3 edgeColor; varying vec2 vUv;
+    void main(){ vec2 tx=1.0/resolution; vec4 c=texture2D(tDiffuse,vUv);
+      float tl=dot(texture2D(tDiffuse,vUv+tx*vec2(-1,1)).rgb,vec3(.299,.587,.114));
+      float t=dot(texture2D(tDiffuse,vUv+tx*vec2(0,1)).rgb,vec3(.299,.587,.114));
+      float tr=dot(texture2D(tDiffuse,vUv+tx*vec2(1,1)).rgb,vec3(.299,.587,.114));
+      float l=dot(texture2D(tDiffuse,vUv+tx*vec2(-1,0)).rgb,vec3(.299,.587,.114));
+      float r=dot(texture2D(tDiffuse,vUv+tx*vec2(1,0)).rgb,vec3(.299,.587,.114));
+      float bl=dot(texture2D(tDiffuse,vUv+tx*vec2(-1,-1)).rgb,vec3(.299,.587,.114));
+      float b=dot(texture2D(tDiffuse,vUv+tx*vec2(0,-1)).rgb,vec3(.299,.587,.114));
+      float br=dot(texture2D(tDiffuse,vUv+tx*vec2(1,-1)).rgb,vec3(.299,.587,.114));
+      float gx=-tl-2.0*l-bl+tr+2.0*r+br; float gy=-tl-2.0*t-tr+bl+2.0*b+br;
+      float edge=length(vec2(gx,gy)); float ef=smoothstep(0.03,0.12,edge)*edgeStrength;
+      gl_FragColor=vec4(mix(c.rgb,edgeColor,ef),c.a); }`,
+};
+composer.addPass(new ShaderPass(OutlineShader));
+
+// ── Drag orbit ──
+let isDragging=false,pmx=0,pmy=0,orbitH=0,orbitHt=0,orbitV=0.35,orbitVt=0.35;
+const OC=new THREE.Vector3(0,30,0),OR=340;
+container.addEventListener('mousedown',e=>{isDragging=true;pmx=e.clientX;pmy=e.clientY;});
+window.addEventListener('mousemove',e=>{if(isDragging){orbitHt-=(e.clientX-pmx)*0.004;orbitVt-=(e.clientY-pmy)*0.003;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));pmx=e.clientX;pmy=e.clientY;}});
+window.addEventListener('mouseup',()=>{isDragging=false;});
+container.addEventListener('touchstart',e=>{if(e.touches.length===1){isDragging=true;pmx=e.touches[0].clientX;pmy=e.touches[0].clientY;}});
+window.addEventListener('touchmove',e=>{if(isDragging&&e.touches.length===1){orbitHt-=(e.touches[0].clientX-pmx)*0.004;orbitVt-=(e.touches[0].clientY-pmy)*0.003;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));pmx=e.touches[0].clientX;pmy=e.touches[0].clientY;}});
+window.addEventListener('touchend',()=>{isDragging=false;});
+
+const keys={};window.addEventListener('keydown',e=>{keys[e.key]=true;});window.addEventListener('keyup',e=>{keys[e.key]=false;});
+const clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+  if(keys['a']||keys['A'])orbitHt-=0.02;if(keys['d']||keys['D'])orbitHt+=0.02;if(keys['w']||keys['W'])orbitVt-=0.012;if(keys['s']||keys['S'])orbitVt+=0.012;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));
+  orbitH+=(orbitHt-orbitH)*0.1; orbitV+=(orbitVt-orbitV)*0.1;
+  const ya=orbitV*Math.PI*0.5;
+  camera.position.x=OC.x+Math.sin(orbitH)*Math.cos(ya)*OR;
+  camera.position.z=OC.z+Math.cos(orbitH)*Math.cos(ya)*OR;
+  camera.position.y=OC.y+Math.sin(ya)*OR;
+  camera.lookAt(OC);
+
+  planet.rotation.y+=0.003; planet.rotation.x=Math.sin(t*0.3)*0.05;
+  for(const b of birds){const d=b.userData;b.position.y=d.by+Math.sin(t*d.bS+d.ph)*d.bA;b.position.x=d.bx+Math.sin(t*d.oS+d.ph)*d.oR;b.rotation.z=Math.sin(t*d.oS*2+d.ph)*0.2;}
+  composer.render();
+}
+animate();
+
+window.addEventListener('resize',()=>{W=container.clientWidth;H=container.clientHeight;camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);composer.setSize(W,H);});
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>复古像素 — Planet Slide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #1a2b3c; }
+.scene-3d { position: relative; width: 100%; height: 100%; overflow: hidden; user-select: none; font-family: "Press Start 2P","PingFang SC","Microsoft YaHei",monospace,sans-serif; }
+.scene-3d canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; image-rendering: pixelated; image-rendering: crisp-edges; z-index: 1; }
+.vignette { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(ellipse at center, transparent 50%, rgba(10,20,30,0.5) 100%); }
+.title-block { position: absolute; top: 12%; left: 8%; z-index: 10; text-align: left; pointer-events: none; max-width: 50%; }
+.title-block h1 { font-size: clamp(1.6rem, 3.5vw, 3rem); font-weight: 400; margin: 0; letter-spacing: 0.04em; line-height: 1.5; color: #5eff6e; text-shadow: 4px 4px 0 rgba(0,0,0,0.5), 0 0 20px rgba(94,255,110,0.3); }
+.title-block .subtitle { margin-top: 1rem; font-size: clamp(0.7rem, 1.2vw, 0.95rem); color: #ffcc44; letter-spacing: 0.06em; font-weight: 400; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
+.title-block .meta { margin-top: 1.8rem; font-size: clamp(0.6rem, 1vw, 0.8rem); color: #88aacc; letter-spacing: 0.04em; font-weight: 400; text-shadow: 1px 1px 0 rgba(0,0,0,0.4); }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div class="scene-3d" id="scene3d">
+  <div class="vignette"></div>
+  <div class="title-block">
+    <h1>复古像素</h1>
+    <p class="subtitle">低面数半星球</p>
+    <div class="meta"><span>Style #5</span></div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+const container = document.getElementById('scene3d');
+const PS = 0.25;
+let W = Math.floor(container.clientWidth * PS), H = Math.floor(container.clientHeight * PS);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#1a2b3c');
+
+const camera = new THREE.PerspectiveCamera(50, W/H, 1, 2000);
+camera.position.set(0, 40, 300); camera.lookAt(0, 25, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(1); renderer.toneMapping = THREE.NoToneMapping;
+container.insertBefore(renderer.domElement, container.firstChild);
+
+scene.add(new THREE.AmbientLight(0x334466, 0.5));
+const sunL = new THREE.DirectionalLight(0xffddaa, 1.5); sunL.position.set(150, 120, 200); scene.add(sunL);
+
+function pBox(w, h, d, color) { return new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial({ color })); }
+
+// ── Pixel stars ──
+const starC = document.createElement('canvas'); starC.width=4; starC.height=4; const sctx=starC.getContext('2d'); sctx.fillStyle='#fff'; sctx.fillRect(1,1,2,2);
+const starTex = new THREE.CanvasTexture(starC); starTex.minFilter=THREE.NearestFilter; starTex.magFilter=THREE.NearestFilter;
+const starsGeo = new THREE.BufferGeometry(); const sc=200; const sp=new Float32Array(sc*3);
+for(let i=0;i<sc;i++){sp[i*3]=(Math.random()-0.5)*1000;sp[i*3+1]=(Math.random()-0.5)*600;sp[i*3+2]=-100-Math.random()*300;}
+starsGeo.setAttribute('position',new THREE.BufferAttribute(sp,3));
+const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({map:starTex,size:6,transparent:true,depthWrite:false})); scene.add(stars);
+
+// ── Half-sphere pixel ground ──
+const groundGeo = new THREE.SphereGeometry(280, 32, 16, 0, Math.PI*2, 0, Math.PI/2);
+const gPos = groundGeo.attributes.position; const gCol = new Float32Array(gPos.count*3);
+for(let i=0;i<gPos.count;i++){const y=gPos.getY(i);const shade=y>20?0.55:y>0?0.45:0.35;gCol[i*3]=0.22*shade;gCol[i*3+1]=0.47*shade;gCol[i*3+2]=0.24*shade;}
+groundGeo.setAttribute('color',new THREE.BufferAttribute(gCol,3));
+const ground=new THREE.Mesh(groundGeo,new THREE.MeshLambertMaterial({vertexColors:true})); ground.position.set(0,-273,0); scene.add(ground);
+
+// ── Low-poly planet in the sky ──
+const planet = new THREE.Group(); planet.position.set(0, 50, -30);
+const pGeo = new THREE.IcosahedronGeometry(22, 1); const pCol=[]; const pPos=pGeo.attributes.position;
+const palette=[0x4a8c3f,0x3d7a35,0x5c9a52,0x38702e,0x6aaa5e];
+for(let i=0;i<pPos.count;i++){const y=pPos.getY(i);const ci=Math.floor(((Math.sin(pPos.getX(i)*0.5)*Math.cos(pPos.getZ(i)*0.5)+1)/2)*palette.length)%palette.length;const c=new THREE.Color(y>8?0x6aaa5e:y<-8?0x2d6020:palette[ci]);pCol.push(c.r,c.g,c.b);}
+pGeo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(pCol),3)); planet.add(new THREE.Mesh(pGeo,new THREE.MeshLambertMaterial({vertexColors:true})));
+// Pixel moon
+const moonGeo=new THREE.IcosahedronGeometry(4,0); const moon=new THREE.Mesh(moonGeo,new THREE.MeshLambertMaterial({color:0xccccaa})); moon.position.set(30,12,0); planet.add(moon);
+scene.add(planet);
+
+// ── Cube trees on ground ──
+for(let i=0;i<25;i++){const tx=(Math.random()-0.5)*250,tz=(Math.random()-0.5)*180;const sy=Math.sqrt(Math.max(0,280*280-tx*tx-tz*tz))-273;if(sy<-5)continue;const h=5+Math.random()*12;const trunk=pBox(3,h,3,0x8d6e63);trunk.position.set(tx,sy+h/2,tz);scene.add(trunk);const canopy=pBox(6+Math.random()*6,6,6+Math.random()*6,[0x4a8c3f,0x3d7a35,0x5c9a52][Math.floor(Math.random()*3)]);canopy.position.set(tx,sy+h+4,tz);scene.add(canopy);}
+
+// ── Cube clouds ──
+const cloudGrp = new THREE.Group();
+for(let i=0;i<6;i++){const cloud=new THREE.Group();const blocks=4+Math.floor(Math.random()*5);for(let j=0;j<blocks;j++){const box=pBox(5+Math.floor(Math.random()*3)*2,3,4+Math.floor(Math.random()*3)*2,[0xffffff,0xf0f0f0,0xe8e8e8][Math.floor(Math.random()*3)]);box.position.set(Math.floor((Math.random()-0.5)*20),Math.floor(Math.random()*3),Math.floor((Math.random()-0.5)*12));cloud.add(box);}cloud.position.set(-100+Math.random()*200,70+Math.random()*50,-60-Math.random()*50);cloud.userData={bx:cloud.position.x,by:cloud.position.y,sp:0.2+Math.random()*0.4,ph:Math.random()*Math.PI*2};cloudGrp.add(cloud);}
+scene.add(cloudGrp);
+
+// ── Pixel sun ──
+const sunGrp = new THREE.Group(); sunGrp.position.set(-200,100,-250);
+sunGrp.add(new THREE.Mesh(new THREE.IcosahedronGeometry(16,0),new THREE.MeshBasicMaterial({color:0xffdd44})));
+for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;const ray=pBox(2,10,2,0xffcc00);ray.position.set(Math.cos(a)*22,Math.sin(a)*22,0);sunGrp.add(ray);}
+scene.add(sunGrp);
+
+// ── Post ──
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W,H), 0.3, 0.4, 0.85));
+
+// ── Drag orbit ──
+let isDragging=false,pmx=0,pmy=0,orbitH=0,orbitHt=0,orbitV=0.35,orbitVt=0.35;
+const OC=new THREE.Vector3(0,25,0),OR=300;
+container.addEventListener('mousedown',e=>{isDragging=true;pmx=e.clientX;pmy=e.clientY;});
+window.addEventListener('mousemove',e=>{if(isDragging){orbitHt-=(e.clientX-pmx)*0.004;orbitVt-=(e.clientY-pmy)*0.003;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));pmx=e.clientX;pmy=e.clientY;}});
+window.addEventListener('mouseup',()=>{isDragging=false;});
+container.addEventListener('touchstart',e=>{if(e.touches.length===1){isDragging=true;pmx=e.touches[0].clientX;pmy=e.touches[0].clientY;}});
+window.addEventListener('touchmove',e=>{if(isDragging&&e.touches.length===1){orbitHt-=(e.touches[0].clientX-pmx)*0.004;orbitVt-=(e.touches[0].clientY-pmy)*0.003;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));pmx=e.touches[0].clientX;pmy=e.touches[0].clientY;}});
+window.addEventListener('touchend',()=>{isDragging=false;});
+
+const keys={};window.addEventListener('keydown',e=>{keys[e.key]=true;});window.addEventListener('keyup',e=>{keys[e.key]=false;});
+const clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+  if(keys['a']||keys['A'])orbitHt-=0.02;if(keys['d']||keys['D'])orbitHt+=0.02;if(keys['w']||keys['W'])orbitVt-=0.012;if(keys['s']||keys['S'])orbitVt+=0.012;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));
+  orbitH+=(orbitHt-orbitH)*0.1; orbitV+=(orbitVt-orbitV)*0.1;
+  const ya=orbitV*Math.PI*0.5;
+  camera.position.x=OC.x+Math.sin(orbitH)*Math.cos(ya)*OR;
+  camera.position.z=OC.z+Math.cos(orbitH)*Math.cos(ya)*OR;
+  camera.position.y=OC.y+Math.sin(ya)*OR;
+  camera.lookAt(OC);
+
+  planet.rotation.y+=0.005; planet.rotation.x=Math.sin(t*0.2)*0.03;
+  for(const c of cloudGrp.children){c.position.x=c.userData.bx+Math.sin(t*c.userData.sp+c.userData.ph)*25;c.position.y=c.userData.by+Math.cos(t*0.3+c.userData.ph)*4;}
+  sunGrp.rotation.z+=0.003; sunGrp.scale.setScalar(1+Math.sin(t*0.5)*0.06);
+  composer.render();
+}
+animate();
+
+window.addEventListener('resize',()=>{W=Math.floor(container.clientWidth*PS);H=Math.floor(container.clientHeight*PS);camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);composer.setSize(W,H);});
+</script>
+</body>
+</html>

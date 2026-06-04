@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>液态玻璃 — Planet Slide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1230; }
+.scene-3d { position: relative; width: 100%; height: 100%; overflow: hidden; user-select: none; font-family: "Inter","PingFang SC","Microsoft YaHei",system-ui,sans-serif; }
+.scene-3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.glass-texture { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(ellipse at 30% 40%, rgba(140,120,200,0.12) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(120,140,200,0.08) 0%, transparent 50%); }
+.title-block { position: absolute; bottom: 18%; left: 8%; z-index: 10; text-align: left; pointer-events: none; max-width: 48%; }
+.title-block h1 { font-size: clamp(3rem, 7vw, 6rem); font-weight: 200; margin: 0; letter-spacing: 0.06em; line-height: 1.1; color: rgba(220,210,240,0.9); text-shadow: 0 0 40px rgba(180,160,220,0.4), 0 2px 4px rgba(0,0,0,0.3); }
+.title-block .subtitle { margin-top: 0.8rem; font-size: clamp(1.2rem, 2.5vw, 1.8rem); color: rgba(190,180,220,0.6); letter-spacing: 0.12em; font-weight: 300; }
+.title-block .meta { margin-top: 2rem; font-size: clamp(1rem, 1.6vw, 1.3rem); color: rgba(170,160,200,0.5); letter-spacing: 0.06em; font-weight: 300; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div class="scene-3d" id="scene3d">
+  <div class="glass-texture"></div>
+  <div class="title-block">
+    <h1>液态玻璃</h1>
+    <p class="subtitle">透光虹彩半星球</p>
+    <div class="meta"><span>Style #6</span></div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+const container = document.getElementById('scene3d');
+let W = container.clientWidth, H = container.clientHeight;
+
+const scene = new THREE.Scene();
+const bgC = document.createElement('canvas'); bgC.width=2; bgC.height=512; const bgCtx=bgC.getContext('2d');
+const grad=bgCtx.createLinearGradient(0,0,0,512);
+grad.addColorStop(0,'#1a1230'); grad.addColorStop(0.3,'#1e1640'); grad.addColorStop(0.6,'#221840'); grad.addColorStop(1,'#1a1038');
+bgCtx.fillStyle=grad; bgCtx.fillRect(0,0,2,512); scene.background=new THREE.CanvasTexture(bgC);
+
+const camera = new THREE.PerspectiveCamera(45, W/H, 1, 2000);
+camera.position.set(0, 50, 350); camera.lookAt(0, 25, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+container.insertBefore(renderer.domElement, container.firstChild);
+
+scene.add(new THREE.AmbientLight(0x221840, 0.35));
+const keyL = new THREE.DirectionalLight(0xd0c0ff, 1.5); keyL.position.set(150, 200, 300); scene.add(keyL);
+const rimL1 = new THREE.DirectionalLight(0x8060c0, 0.6); rimL1.position.set(-100, -50, -100); scene.add(rimL1);
+const rimL2 = new THREE.DirectionalLight(0xc080a0, 0.5); rimL2.position.set(50, 150, -150); scene.add(rimL2);
+
+// ── Half-sphere frosted glass ground ──
+const groundGeo = new THREE.SphereGeometry(300, 64, 32, 0, Math.PI*2, 0, Math.PI/2);
+const groundMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3050, roughness: 0.15, metalness: 0.05, clearcoat: 0.4, clearcoatRoughness: 0.1, transparent: true, opacity: 0.6 });
+const ground = new THREE.Mesh(groundGeo, groundMat); ground.position.set(0, -293, 0); scene.add(ground);
+
+// ── Glass planet resting on the ground ──
+const planet = new THREE.Group(); planet.position.set(0, 45, -30);
+const pGeo = new THREE.SphereGeometry(30, 80, 60);
+const pMat = new THREE.MeshPhysicalMaterial({ color: 0xaabbff, roughness: 0, metalness: 0, clearcoat: 0.3, clearcoatRoughness: 0.1, ior: 1.5, transmission: 0.85, thickness: 4, envMapIntensity: 0.5 });
+planet.add(new THREE.Mesh(pGeo, pMat));
+// Inner color core
+const innerGeo = new THREE.SphereGeometry(27, 48, 36); planet.add(new THREE.Mesh(innerGeo, new THREE.MeshStandardMaterial({ color: 0xddccff, roughness: 0.2, metalness: 0, transparent: true, opacity: 0.3 })));
+// Iridescent ring
+const ringGeo = new THREE.TorusGeometry(37, 0.6, 16, 200);
+const ringMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.1, metalness: 0, emissive: 0x6666aa, emissiveIntensity: 0.3, transparent: true, opacity: 0.5 });
+const ring = new THREE.Mesh(ringGeo, ringMat); ring.rotation.x = Math.PI*0.55; planet.add(ring);
+scene.add(planet);
+
+// ── Glass shards ──
+const shards = [];
+for (let i = 0; i < 15; i++) {
+  const size = 3+Math.random()*7;
+  const shardGeo = new THREE.TetrahedronGeometry(size, 0);
+  const hue = 220+Math.random()*60;
+  const sMat = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(`hsl(${hue},50%,75%)`), roughness: 0.05, metalness: 0, transmission: 0.5, ior: 1.4, thickness: 2, clearcoat: 0.2 });
+  const shard = new THREE.Mesh(shardGeo, sMat);
+  shard.position.set((Math.random()-0.5)*280, 15+Math.random()*90, -25-Math.random()*120);
+  shard.userData = { by: shard.position.y, bx: shard.position.x, bz: shard.position.z, bA: 3+Math.random()*8, bS: 0.3+Math.random()*0.7, oR: 15+Math.random()*30, oS: 0.03+Math.random()*0.07, sS: 0.005+Math.random()*0.015, ph: Math.random()*Math.PI*2 };
+  scene.add(shard); shards.push(shard);
+}
+
+// ── Caustic orbs ──
+const orbs = new THREE.Group();
+for (let i = 0; i < 8; i++) {
+  const orbGeo = new THREE.SphereGeometry(3+Math.random()*7, 16, 12);
+  const orb = new THREE.Mesh(orbGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, emissive: 0xd0c0ff, emissiveIntensity: 0.5, transparent: true, opacity: 0.15 }));
+  orb.position.set((Math.random()-0.5)*220, 20+Math.random()*80, -40-Math.random()*70);
+  orb.userData = { by: orb.position.y, bA: 4+Math.random()*12, bS: 0.3+Math.random()*0.8, ph: Math.random()*Math.PI*2 };
+  orbs.add(orb);
+}
+scene.add(orbs);
+
+// ── Post ──
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.8, 0.4, 0.8));
+
+// ── Drag orbit ──
+let isDragging=false,pmx=0,pmy=0,orbitH=0,orbitHt=0,orbitV=0.35,orbitVt=0.35;
+const OC=new THREE.Vector3(0,28,0),OR=350;
+container.addEventListener('mousedown',e=>{isDragging=true;pmx=e.clientX;pmy=e.clientY;});
+window.addEventListener('mousemove',e=>{if(isDragging){orbitHt-=(e.clientX-pmx)*0.004;orbitVt-=(e.clientY-pmy)*0.003;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));pmx=e.clientX;pmy=e.clientY;}});
+window.addEventListener('mouseup',()=>{isDragging=false;});
+container.addEventListener('touchstart',e=>{if(e.touches.length===1){isDragging=true;pmx=e.touches[0].clientX;pmy=e.touches[0].clientY;}});
+window.addEventListener('touchmove',e=>{if(isDragging&&e.touches.length===1){orbitHt-=(e.touches[0].clientX-pmx)*0.004;orbitVt-=(e.touches[0].clientY-pmy)*0.003;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));pmx=e.touches[0].clientX;pmy=e.touches[0].clientY;}});
+window.addEventListener('touchend',()=>{isDragging=false;});
+
+const keys={};window.addEventListener('keydown',e=>{keys[e.key]=true;});window.addEventListener('keyup',e=>{keys[e.key]=false;});
+const clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+  if(keys['a']||keys['A'])orbitHt-=0.02;if(keys['d']||keys['D'])orbitHt+=0.02;if(keys['w']||keys['W'])orbitVt-=0.012;if(keys['s']||keys['S'])orbitVt+=0.012;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));
+  orbitH+=(orbitHt-orbitH)*0.1; orbitV+=(orbitVt-orbitV)*0.1;
+  const ya=orbitV*Math.PI*0.5;
+  camera.position.x=OC.x+Math.sin(orbitH)*Math.cos(ya)*OR;
+  camera.position.z=OC.z+Math.cos(orbitH)*Math.cos(ya)*OR;
+  camera.position.y=OC.y+Math.sin(ya)*OR;
+  camera.lookAt(OC);
+
+  planet.rotation.y+=0.002; planet.rotation.x=Math.sin(t*0.25)*0.04;
+  for(const s of shards){const d=s.userData;const a=t*d.oS+d.ph;s.position.x=d.bx+Math.cos(a)*d.oR;s.position.z=d.bz+Math.sin(a)*d.oR*0.5;s.position.y=d.by+Math.sin(t*d.bS+d.ph)*d.bA;s.rotation.x+=d.sS;s.rotation.y+=d.sS*0.7;}
+  for(const o of orbs.children){o.position.y=o.userData.by+Math.sin(t*o.userData.bS+o.userData.ph)*o.userData.bA;o.material.opacity=0.1+Math.sin(t*0.7+o.userData.ph)*0.06;}
+  ringMat.emissiveIntensity=0.3+Math.sin(t*0.6)*0.1;
+  composer.render();
+}
+animate();
+
+window.addEventListener('resize',()=>{W=container.clientWidth;H=container.clientHeight;camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);composer.setSize(W,H);});
+</script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>熔岩地心 — Planet Slide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #1a0000; }
+.scene-3d { position: relative; width: 100%; height: 100%; overflow: hidden; user-select: none; font-family: "Playfair Display","PingFang SC","Microsoft YaHei",serif; }
+.scene-3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.vignette { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(ellipse at center, transparent 35%, rgba(20,0,0,0.9) 95%); }
+.title-block { position: absolute; top: 50%; right: 6%; transform: translateY(-50%); z-index: 10; text-align: right; pointer-events: none; max-width: 40%; }
+.title-block h1 { font-size: clamp(3rem, 7vw, 6rem); font-weight: 900; margin: 0; letter-spacing: 0.04em; line-height: 1.1; color: #ff6644; text-shadow: 0 0 60px rgba(255,100,40,0.6), 0 0 120px rgba(255,60,0,0.3), 0 2px 4px rgba(0,0,0,0.8); }
+.title-block .subtitle { margin-top: 0.8rem; font-size: clamp(1.2rem, 2.2vw, 1.8rem); color: rgba(255,160,100,0.6); letter-spacing: 0.12em; font-weight: 500; font-style: italic; }
+.title-block .meta { margin-top: 2rem; font-size: clamp(1rem, 1.6vw, 1.3rem); color: rgba(255,120,80,0.4); letter-spacing: 0.08em; font-weight: 500; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div class="scene-3d" id="scene3d">
+  <div class="vignette"></div>
+  <div class="title-block">
+    <h1>熔岩地心</h1>
+    <p class="subtitle">地核烈焰半星球</p>
+    <div class="meta"><span>Style #7</span></div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+const container = document.getElementById('scene3d');
+let W = container.clientWidth, H = container.clientHeight;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0a0000');
+scene.fog = new THREE.FogExp2('#0a0000', 0.00025);
+
+const camera = new THREE.PerspectiveCamera(50, W/H, 1, 2000);
+camera.position.set(0, 45, 320); camera.lookAt(0, 30, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.6;
+container.insertBefore(renderer.domElement, container.firstChild);
+
+scene.add(new THREE.AmbientLight(0x220800, 0.2));
+const fl1 = new THREE.PointLight(0xff4400, 120, 400); fl1.position.set(0, 40, 0); scene.add(fl1);
+const fl2 = new THREE.PointLight(0xff2200, 80, 300); fl2.position.set(-80, 20, -40); scene.add(fl2);
+const fl3 = new THREE.PointLight(0xff6600, 60, 250); fl3.position.set(60, 10, 60); scene.add(fl3);
+
+// ── Half-sphere lava ground ──
+const groundGeo = new THREE.SphereGeometry(300, 72, 36, 0, Math.PI*2, 0, Math.PI/2);
+const gPos = groundGeo.attributes.position; const gCol = new Float32Array(gPos.count*3);
+for (let i = 0; i < gPos.count; i++) {
+  const x=gPos.getX(i),y=gPos.getY(i),z=gPos.getZ(i);
+  const shade = 0.12 + Math.random()*0.1 + (y/300)*0.08;
+  gCol[i*3]=0.25*shade; gCol[i*3+1]=0.04*shade; gCol[i*3+2]=0.01*shade;
+}
+groundGeo.setAttribute('color', new THREE.BufferAttribute(gCol, 3));
+const groundMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.4, metalness: 0.05, emissive: new THREE.Color('#ff3300'), emissiveIntensity: 0.6 });
+const ground = new THREE.Mesh(groundGeo, groundMat); ground.position.set(0, -293, 0); scene.add(ground);
+
+// Lava cracks on ground surface (glowing rings at different heights)
+for (let i = 1; i <= 8; i++) {
+  const r = 300 * Math.sin((i/8)*Math.PI/2);
+  const y = -293 + 300 * Math.cos((i/8)*Math.PI/2);
+  const crackGeo = new THREE.TorusGeometry(r, 0.4+Math.random()*1.2, 8, 48, Math.PI*(0.3+Math.random()*0.4));
+  const crack = new THREE.Mesh(crackGeo, new THREE.MeshBasicMaterial({ color: 0xff4400, transparent: true, opacity: 0.3+Math.random()*0.3 }));
+  crack.position.y = y; crack.rotation.x = Math.PI/2; crack.rotation.z = Math.random()*Math.PI*2;
+  scene.add(crack);
+}
+
+// ── Ember particles ──
+const emberGroup = new THREE.Group();
+for (let i = 0; i < 100; i++) {
+  const ec = document.createElement('canvas'); ec.width=16; ec.height=16;
+  const ctx=ec.getContext('2d'); const rg=ctx.createRadialGradient(8,8,0,8,8,8);
+  rg.addColorStop(0,'rgba(255,200,50,0.9)'); rg.addColorStop(0.3,'rgba(255,100,20,0.7)'); rg.addColorStop(0.7,'rgba(200,20,0,0.2)'); rg.addColorStop(1,'transparent');
+  ctx.fillStyle=rg; ctx.fillRect(0,0,16,16);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(ec), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+  s.scale.set(3+Math.random()*7,3+Math.random()*7,1);
+  s.position.set((Math.random()-0.5)*300, -20+Math.random()*100, -40-Math.random()*100);
+  s.userData = { by: s.position.y, bx: s.position.x, bz: s.position.z, rs: 0.5+Math.random()*2, ds: 0.1+Math.random()*0.3, lp: Math.random()*Math.PI*2, ry: -50, ty: 100+Math.random()*50 };
+  emberGroup.add(s);
+}
+scene.add(emberGroup);
+
+// ── Smoke ──
+const smokeGroup = new THREE.Group();
+for (let i = 0; i < 12; i++) {
+  const sc = document.createElement('canvas'); sc.width=64; sc.height=64; const ctx=sc.getContext('2d');
+  const sg=ctx.createRadialGradient(32,32,0,32,32,32); sg.addColorStop(0,'rgba(60,30,15,0.12)'); sg.addColorStop(0.5,'rgba(30,15,8,0.06)'); sg.addColorStop(1,'transparent');
+  ctx.fillStyle=sg; ctx.fillRect(0,0,64,64);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, depthWrite: false, opacity: 0.35 }));
+  s.scale.set(60+Math.random()*100, 40+Math.random()*60, 1);
+  s.position.set((Math.random()-0.5)*300, -35-Math.random()*20, -50-Math.random()*70);
+  s.userData = { by: s.position.y, bx: s.position.x, rs: 0.1+Math.random()*0.3, ph: Math.random()*Math.PI*2 };
+  smokeGroup.add(s);
+}
+scene.add(smokeGroup);
+
+// ── Post ──
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 1.0, 0.6, 0.5));
+
+// ── Drag orbit ──
+let isDragging=false,pmx=0,pmy=0,orbitH=0,orbitHt=0,orbitV=0.4,orbitVt=0.4;
+const OC=new THREE.Vector3(0,35,0),OR=320;
+container.addEventListener('mousedown',e=>{isDragging=true;pmx=e.clientX;pmy=e.clientY;});
+window.addEventListener('mousemove',e=>{if(isDragging){orbitHt-=(e.clientX-pmx)*0.004;orbitVt-=(e.clientY-pmy)*0.003;orbitVt=Math.max(0.05,Math.min(0.6,orbitVt));pmx=e.clientX;pmy=e.clientY;}});
+window.addEventListener('mouseup',()=>{isDragging=false;});
+container.addEventListener('touchstart',e=>{if(e.touches.length===1){isDragging=true;pmx=e.touches[0].clientX;pmy=e.touches[0].clientY;}});
+window.addEventListener('touchmove',e=>{if(isDragging&&e.touches.length===1){orbitHt-=(e.touches[0].clientX-pmx)*0.004;orbitVt-=(e.touches[0].clientY-pmy)*0.003;orbitVt=Math.max(0.05,Math.min(0.6,orbitVt));pmx=e.touches[0].clientX;pmy=e.touches[0].clientY;}});
+window.addEventListener('touchend',()=>{isDragging=false;});
+
+const keys={};window.addEventListener('keydown',e=>{keys[e.key]=true;});window.addEventListener('keyup',e=>{keys[e.key]=false;});
+const clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+  if(keys['a']||keys['A'])orbitHt-=0.02;if(keys['d']||keys['D'])orbitHt+=0.02;if(keys['w']||keys['W'])orbitVt-=0.012;if(keys['s']||keys['S'])orbitVt+=0.012;orbitVt=Math.max(0.05,Math.min(0.6,orbitVt));
+  orbitH+=(orbitHt-orbitH)*0.1; orbitV+=(orbitVt-orbitV)*0.1;
+  const ya=orbitV*Math.PI*0.5;
+  camera.position.x=OC.x+Math.sin(orbitH)*Math.cos(ya)*OR;
+  camera.position.z=OC.z+Math.cos(orbitH)*Math.cos(ya)*OR;
+  camera.position.y=OC.y+Math.sin(ya)*OR;
+  camera.lookAt(OC);
+
+  const pulse=1+Math.sin(t*1.5)*0.3+Math.sin(t*2.7)*0.15;
+  groundMat.emissiveIntensity=0.6*pulse;
+  fl1.intensity=120+Math.sin(t*2)*25;
+  fl2.intensity=80+Math.cos(t*2.5)*18;
+
+  for(const e of emberGroup.children){
+    const d=e.userData; d.lp+=0.012;
+    e.position.y+=d.rs*0.03; e.position.x+=Math.sin(t*d.ds+d.lp)*0.4;
+    if(e.position.y>d.ty){e.position.y=d.ry;e.position.x=d.bx;e.position.z=d.bz;}
+    e.material.opacity=0.5+Math.sin(t*3+d.lp)*0.3;
+    e.scale.setScalar(3+Math.sin(t*2+d.lp)*2);
+  }
+  for(const s of smokeGroup.children){const d=s.userData;s.position.y+=d.rs*0.015;if(s.position.y>120)s.position.y=-45;s.position.x=d.bx+Math.sin(t*0.3+d.ph)*18;s.material.opacity=0.25+Math.sin(t*0.5+d.ph)*0.08;}
+
+  composer.render();
+}
+animate();
+
+window.addEventListener('resize',()=>{W=container.clientWidth;H=container.clientHeight;camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H);composer.setSize(W,H);});
+</script>
+</body>
+</html>

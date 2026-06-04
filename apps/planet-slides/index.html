@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planet Slides — weekly-vibe-coding</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { background: #0d1117; color: #c9d1d9; font-family: "Inter","Noto Sans SC",system-ui,sans-serif; }
+body { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.4rem; color: #f0f6fc; }
+.subtitle { font-size: 1.1rem; color: #8b949e; margin-bottom: 3rem; line-height: 1.6; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; }
+.card {
+  position: relative; border-radius: 12px; padding: 1.6rem 1.4rem 1.4rem;
+  border: 1px solid #21262d; background: #161b22;
+  transition: border-color 0.2s, transform 0.15s;
+  text-decoration: none; display: block; color: inherit;
+}
+.card:hover { border-color: #58a6ff; transform: translateY(-2px); }
+.card .num { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; color: #58a6ff; margin-bottom: 0.6rem; }
+.card .name { font-size: 1.25rem; font-weight: 600; color: #f0f6fc; margin-bottom: 0.35rem; }
+.card .en { font-size: 0.8rem; color: #8b949e; margin-bottom: 0.5rem; letter-spacing: 0.04em; }
+.card .tagline { font-size: 0.85rem; color: #6e7681; line-height: 1.5; }
+.footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid #21262d; font-size: 0.85rem; color: #484f58; }
+.footer a { color: #58a6ff; text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<h1>Planet Slides</h1>
+<p class="subtitle">8 种风格的 Three.js 3D 半星球演示页面，基于相同架构，各自独立的视觉美学。<br>拖拽鼠标或使用 WASD 键旋转视角。</p>
+
+<div class="grid">
+  <a class="card" href="warm-storybook/">
+    <div class="num">Style #1</div>
+    <div class="name">温暖童话绘本</div>
+    <div class="en">Warm Storybook</div>
+    <div class="tagline">树下读书的机器人，手绘水彩质感的半星球地面</div>
+  </a>
+  <a class="card" href="neon-synthwave/">
+    <div class="num">Style #2</div>
+    <div class="name">霓虹合成波</div>
+    <div class="en">Neon Synthwave</div>
+    <div class="tagline">赛博空间网格地面，霓虹水晶与合成波太阳</div>
+  </a>
+  <a class="card" href="deep-space/">
+    <div class="num">Style #3</div>
+    <div class="name">深空探索</div>
+    <div class="en">Deep Space</div>
+    <div class="tagline">站在小行星表面仰望带环巨行星，星场与星云</div>
+  </a>
+  <a class="card" href="paper-cutout/">
+    <div class="num">Style #4</div>
+    <div class="name">剪纸折纸</div>
+    <div class="en">Paper Cutout</div>
+    <div class="tagline">五层剪纸山脉贴合曲面地面，折纸星球与纸鸟</div>
+  </a>
+  <a class="card" href="retro-pixel/">
+    <div class="num">Style #5</div>
+    <div class="name">复古像素</div>
+    <div class="en">Retro Pixel</div>
+    <div class="tagline">1/4 分辨率像素渲染，方块树与低面数星球</div>
+  </a>
+  <a class="card" href="liquid-glass/">
+    <div class="num">Style #6</div>
+    <div class="name">液态玻璃</div>
+    <div class="en">Liquid Glass</div>
+    <div class="tagline">透光玻璃星球与磨砂地面，漂浮的玻璃碎片</div>
+  </a>
+  <a class="card" href="fire-magma/">
+    <div class="num">Style #7</div>
+    <div class="name">熔岩地心</div>
+    <div class="en">Fire &amp; Magma</div>
+    <div class="tagline">暗红炽热熔岩地表，升腾的余烬与烟雾</div>
+  </a>
+  <a class="card" href="ice-crystal/">
+    <div class="num">Style #8</div>
+    <div class="name">冰晶极地</div>
+    <div class="en">Ice Crystal</div>
+    <div class="tagline">冰封半星球地面，极光飘带与飘雪粒子</div>
+  </a>
+</div>
+
+<div class="footer">
+  part of <a href="https://github.com/ChenZiHong-Gavin/weekly-vibe-coding">weekly-vibe-coding</a> · 专题五：有审美的网站设计
+</div>
+</body>
+</html>

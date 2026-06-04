@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>霓虹合成波 — Planet Slide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0020; }
+.scene-3d { position: relative; width: 100%; height: 100%; overflow: hidden; user-select: none; font-family: "Orbitron","PingFang SC","Microsoft YaHei",monospace,sans-serif; }
+.scene-3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.vignette { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: radial-gradient(ellipse at center, transparent 40%, rgba(5,0,20,0.8) 100%); }
+.title-block { position: absolute; top: 50%; left: 6%; transform: translateY(-50%); z-index: 10; text-align: left; pointer-events: none; max-width: 45%; }
+.title-block h1 { font-size: clamp(2.8rem, 6vw, 5.5rem); font-weight: 900; margin: 0; letter-spacing: 0.08em; line-height: 1.1; color: #ff66ff; text-shadow: 0 0 40px rgba(255,102,255,0.6), 0 0 80px rgba(0,255,255,0.3), 0 4px 0 rgba(0,0,0,0.5); }
+.title-block .subtitle { margin-top: 0.8rem; font-size: clamp(1.2rem, 2.2vw, 1.8rem); color: rgba(0,255,255,0.7); letter-spacing: 0.2em; font-weight: 400; text-shadow: 0 0 20px rgba(0,255,255,0.4); }
+.title-block .meta { margin-top: 2rem; font-size: clamp(1rem, 1.6vw, 1.3rem); color: rgba(200,100,255,0.6); letter-spacing: 0.1em; font-weight: 400; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div class="scene-3d" id="scene3d">
+  <div class="vignette"></div>
+  <div class="title-block">
+    <h1>霓虹合成波</h1>
+    <p class="subtitle">赛博空间半星球网格</p>
+    <div class="meta"><span>Style #2</span></div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+const container = document.getElementById('scene3d');
+let W = container.clientWidth, H = container.clientHeight;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0a0020');
+scene.fog = new THREE.Fog('#0a0020', 200, 900);
+
+const camera = new THREE.PerspectiveCamera(50, W / H, 1, 2000);
+camera.position.set(0, 50, 350); camera.lookAt(0, 30, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.5;
+container.insertBefore(renderer.domElement, container.firstChild);
+
+scene.add(new THREE.AmbientLight(0x220044, 0.4));
+const nl1 = new THREE.PointLight(0xff00ff, 100, 500); nl1.position.set(0, 100, 200); scene.add(nl1);
+const nl2 = new THREE.PointLight(0x00ffff, 80, 400); nl2.position.set(-120, 50, -100); scene.add(nl2);
+const nl3 = new THREE.PointLight(0xffff00, 50, 300); nl3.position.set(120, 30, 50); scene.add(nl3);
+
+// Toon helper
+const tc = new Uint8Array([40, 80, 200, 255]);
+const tg = new THREE.DataTexture(tc, 4, 1, THREE.RedFormat); tg.minFilter = THREE.NearestFilter; tg.magFilter = THREE.NearestFilter; tg.needsUpdate = true;
+function nToon(geo, color, glow, ow = 1.5) {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(geo, new THREE.MeshToonMaterial({ color, gradientMap: tg })));
+  const o = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: glow, side: THREE.BackSide })); o.scale.setScalar(1+ow*0.015); g.add(o);
+  return g;
+}
+
+// ── Half-sphere ground (dark synthwave grid) ──
+const groundGeo = new THREE.SphereGeometry(300, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2);
+const ground = nToon(groundGeo, 0x1a0030, 0xff00ff, 3); ground.position.set(0, -293, 0); scene.add(ground);
+// Grid lines on the half-sphere
+const gridRingCount = 20;
+for (let i = 1; i <= gridRingCount; i++) {
+  const r = 300 * Math.sin((i / gridRingCount) * Math.PI / 2);
+  const y = -293 + 300 * Math.cos((i / gridRingCount) * Math.PI / 2);
+  const ringGeo = new THREE.TorusGeometry(r, 0.5, 8, 64);
+  const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.2 }));
+  ring.position.y = y; ring.rotation.x = Math.PI / 2; scene.add(ring);
+}
+// Radial lines
+for (let i = 0; i < 24; i++) {
+  const a = (i / 24) * Math.PI * 2;
+  const curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(0, -293, 0), new THREE.Vector3(Math.cos(a) * 150, 50, Math.sin(a) * 150), new THREE.Vector3(Math.cos(a) * 295, -288, Math.sin(a) * 295));
+  const tubeGeo = new THREE.TubeGeometry(curve, 32, 0.3, 4, false);
+  const tube = new THREE.Mesh(tubeGeo, new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.15 }));
+  scene.add(tube);
+}
+
+// ── Neon crystal structures on the ground ──
+const crystals = [];
+for (let i = 0; i < 15; i++) {
+  const cx = (Math.random() - 0.5) * 250;
+  const cz = (Math.random() - 0.5) * 200;
+  const surfaceY = Math.sqrt(Math.max(0, 300*300 - cx*cx - cz*cz)) - 293;
+  if (surfaceY < -5) continue;
+  const h = 8 + Math.random() * 30;
+  const crystalGeo = new THREE.CylinderGeometry(1, 3, h, 4);
+  const color = [0xff00ff, 0x00ffff, 0xffff00, 0xff6600][Math.floor(Math.random()*4)];
+  const crystal = nToon(crystalGeo, color, color, 2);
+  crystal.position.set(cx, surfaceY + h/2, cz);
+  crystal.userData = { baseY: crystal.position.y, bx: cx, bz: cz, bobAmp: 1+Math.random()*2, bobSpeed: 0.3+Math.random()*0.5, phase: Math.random()*Math.PI*2 };
+  scene.add(crystal); crystals.push(crystal);
+}
+
+// ── Sun on horizon ──
+const sunGroup = new THREE.Group(); sunGroup.position.set(-220, 100, -320);
+sunGroup.add(nToon(new THREE.SphereGeometry(35, 32, 24), 0xffaa00, 0xff4400, 3));
+for (let i = 0; i < 12; i++) {
+  const a = (i/12)*Math.PI*2;
+  const ray = nToon(new THREE.BoxGeometry(3, 20, 1), 0xff8800, 0xff4400, 1);
+  ray.position.set(Math.cos(a)*48, Math.sin(a)*48, 0); ray.rotation.z = a; sunGroup.add(ray);
+}
+for (let r = 0; r < 3; r++) {
+  const ringGeo = new THREE.TorusGeometry(43+r*10, 1.5, 8, 64);
+  const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: [0xff00ff, 0x00ffff, 0xffff00][r], transparent: true, opacity: 0.6 }));
+  ring.rotation.x = Math.PI*0.4 + r*0.2; sunGroup.add(ring);
+}
+scene.add(sunGroup);
+
+// ── Starfield ──
+const starsGeo = new THREE.BufferGeometry();
+const sc = 1200; const sp = new Float32Array(sc*3);
+for (let i = 0; i < sc; i++) { sp[i*3]=(Math.random()-0.5)*1800; sp[i*3+1]=(Math.random()-0.5)*1000; sp[i*3+2]=-300-Math.random()*500; }
+starsGeo.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+const stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.6, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+scene.add(stars);
+
+// ── Floating neon diamonds ──
+const floaters = [];
+for (let i = 0; i < 8; i++) {
+  const size = 3 + Math.random() * 6;
+  const color = [0xff00ff, 0x00ffff, 0xffff00][Math.floor(Math.random()*3)];
+  const diamond = nToon(new THREE.OctahedronGeometry(size, 0), color, color, 2);
+  diamond.position.set((Math.random()-0.5)*400, 40+Math.random()*120, -60-Math.random()*150);
+  diamond.userData = { by: diamond.position.y, bx: diamond.position.x, bz: diamond.position.z, bA: 4+Math.random()*12, bS: 0.4+Math.random()*0.8, oR: 30+Math.random()*60, oS: 0.03+Math.random()*0.07, sS: 0.01+Math.random()*0.03, ph: Math.random()*Math.PI*2 };
+  scene.add(diamond); floaters.push(diamond);
+}
+
+// ── Post ──
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 1.5, 0.6, 0.6));
+
+// ── Drag orbit ──
+let isDragging=false,pmx=0,pmy=0,orbitH=0,orbitHt=0,orbitV=0.35,orbitVt=0.35;
+const OC = new THREE.Vector3(0, 30, 0), OR = 350;
+container.addEventListener('mousedown', e => { isDragging=true; pmx=e.clientX; pmy=e.clientY; });
+window.addEventListener('mousemove', e => {
+  if (isDragging) { orbitHt-=(e.clientX-pmx)*0.004; orbitVt-=(e.clientY-pmy)*0.003; orbitVt=Math.max(0.05,Math.min(0.65,orbitVt)); pmx=e.clientX; pmy=e.clientY; }
+});
+window.addEventListener('mouseup', () => { isDragging=false; });
+container.addEventListener('touchstart', e => { if(e.touches.length===1){ isDragging=true; pmx=e.touches[0].clientX; pmy=e.touches[0].clientY; } });
+window.addEventListener('touchmove', e => { if(isDragging&&e.touches.length===1){ orbitHt-=(e.touches[0].clientX-pmx)*0.004; orbitVt-=(e.touches[0].clientY-pmy)*0.003; orbitVt=Math.max(0.05,Math.min(0.65,orbitVt)); pmx=e.touches[0].clientX; pmy=e.touches[0].clientY; } });
+window.addEventListener('touchend', () => { isDragging=false; });
+
+const keys={};window.addEventListener('keydown',e=>{keys[e.key]=true;});window.addEventListener('keyup',e=>{keys[e.key]=false;});
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  if(keys['a']||keys['A'])orbitHt-=0.02;if(keys['d']||keys['D'])orbitHt+=0.02;if(keys['w']||keys['W'])orbitVt-=0.012;if(keys['s']||keys['S'])orbitVt+=0.012;orbitVt=Math.max(0.05,Math.min(0.65,orbitVt));
+  orbitH+=(orbitHt-orbitH)*0.1; orbitV+=(orbitVt-orbitV)*0.1;
+  const ya = orbitV*Math.PI*0.5;
+  camera.position.x=OC.x+Math.sin(orbitH)*Math.cos(ya)*OR;
+  camera.position.z=OC.z+Math.cos(orbitH)*Math.cos(ya)*OR;
+  camera.position.y=OC.y+Math.sin(ya)*OR;
+  camera.lookAt(OC);
+
+  sunGroup.rotation.z+=0.003;
+  stars.rotation.y+=0.0003;
+  for (const c of crystals) { const d=c.userData; c.position.y=d.baseY+Math.sin(t*d.bobSpeed+d.phase)*d.bobAmp; }
+  for (const f of floaters) { const d=f.userData; const a=t*d.oS+d.ph; f.position.x=d.bx+Math.cos(a)*d.oR; f.position.z=d.bz+Math.sin(a)*d.oR*0.4; f.position.y=d.by+Math.sin(t*d.bS+d.ph)*d.bA; f.rotation.y+=d.sS; }
+  nl1.intensity=100+Math.sin(t*1.5)*20;
+
+  composer.render();
+}
+animate();
+
+window.addEventListener('resize',()=>{ W=container.clientWidth; H=container.clientHeight; camera.aspect=W/H; camera.updateProjectionMatrix(); renderer.setSize(W,H); composer.setSize(W,H); });
+</script>
+</body>
+</html>

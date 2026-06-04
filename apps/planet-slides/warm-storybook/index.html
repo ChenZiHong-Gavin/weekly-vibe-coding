@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>温暖童话绘本 — Planet Slide</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #f5e6d3; }
+.scene-3d {
+  position: relative; width: 100%; height: 100%;
+  overflow: hidden; user-select: none;
+  font-family: "Comic Sans MS", "Chalkboard SE", "PingFang SC", "Microsoft YaHei", cursive, sans-serif;
+}
+.scene-3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.paper-overlay {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  mix-blend-mode: multiply; opacity: 0.06;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(140,120,100,0.15) 2px, rgba(140,120,100,0.15) 3px),
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(140,120,100,0.1) 2px, rgba(140,120,100,0.1) 3px);
+  background-size: 4px 4px;
+}
+.vignette {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(60,40,30,0.15) 100%);
+}
+.title-block {
+  position: absolute; top: 50%; left: 6%; transform: translateY(-50%);
+  z-index: 10; text-align: left; pointer-events: none; max-width: 40%;
+}
+.title-block h1 {
+  font-size: clamp(2.5rem, 5.5vw, 5rem);
+  font-weight: 800; margin: 0; letter-spacing: 0.06em; line-height: 1.2;
+  color: #3a2f45;
+  text-shadow: 2px 2px 0 rgba(255,255,255,0.6), -1px -1px 0 rgba(255,255,255,0.3), 0 4px 12px rgba(100,60,120,0.15);
+}
+.title-block .subtitle {
+  margin-top: 0.6rem; font-size: clamp(1.2rem, 2vw, 1.7rem);
+  color: rgba(80,60,90,0.5); letter-spacing: 0.15em; font-weight: 400;
+}
+.title-block .meta {
+  margin-top: 1.8rem; font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  color: rgba(80,60,90,0.6); letter-spacing: 0.05em; font-weight: 500; line-height: 1.8;
+}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div class="scene-3d" id="scene3d">
+  <div class="paper-overlay"></div>
+  <div class="vignette"></div>
+  <div class="title-block">
+    <h1>温暖童话绘本</h1>
+    <p class="subtitle">树下读书的机器人</p>
+    <div class="meta"><span>Style #1</span></div>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+const container = document.getElementById('scene3d');
+let W = container.clientWidth, H = container.clientHeight;
+
+// ── Scene & Background ──
+const scene = new THREE.Scene();
+const bgCanvas = document.createElement('canvas'); bgCanvas.width = 2; bgCanvas.height = 512;
+const bgCtx = bgCanvas.getContext('2d');
+const grad = bgCtx.createLinearGradient(0, 0, 0, 512);
+grad.addColorStop(0, '#f5e6d3'); grad.addColorStop(0.25, '#f0d4c0');
+grad.addColorStop(0.55, '#e8c8d8'); grad.addColorStop(0.80, '#d4c0e8');
+grad.addColorStop(1, '#b8d0f0');
+bgCtx.fillStyle = grad; bgCtx.fillRect(0, 0, 2, 512);
+scene.background = new THREE.CanvasTexture(bgCanvas);
+
+// ── Camera ──
+const camera = new THREE.PerspectiveCamera(45, W / H, 1, 2000);
+camera.position.set(0, 50, 350); camera.lookAt(0, 30, 0);
+
+// ── Renderer ──
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.4;
+container.insertBefore(renderer.domElement, container.firstChild);
+
+// ── Lights ──
+scene.add(new THREE.AmbientLight(0xfff5e6, 0.6));
+const dirLight = new THREE.DirectionalLight(0xffeedd, 1.2); dirLight.position.set(200, 300, 400); scene.add(dirLight);
+const fillLight = new THREE.DirectionalLight(0xd4c0f0, 0.4); fillLight.position.set(-200, -100, 200); scene.add(fillLight);
+
+// ── Toon Helper ──
+const toonColors = new Uint8Array([80, 160, 210, 255]);
+const toonGradient = new THREE.DataTexture(toonColors, 4, 1, THREE.RedFormat);
+toonGradient.minFilter = THREE.NearestFilter; toonGradient.magFilter = THREE.NearestFilter; toonGradient.needsUpdate = true;
+
+function toon(geo, color, outlineW = 2) {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(geo, new THREE.MeshToonMaterial({ color, gradientMap: toonGradient })));
+  const o = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x3a2f45, side: THREE.BackSide }));
+  const s = 1 + outlineW * 0.01; o.scale.set(s, s, s);
+  g.add(o); return g;
+}
+
+// ── Half-sphere Grassy Hill (like cover) ──
+const hillGeo = new THREE.SphereGeometry(300, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2);
+const hill = toon(hillGeo, 0xa5d6a7, 2); hill.position.set(0, -293, 0); scene.add(hill);
+
+// Small bushes on hill
+const bushPositions = [{ x: -80, z: 60, s: 1.0 }, { x: -55, z: 80, s: 0.7 }, { x: 70, z: 90, s: 0.8 }, { x: 110, z: 50, s: 0.6 }];
+for (const bp of bushPositions) {
+  const bushG = new THREE.Group();
+  const sizes = [8, 6, 7]; const offsets = [[-3, 0, 0], [4, 2, -2], [0, 3, 3]];
+  for (let i = 0; i < 3; i++) {
+    const b = toon(new THREE.SphereGeometry(sizes[i], 8, 6), i % 2 === 0 ? 0x81c784 : 0x66bb6a, 1.5);
+    b.position.set(offsets[i][0], offsets[i][1], offsets[i][2]); bushG.add(b);
+  }
+  const surfaceY = Math.sqrt(Math.max(0, 300 * 300 - bp.x * bp.x - bp.z * bp.z)) - 293;
+  bushG.position.set(bp.x, Math.max(surfaceY, 0) - 2, bp.z); bushG.scale.setScalar(bp.s);
+  scene.add(bushG);
+}
+
+// ── Tree ──
+const tree = new THREE.Group(); tree.position.set(20, 5, 0);
+const trunk = toon(new THREE.CylinderGeometry(6, 10, 80, 10), 0xa1887f, 2); trunk.position.y = 40; tree.add(trunk);
+for (let i = 0; i < 3; i++) {
+  const angle = (i / 3) * Math.PI * 2 + 0.3;
+  const root = toon(new THREE.CylinderGeometry(2, 4, 20, 6), 0x8d6e63, 1.5);
+  root.position.set(Math.cos(angle) * 10, 3, Math.sin(angle) * 8);
+  root.rotation.z = Math.cos(angle) * 0.6; root.rotation.x = Math.sin(angle) * 0.3;
+  tree.add(root);
+}
+const canopyPuffs = [];
+const canopyData = [
+  { x: 0, y: 90, z: 0, r: 35 }, { x: 22, y: 95, z: 8, r: 28 }, { x: -20, y: 92, z: -5, r: 30 },
+  { x: 10, y: 105, z: -10, r: 24 }, { x: -10, y: 100, z: 10, r: 26 }, { x: 25, y: 82, z: -8, r: 22 },
+  { x: -22, y: 85, z: 5, r: 20 }, { x: 0, y: 108, z: 5, r: 20 }, { x: 15, y: 78, z: 12, r: 18 },
+];
+for (let i = 0; i < canopyData.length; i++) {
+  const c = canopyData[i];
+  const puff = toon(new THREE.SphereGeometry(c.r, 12, 8), i % 2 === 0 ? 0x81c784 : 0x66bb6a, 1.5);
+  puff.position.set(c.x, c.y, c.z);
+  puff.userData = { baseY: c.y, speed: 0.3 + Math.random() * 0.2, amp: 1 + Math.random() * 1.5 };
+  tree.add(puff); canopyPuffs.push(puff);
+}
+scene.add(tree);
+
+// ── Robot (sitting under tree) ──
+const robot = new THREE.Group(); robot.position.set(35, 20, 12); robot.rotation.y = 1.2;
+const body = toon(new THREE.BoxGeometry(18, 22, 14), 0xb3e5fc, 2); body.rotation.x = -0.12; robot.add(body);
+const head = toon(new THREE.SphereGeometry(10, 12, 10), 0xc8a8e9, 2); head.position.y = 20; head.rotation.x = -0.2; robot.add(head);
+const antenna = toon(new THREE.CylinderGeometry(0.8, 0.8, 8, 6), 0xffe082, 1.5); antenna.position.set(0, 28, 0); robot.add(antenna);
+const antBall = toon(new THREE.SphereGeometry(2, 8, 6), 0xffe082, 1.5); antBall.position.set(0, 33, 0); robot.add(antBall);
+
+const lidPivotsU = [], lidPivotsL = [];
+const LID_OPEN = Math.PI / 3.2;
+for (const side of [-1, 1]) {
+  const eye = new THREE.Mesh(new THREE.SphereGeometry(2.5, 8, 6), new THREE.MeshBasicMaterial({ color: 0x81d4fa }));
+  eye.position.set(side * 4, 19, 9); robot.add(eye);
+  const pupil = new THREE.Mesh(new THREE.SphereGeometry(1.2, 6, 4), new THREE.MeshBasicMaterial({ color: 0x1a237e }));
+  pupil.position.set(side * 4, 18.2, 10.5); robot.add(pupil);
+  const lidMat = new THREE.MeshToonMaterial({ color: 0xc8a8e9, gradientMap: toonGradient, side: THREE.DoubleSide });
+  const upper = new THREE.Mesh(new THREE.SphereGeometry(2.6, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), lidMat);
+  const upPivot = new THREE.Group(); upPivot.position.set(side * 4, 19, 9); upPivot.add(upper); upPivot.rotation.x = -LID_OPEN; robot.add(upPivot); lidPivotsU.push(upPivot);
+  const lower = new THREE.Mesh(new THREE.SphereGeometry(2.6, 16, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), lidMat);
+  const loPivot = new THREE.Group(); loPivot.position.set(side * 4, 19, 9); loPivot.add(lower); loPivot.rotation.x = LID_OPEN; robot.add(loPivot); lidPivotsL.push(loPivot);
+}
+// Heart
+const heartShape = new THREE.Shape();
+heartShape.moveTo(0, -2); heartShape.bezierCurveTo(-3, 1, -3, 4, 0, 5); heartShape.bezierCurveTo(3, 4, 3, 1, 0, -2);
+const heartGeo = new THREE.ExtrudeGeometry(heartShape, { depth: 1.5, bevelEnabled: true, bevelThickness: 0.5, bevelSize: 0.3, bevelSegments: 2 });
+heartGeo.center(); heartGeo.scale(0.6, 0.6, 0.6);
+const heart = toon(heartGeo, 0xef5350, 1.5); heart.position.set(0, 2, 8); robot.add(heart);
+
+for (const side of [-1, 1]) {
+  const arm = toon(new THREE.CapsuleGeometry(2.5, 12, 4, 6), 0xb3e5fc, 1.5);
+  arm.position.set(side * 11, -3, 5); arm.rotation.x = -1.0; arm.rotation.z = side * 0.4; robot.add(arm);
+  const hand = toon(new THREE.SphereGeometry(3, 8, 6), 0xc8a8e9, 1.5); hand.position.set(side * 7, -10, 12); robot.add(hand);
+  const leg = toon(new THREE.CapsuleGeometry(3, 14, 4, 6), 0xb3e5fc, 1.5);
+  leg.position.set(side * 6, -10, 3); leg.rotation.x = -Math.PI / 2; robot.add(leg);
+  const foot = toon(new THREE.SphereGeometry(3.5, 8, 6), 0x8d6e63, 1.5); foot.position.set(side * 6, -10, 16); robot.add(foot);
+}
+
+// Book in robot's lap
+const book = new THREE.Group();
+const CW = 11, CH = 15, CT = 0.6, OPEN_ANGLE = 0.4;
+book.add(toon(new THREE.BoxGeometry(CT * 2, CH, 2.5), 0xc62828, 1.5));
+const backPivot = new THREE.Group(); backPivot.add(toon(new THREE.BoxGeometry(CW, CH, CT).translate(-CW/2, 0, 0) || toon(new THREE.BoxGeometry(CW, CH, CT), 0xd32f2f, 1.5))); backPivot.rotation.y = OPEN_ANGLE;
+
+// Simplify book for cleanliness (red cover + pages visible)
+const redMat = new THREE.MeshToonMaterial({ color: 0xd32f2f, gradientMap: toonGradient });
+const pageMat = new THREE.MeshToonMaterial({ color: 0xfff8e1, gradientMap: toonGradient });
+// Back cover
+const bcGeo = new THREE.BoxGeometry(CW, CH, CT); const bcMesh = new THREE.Mesh(bcGeo, redMat); bcMesh.position.set(-CW/2, 0, 0);
+const bcPivot = new THREE.Group(); bcPivot.add(bcMesh); bcPivot.rotation.y = OPEN_ANGLE; book.add(bcPivot);
+// Front cover
+const fcGeo = new THREE.BoxGeometry(CW, CH, CT); const fcMesh = new THREE.Mesh(fcGeo, redMat); fcMesh.position.set(CW/2, 0, 0);
+const fcPivot = new THREE.Group(); fcPivot.add(fcMesh); fcPivot.rotation.y = -OPEN_ANGLE; book.add(fcPivot);
+// Left pages
+const lpGeo = new THREE.BoxGeometry(CW - 1, CH - 1, 1.8); const lpMesh = new THREE.Mesh(lpGeo, pageMat); lpMesh.position.set(-CW/2, 0, 0);
+const lpPivot = new THREE.Group(); lpPivot.add(lpMesh); lpPivot.rotation.y = OPEN_ANGLE * 0.95; book.add(lpPivot);
+// Right pages
+const rpGeo = new THREE.BoxGeometry(CW - 1, CH - 1, 1.2); const rpMesh = new THREE.Mesh(rpGeo, pageMat); rpMesh.position.set(CW/2, 0, 0);
+const rpPivot = new THREE.Group(); rpPivot.add(rpMesh); rpPivot.rotation.y = -OPEN_ANGLE * 0.95; book.add(rpPivot);
+// Spread pages
+const spreadMat = new THREE.MeshToonMaterial({ color: 0xfffef5, gradientMap: toonGradient, side: THREE.DoubleSide });
+const lsPivot = new THREE.Group(); const lsMesh = new THREE.Mesh(new THREE.PlaneGeometry(CW - 1.5, CH - 2), spreadMat); lsMesh.position.set(-CW/2+0.3, 0, 0); lsPivot.add(lsMesh); lsPivot.rotation.y = OPEN_ANGLE * 0.9; lsPivot.position.y = 0.1; book.add(lsPivot);
+const rsPivot = new THREE.Group(); const rsMesh = new THREE.Mesh(new THREE.PlaneGeometry(CW - 1.5, CH - 2), spreadMat); rsMesh.position.set(CW/2-0.3, 0, 0); rsPivot.add(rsMesh); rsPivot.rotation.y = -OPEN_ANGLE * 0.9; rsPivot.position.y = 0.1; book.add(rsPivot);
+// Page lines
+for (let p = 0; p < 2; p++) {
+  const pivot = p === 0 ? lsPivot : rsPivot;
+  const baseX = p === 0 ? (-CW / 2 + 0.3) : (CW / 2 - 0.3);
+  for (let i = 0; i < 6; i++) {
+    const lm = new THREE.Mesh(new THREE.PlaneGeometry(4 + Math.random() * 4, 0.25), new THREE.MeshBasicMaterial({ color: 0xc8b8a8, side: THREE.DoubleSide, transparent: true, opacity: 0.4 }));
+    lm.position.set(baseX, 4 - i * 1.6, 0.1); pivot.add(lm);
+  }
+}
+// Turning page
+const turnPagePivot = new THREE.Group(); turnPagePivot.position.set(0, 0.2, 0);
+const turningPage = new THREE.Mesh(new THREE.PlaneGeometry(CW - 1.5, CH - 2), new THREE.MeshToonMaterial({ color: 0xfff8e1, gradientMap: toonGradient, side: THREE.DoubleSide }));
+turningPage.position.set(CW / 2 - 0.3, 0, 0); turnPagePivot.add(turningPage); book.add(turnPagePivot);
+// Bookmark ribbon
+const ribbonCurve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(0, CH/2+0.5, 0), new THREE.Vector3(1.5, CH/2+3, 0.5), new THREE.Vector3(0.5, CH/2+5, -0.5));
+book.add(toon(new THREE.TubeGeometry(ribbonCurve, 8, 0.3, 4, false), 0xef5350, 1));
+
+book.position.set(0, -7, 9); book.rotation.x = -1.25; book.rotation.z = 0.05; robot.add(book);
+scene.add(robot);
+
+// ── Floating decorations ──
+const floaters = [];
+function miniBook(color) { const g = new THREE.Group(); g.add(toon(new THREE.BoxGeometry(5, 7, 1.5), color, 1.5)); return g; }
+function gear(size) {
+  const g = new THREE.Group(); g.add(toon(new THREE.TorusGeometry(size, size*0.25, 8, 16), 0xffe082, 1.5));
+  for (let i = 0; i < 8; i++) { const a = (i/8)*Math.PI*2; const t = toon(new THREE.BoxGeometry(size*0.3, size*0.3, size*0.4), 0xffe082, 1); t.position.set(Math.cos(a)*(size+size*0.15), Math.sin(a)*(size+size*0.15), 0); t.rotation.z = a; g.add(t); }
+  return g;
+}
+function bulb() { const g = new THREE.Group(); const b = toon(new THREE.SphereGeometry(4, 10, 8), 0xffe082, 1.5); b.position.y = 3; g.add(b); g.add(toon(new THREE.CylinderGeometry(2, 2.5, 4, 8), 0xffcc80, 1.5)); return g; }
+
+const floaterDefs = [
+  { obj: miniBook(0xce93d8), x: -100, y: 100, z: -40, or: 120, os: 0.06, bs: 0.4, ba: 5, ss: 0.01 },
+  { obj: miniBook(0x81d4fa), x: 120, y: 110, z: -30, or: 140, os: -0.04, bs: 0.35, ba: 6, ss: 0.008 },
+  { obj: gear(5), x: 100, y: 85, z: -20, or: 100, os: 0.05, bs: 0.3, ba: 4, ss: 0.02 },
+  { obj: bulb(), x: 80, y: 120, z: 30, or: 90, os: 0.04, bs: 0.5, ba: 6, ss: 0.008 },
+];
+for (const d of floaterDefs) {
+  d.obj.position.set(d.x, d.y, d.z);
+  d.obj.userData = { baseY: d.y, ocx: 20, ocz: 0, orbitR: d.or, orbitSpeed: d.os, bobSpeed: d.bs, bobAmp: d.ba, spinSpeed: d.ss, phase: Math.random()*Math.PI*2 };
+  scene.add(d.obj); floaters.push(d.obj);
+}
+
+// ── Clouds ──
+const clouds = [];
+for (const c of [{ x: -250, y: 150, z: -200, s: 1.0, sp: 0.07 }, { x: 280, y: 135, z: -250, s: 1.3, sp: 0.05 }]) {
+  const cloud = new THREE.Group();
+  for (const p of [{ r: 30, x: 0, y: 0, z: 0 }, { r: 24, x: 28, y: 5, z: 5 }, { r: 22, x: -25, y: 3, z: -3 }, { r: 18, x: 15, y: 12, z: -8 }, { r: 20, x: -12, y: 10, z: 6 }]) {
+    const puff = toon(new THREE.SphereGeometry(p.r, 12, 8), 0xffffff, 1.5); puff.position.set(p.x, p.y, p.z); cloud.add(puff);
+  }
+  cloud.position.set(c.x, c.y, c.z); cloud.scale.setScalar(c.s); cloud.userData = { bx: c.x, by: c.y, sp: c.sp };
+  scene.add(cloud); clouds.push(cloud);
+}
+
+// ── Post Processing ──
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.4, 0.8, 0.75));
+const OutlineShader = {
+  uniforms: { tDiffuse: { value: null }, resolution: { value: new THREE.Vector2(W, H) }, edgeStrength: { value: 0.35 }, edgeColor: { value: new THREE.Vector3(0.227, 0.184, 0.271) } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+  fragmentShader: `uniform sampler2D tDiffuse; uniform vec2 resolution; uniform float edgeStrength; uniform vec3 edgeColor; varying vec2 vUv;
+    void main(){ vec2 tx=1.0/resolution; vec4 c=texture2D(tDiffuse,vUv);
+      float tl=dot(texture2D(tDiffuse,vUv+tx*vec2(-1,1)).rgb,vec3(.299,.587,.114));
+      float t=dot(texture2D(tDiffuse,vUv+tx*vec2(0,1)).rgb,vec3(.299,.587,.114));
+      float tr=dot(texture2D(tDiffuse,vUv+tx*vec2(1,1)).rgb,vec3(.299,.587,.114));
+      float l=dot(texture2D(tDiffuse,vUv+tx*vec2(-1,0)).rgb,vec3(.299,.587,.114));
+      float r=dot(texture2D(tDiffuse,vUv+tx*vec2(1,0)).rgb,vec3(.299,.587,.114));
+      float bl=dot(texture2D(tDiffuse,vUv+tx*vec2(-1,-1)).rgb,vec3(.299,.587,.114));
+      float b=dot(texture2D(tDiffuse,vUv+tx*vec2(0,-1)).rgb,vec3(.299,.587,.114));
+      float br=dot(texture2D(tDiffuse,vUv+tx*vec2(1,-1)).rgb,vec3(.299,.587,.114));
+      float gx=-tl-2.0*l-bl+tr+2.0*r+br; float gy=-tl-2.0*t-tr+bl+2.0*b+br;
+      float edge=length(vec2(gx,gy)); float ef=smoothstep(0.05,0.15,edge)*edgeStrength;
+      gl_FragColor=vec4(mix(c.rgb,edgeColor,ef),c.a); }`,
+};
+composer.addPass(new ShaderPass(OutlineShader));
+
+// ── Mouse Drag Orbit ──
+let isDragging = false, prevMX = 0, prevMY = 0;
+let orbitH = 0, orbitH_target = 0;
+let orbitV = 0.35, orbitV_target = 0.35; // vertical angle (0=top-down, 1=low)
+const ORBIT_CENTER = new THREE.Vector3(20, 35, 0);
+const ORBIT_RADIUS = 350;
+
+container.addEventListener('mousedown', (e) => { isDragging = true; prevMX = e.clientX; prevMY = e.clientY; });
+window.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    orbitH_target -= (e.clientX - prevMX) * 0.005;
+    orbitV_target -= (e.clientY - prevMY) * 0.003;
+    orbitV_target = Math.max(0.05, Math.min(0.7, orbitV_target));
+    prevMX = e.clientX; prevMY = e.clientY;
+  }
+});
+window.addEventListener('mouseup', () => { isDragging = false; });
+// Touch support
+container.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { isDragging = true; prevMX = e.touches[0].clientX; prevMY = e.touches[0].clientY; } });
+window.addEventListener('touchmove', (e) => {
+  if (isDragging && e.touches.length === 1) {
+    orbitH_target -= (e.touches[0].clientX - prevMX) * 0.005;
+    orbitV_target -= (e.touches[0].clientY - prevMY) * 0.003;
+    orbitV_target = Math.max(0.05, Math.min(0.7, orbitV_target));
+    prevMX = e.touches[0].clientX; prevMY = e.touches[0].clientY;
+  }
+});
+window.addEventListener('touchend', () => { isDragging = false; });
+
+// ── Keyboard (WASD) ──
+const keys = {};
+window.addEventListener('keydown', e => { keys[e.key] = true; });
+window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// ── Animation ──
+const clock = new THREE.Clock();
+let nextPageFlip = 4, pageFlipProgress = -1;
+let nextBlinkAt = 3, blinkProgress = -1;
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  if (keys['a'] || keys['A']) orbitH_target -= 0.02;
+  if (keys['d'] || keys['D']) orbitH_target += 0.02;
+  if (keys['w'] || keys['W']) orbitV_target -= 0.012;
+  if (keys['s'] || keys['S']) orbitV_target += 0.012;
+  orbitV_target = Math.max(0.05, Math.min(0.7, orbitV_target));
+
+  orbitH += (orbitH_target - orbitH) * 0.1;
+  orbitV += (orbitV_target - orbitV) * 0.1;
+
+  const yAngle = orbitV * Math.PI * 0.5;
+  camera.position.x = ORBIT_CENTER.x + Math.sin(orbitH) * Math.cos(yAngle) * ORBIT_RADIUS;
+  camera.position.z = ORBIT_CENTER.z + Math.cos(orbitH) * Math.cos(yAngle) * ORBIT_RADIUS;
+  camera.position.y = ORBIT_CENTER.y + Math.sin(yAngle) * ORBIT_RADIUS;
+  camera.lookAt(ORBIT_CENTER);
+
+  // Canopy float
+  for (const puff of canopyPuffs) puff.position.y = puff.userData.baseY + Math.sin(t * puff.userData.speed + puff.userData.amp) * puff.userData.amp;
+  // Breathe
+  robot.position.y = 20 + Math.sin(t * 0.8) * 1.0;
+  // Blink
+  if (blinkProgress < 0 && t > nextBlinkAt) blinkProgress = 0;
+  let blinkAmt = 0;
+  if (blinkProgress >= 0) {
+    const half = blinkProgress < 0.5 ? blinkProgress * 2 : 1 - (blinkProgress - 0.5) * 2;
+    blinkAmt = half * half * (3 - 2 * half); blinkProgress += 0.07;
+    if (blinkProgress >= 1) { blinkProgress = -1; nextBlinkAt = t + (Math.random() < 0.2 ? 0.18 : 2.5 + Math.random() * 3.5); }
+  }
+  for (const p of lidPivotsU) p.rotation.x = -LID_OPEN * (1 - blinkAmt);
+  for (const p of lidPivotsL) p.rotation.x =  LID_OPEN * (1 - blinkAmt);
+  // Page flip
+  if (t > nextPageFlip && pageFlipProgress < 0) pageFlipProgress = 0;
+  if (pageFlipProgress >= 0) {
+    pageFlipProgress += 0.02;
+    const ease = 1 - Math.pow(1 - Math.min(pageFlipProgress, 1), 3);
+    turnPagePivot.rotation.y = -OPEN_ANGLE + ease * (-Math.PI + OPEN_ANGLE * 2);
+    if (pageFlipProgress >= 1.3) { pageFlipProgress = -1; turnPagePivot.rotation.y = -OPEN_ANGLE; nextPageFlip = t + 4 + Math.random() * 2; }
+  }
+  // Floaters
+  for (const f of floaters) {
+    const d = f.userData; const ang = t * d.orbitSpeed + d.phase;
+    f.position.x = d.ocx + Math.cos(ang) * d.orbitR;
+    f.position.z = d.ocz + Math.sin(ang) * d.orbitR * 0.4;
+    f.position.y = d.baseY + Math.sin(t * d.bobSpeed + d.phase) * d.bobAmp;
+    f.rotation.y += d.spinSpeed;
+  }
+  // Clouds
+  for (const c of clouds) { c.position.x = c.userData.bx + Math.sin(t * c.userData.sp) * 30; }
+
+  composer.render();
+}
+animate();
+
+window.addEventListener('resize', () => {
+  W = container.clientWidth; H = container.clientHeight;
+  camera.aspect = W / H; camera.updateProjectionMatrix();
+  renderer.setSize(W, H); composer.setSize(W, H);
+});
+</script>
+</body>
+</html>

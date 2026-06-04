@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-16%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-17%2F100-blue)
 
 用提示词实现一百个idea。
 
@@ -110,6 +110,10 @@
     - 基于 `@chenglou/pretext` 排版引擎的太阳系动态文字排版演示。深邃星空中，八大行星沿椭圆轨道运行，报纸式双栏长文实时环绕行星流动排版，配合首字下沉、大标题等经典排版细节。
     
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/4f9c9b57-d4f4-46d3-9e45-1b0e44e92e17" />
+
+17. **[Planet Slides](https://chenzihong-gavin.github.io/weekly-vibe-coding/planet-slides/)** (`apps/planet-slides`)
+    - 8 种视觉风格的 Three.js 3D 半星球演示页面合集，包括温暖童话绘本、霓虹合成波、深空探索、剪纸折纸、复古像素、液态玻璃、熔岩地心、冰晶极地。每个风格都是自包含的单文件 HTML，支持鼠标拖拽旋转视角与 WASD 键盘操控。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/planet-slides.md)
 
 
 ### 专题六：数学小工具
