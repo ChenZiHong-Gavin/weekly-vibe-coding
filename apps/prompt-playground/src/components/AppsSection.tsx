@@ -17,6 +17,7 @@ import pretextSolarSystemPromptRaw from "@prompts/pretext-solar-system.md?raw";
 import louisXviSortPromptRaw from "@prompts/louis-xvi-sort.md?raw";
 import realToAiPromptRaw from "@prompts/real-to-ai.md?raw";
 import marionettePromptRaw from "@prompts/marionette.md?raw";
+import planetSlidesPromptRaw from "@prompts/planet-slides.md?raw";
 
 const categories = [
   {
@@ -140,6 +141,15 @@ const categories = [
         status: "live" as const,
         colorClass: "icon-teal",
         prompt: pretextSolarSystemPromptRaw,
+      },
+      {
+        title: "Planet Slides",
+        description: "8 种视觉风格的 Three.js 3D 半星球演示页面合集，支持鼠标拖拽旋转视角与 WASD 键盘操控。",
+        icon: "🌍",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/planet-slides/",
+        status: "live" as const,
+        colorClass: "icon-blue",
+        prompt: planetSlidesPromptRaw,
       },
     ],
   },
