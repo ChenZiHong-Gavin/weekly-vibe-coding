@@ -113,7 +113,9 @@
 
 17. **[Planet Slides](https://chenzihong-gavin.github.io/weekly-vibe-coding/planet-slides/)** (`apps/planet-slides`)
     - 8 种视觉风格的 Three.js 3D 半星球演示页面合集，包括温暖童话绘本、霓虹合成波、深空探索、剪纸折纸、复古像素、液态玻璃、熔岩地心、冰晶极地。每个风格都是自包含的单文件 HTML，支持鼠标拖拽旋转视角与 WASD 键盘操控。
-    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/planet-slides.md)
+
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/a3fd4d8d-1ff6-4e37-ae95-0167ef2a21e6" />
+
 
 
 ### 专题六：数学小工具
