@@ -1,5 +1,7 @@
 import { PuppetDef } from '@/types/puppet';
 
+const BASE = import.meta.env.BASE_URL;
+
 export const puppets: PuppetDef[] = [
   {
     id: 'warrior',
@@ -8,7 +10,7 @@ export const puppets: PuppetDef[] = [
     color: '#B22222',
     width: 284,
     height: 564,
-    imagePath: '/puppets/warrior.png',
+    imagePath: `${BASE}puppets/warrior.png`,
     joints: [
       { id: 'body', name: '躯干', x: 142, y: 320, parentId: null, angle: 0, length: 0, minAngle: -18, maxAngle: 18, damping: 0.88 },
       { id: 'head', name: '头部', x: 142, y: 180, parentId: 'body', angle: 0, length: 140, minAngle: -35, maxAngle: 35, damping: 0.82 },
@@ -34,7 +36,7 @@ export const puppets: PuppetDef[] = [
     color: '#C71585',
     width: 255,
     height: 411,
-    imagePath: '/puppets/maiden.png',
+    imagePath: `${BASE}puppets/maiden.png`,
     joints: [
       { id: 'body', name: '躯干', x: 128, y: 230, parentId: null, angle: 0, length: 0, minAngle: -15, maxAngle: 15, damping: 0.88 },
       { id: 'head', name: '头部', x: 128, y: 120, parentId: 'body', angle: 0, length: 110, minAngle: -35, maxAngle: 35, damping: 0.80 },
@@ -60,7 +62,7 @@ export const puppets: PuppetDef[] = [
     color: '#DAA520',
     width: 500,
     height: 777,
-    imagePath: '/puppets/monkey.png',
+    imagePath: `${BASE}puppets/monkey.png`,
     joints: [
       { id: 'body', name: '躯干', x: 250, y: 450, parentId: null, angle: 0, length: 0, minAngle: -20, maxAngle: 20, damping: 0.82 },
       { id: 'head', name: '头部', x: 250, y: 280, parentId: 'body', angle: 0, length: 170, minAngle: -35, maxAngle: 35, damping: 0.75 },
@@ -86,7 +88,7 @@ export const puppets: PuppetDef[] = [
     color: '#228B22',
     width: 400,
     height: 600,
-    imagePath: '/puppets/dragon.png',
+    imagePath: `${BASE}puppets/dragon.png`,
     joints: [
       { id: 'body', name: '龙身', x: 200, y: 300, parentId: null, angle: 0, length: 0, minAngle: -15, maxAngle: 15, damping: 0.85 },
       { id: 'head', name: '龙头', x: 280, y: 130, parentId: 'body', angle: 0, length: 180, minAngle: -50, maxAngle: 50, damping: 0.68 },
@@ -112,7 +114,7 @@ export const puppets: PuppetDef[] = [
     color: '#2F4F4F',
     width: 400,
     height: 600,
-    imagePath: '/puppets/scholar.png',
+    imagePath: `${BASE}puppets/scholar.png`,
     joints: [
       { id: 'body', name: '躯干', x: 200, y: 310, parentId: null, angle: 0, length: 0, minAngle: -12, maxAngle: 12, damping: 0.88 },
       { id: 'head', name: '头部', x: 200, y: 175, parentId: 'body', angle: 0, length: 135, minAngle: -30, maxAngle: 30, damping: 0.82 },
