@@ -4,7 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: process.env.NODE_ENV === 'production' ? '/weekly-vibe-coding/shadow-puppet/' : '/',
+  base: mode === 'production' ? '/weekly-vibe-coding/shadow-puppet/' : '/',
   server: {
     host: "::",
     port: 8080,
