@@ -73,27 +73,27 @@ export default function GestureGuide() {
                     <OpenHandLabeled size={90} className="text-gold" />
                   </div>
 
-                  {/* Legend — finger colors mapping to controls */}
+                  {/* Legend — controls mapping */}
                   <div className="flex flex-col gap-1.5 text-sm font-song">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#FFD700' }} />
-                      <span className="text-muted-foreground">食指</span>
-                      <span className="text-gold">{isDragon ? '龙头方向' : '头部转动'}</span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-white/50" />
+                      <span className="text-muted-foreground">移动手掌</span>
+                      <span className="text-gold">身体惯性移动</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#66B2FF' }} />
+                      <span className="text-muted-foreground">转动手腕</span>
+                      <span className="text-gold">{isDragon ? '龙头方向' : '头部转动 & 倾斜'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF6B4A' }} />
-                      <span className="text-muted-foreground">拇指</span>
-                      <span className="text-gold">{isDragon ? '龙头摆动' : '左臂挥舞'}</span>
+                      <span className="text-muted-foreground">弯拇指</span>
+                      <span className="text-gold">{isDragon ? '龙腰摆动' : '左臂挥舞'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF88CC' }} />
-                      <span className="text-muted-foreground">小指</span>
-                      <span className="text-gold">{isDragon ? '龙身龙尾' : '右臂挥舞'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-white/50" />
-                      <span className="text-muted-foreground">掌心</span>
-                      <span className="text-gold">身体移动</span>
+                      <span className="text-muted-foreground">弯小指</span>
+                      <span className="text-gold">{isDragon ? '龙尾摆动' : '右臂挥舞'}</span>
                     </div>
                   </div>
                 </div>

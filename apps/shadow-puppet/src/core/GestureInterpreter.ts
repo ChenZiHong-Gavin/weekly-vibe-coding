@@ -15,6 +15,7 @@ const INDEX_PIP = 6;
 const MIDDLE_PIP = 10;
 const RING_PIP = 14;
 const PINKY_PIP = 18;
+const THUMB_MCP = 2;
 
 function distance(a: { x: number; y: number }, b: { x: number; y: number }): number {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
@@ -23,6 +24,16 @@ function distance(a: { x: number; y: number }, b: { x: number; y: number }): num
 function isFingerExtended(landmarks: HandData['landmarks'], tip: number, pip: number, mcp: number): boolean {
   return landmarks[tip].y < landmarks[pip].y && landmarks[pip].y < landmarks[mcp].y;
 }
+
+function fingerCurl(
+  lm: HandData['landmarks'], tip: number, pip: number, mcp: number,
+): number {
+  // MediaPipe y increases downward. Extended: tip.y < pip.y. Curled: tip.y ≈ pip.y.
+  const extension = (lm[pip].y - lm[tip].y) / (Math.abs(lm[mcp].y - lm[tip].y) + 0.001);
+  return Math.max(0, Math.min(1, extension)); // 1 = fully extended
+}
+
+function radToDeg(r: number): number { return r * 180 / Math.PI; }
 
 export class GestureInterpreter {
   private prevPositions: Map<string, { x: number; y: number; t: number }[]> = new Map();
@@ -107,6 +118,35 @@ export class GestureInterpreter {
         }
       }
 
+      // Finger curl ratios
+      const fingerCurls = {
+        thumb: fingerCurl(lm, THUMB_TIP, THUMB_IP, THUMB_MCP),
+        index: fingerCurl(lm, INDEX_TIP, INDEX_PIP, INDEX_MCP),
+        middle: fingerCurl(lm, MIDDLE_TIP, MIDDLE_PIP, MIDDLE_MCP),
+        ring: fingerCurl(lm, RING_TIP, RING_PIP, RING_MCP),
+        pinky: fingerCurl(lm, PINKY_TIP, PINKY_PIP, PINKY_MCP),
+      };
+
+      // Wrist angles (yaw = hand rotation, roll = hand tilt)
+      const wristAngle = {
+        yaw: radToDeg(Math.atan2(
+          lm[MIDDLE_MCP].x - lm[WRIST].x,
+          lm[MIDDLE_MCP].y - lm[WRIST].y,
+        )),
+        roll: radToDeg(Math.atan2(
+          lm[PINKY_MCP].y - lm[INDEX_MCP].y,
+          lm[PINKY_MCP].x - lm[INDEX_MCP].x,
+        )),
+      };
+
+      // Palm delta (velocity from previous position)
+      let palmDelta = { x: 0, y: 0 };
+      if (history.length >= 2) {
+        const prev = history[history.length - 2];
+        palmDelta.x = screenX - prev.x;
+        palmDelta.y = screenY - prev.y;
+      }
+
       results.push({
         type,
         hand: handKey,
@@ -115,6 +155,9 @@ export class GestureInterpreter {
         fingerTips,
         wristPosition: { x: wristX, y: wristY },
         palmAngle: Math.atan2(screenY - wristY, screenX - wristX),
+        fingerCurls,
+        wristAngle,
+        palmDelta,
       } as GestureResult);
     }
 

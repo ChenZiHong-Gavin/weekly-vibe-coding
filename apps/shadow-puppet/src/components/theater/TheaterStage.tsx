@@ -110,6 +110,8 @@ export default function TheaterStage({ soundManager }: TheaterStageProps) {
         ...ps,
         x: e.clientX,
         y: e.clientY,
+        vx: 0,
+        vy: 0,
       });
     };
 

@@ -1,12 +1,12 @@
 import { PuppetDef, PuppetState, JointState } from '@/types/puppet';
 
 // Per-puppet-type personality parameters
-const PERSONALITY: Record<string, { idleSway: number; overshoot: number; responsiveness: number }> = {
-  warrior:  { idleSway: 0.3, overshoot: 1.2, responsiveness: 0.35 },
-  maiden:   { idleSway: 0.7, overshoot: 1.6, responsiveness: 0.28 },
-  monkey:   { idleSway: 1.0, overshoot: 2.0, responsiveness: 0.40 },
-  dragon:   { idleSway: 0.5, overshoot: 1.4, responsiveness: 0.30 },
-  scholar:  { idleSway: 0.3, overshoot: 1.1, responsiveness: 0.25 },
+const PERSONALITY: Record<string, { idleSway: number; overshoot: number; responsiveness: number; friction: number }> = {
+  warrior:  { idleSway: 0.3, overshoot: 1.2, responsiveness: 0.35, friction: 0.92 },
+  maiden:   { idleSway: 0.7, overshoot: 1.6, responsiveness: 0.28, friction: 0.90 },
+  monkey:   { idleSway: 1.0, overshoot: 2.0, responsiveness: 0.40, friction: 0.88 },
+  dragon:   { idleSway: 0.5, overshoot: 1.4, responsiveness: 0.30, friction: 0.94 },
+  scholar:  { idleSway: 0.3, overshoot: 1.1, responsiveness: 0.25, friction: 0.93 },
 };
 
 const IDLE_THRESHOLD = 0.8; // seconds before idle animation kicks in
@@ -34,11 +34,20 @@ export class PuppetEngine {
       grabbedJointId: null,
       opacity: 1,
       idleTime: 0,
+      vx: 0,
+      vy: 0,
     };
   }
 
   update(state: PuppetState, def: PuppetDef, dt: number, hasInput: boolean): void {
     const persona = PERSONALITY[def.id] || PERSONALITY.warrior;
+
+    // Velocity physics — friction decay then apply to position
+    const fpsNorm = dt * 60; // normalize to ~60fps
+    state.vx = (state.vx ?? 0) * (1 - (1 - persona.friction) * fpsNorm);
+    state.vy = (state.vy ?? 0) * (1 - (1 - persona.friction) * fpsNorm);
+    state.x += (state.vx ?? 0) * fpsNorm;
+    state.y += (state.vy ?? 0) * fpsNorm;
 
     if (!hasInput) {
       state.idleTime = (state.idleTime ?? 0) + dt;

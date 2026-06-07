@@ -4,10 +4,12 @@ import { PuppetDef, GestureResult } from '@/types/puppet';
 import { useTheaterStore } from '@/store/theaterStore';
 import { SoundManager } from '@/core/SoundManager';
 
-const POS_SMOOTHING = 0.8;
-// Multiplier: pixel displacement → joint angle degrees
-const HEAD_SCALE = 2.5;
-const ARM_SCALE = 5.0;
+const POS_SMOOTHING = 0.6;
+const VELOCITY_GAIN = 5.0;
+const HEAD_YAW_SCALE = 0.5;
+const ROLL_SCALE = 0.7;
+const CURL_ARM_SCALE = 130;
+const CURL_DEAD_ZONE = 0.12;
 
 function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v));
@@ -23,6 +25,7 @@ export function useHandGestureControl(
   const smoothPosRef = useRef<{ x: number; y: number } | null>(null);
   const lastComboRef = useRef(0);
   const fistTimerRef = useRef(0);
+  const lastCurlRef = useRef<{ thumb: number; pinky: number }>({ thumb: 0.5, pinky: 0.5 });
 
   useEffect(() => {
     const unsubscribe = useTheaterStore.subscribe((state, prevState) => {
@@ -48,8 +51,8 @@ export function useHandGestureControl(
 
       const canvasEl = canvasRef.current;
       const canvasW = canvasEl?.width || window.innerWidth;
+      const canvasH = canvasEl?.height || window.innerHeight;
 
-      // Use the first detected hand for control
       const gesture = gestures[0];
       if (!gesture || gesture.type === 'none') {
         if (hasInputRef) hasInputRef.current = false;
@@ -58,75 +61,77 @@ export function useHandGestureControl(
 
       if (hasInputRef) hasInputRef.current = true;
 
-      const palmX = gesture.position.x;
-      const palmY = gesture.position.y;
-
-      // Smooth body position
+      // Smooth cursor position (used for effects placement)
       if (!smoothPosRef.current) {
-        smoothPosRef.current = { x: palmX, y: palmY };
+        smoothPosRef.current = { x: gesture.position.x, y: gesture.position.y };
       }
       const smooth = smoothPosRef.current;
-      smooth.x += (palmX - smooth.x) * POS_SMOOTHING;
-      smooth.y += (palmY - smooth.y) * POS_SMOOTHING;
+      smooth.x += (gesture.position.x - smooth.x) * POS_SMOOTHING;
+      smooth.y += (gesture.position.y - smooth.y) * POS_SMOOTHING;
 
-      const updated = { ...activeState, x: smooth.x, y: smooth.y };
+      const updated = { ...activeState };
+
+      // --- Velocity-driven body movement ---
+      updated.vx = (updated.vx ?? 0) + gesture.palmDelta.x * VELOCITY_GAIN;
+      updated.vy = (updated.vy ?? 0) + gesture.palmDelta.y * VELOCITY_GAIN;
+      // Clamp max velocity so puppet doesn't fly off
+      updated.vx = clamp(updated.vx, -800, 800);
+      updated.vy = clamp(updated.vy, -800, 800);
+
+      // --- Wrist yaw → head rotation ---
+      const rawHead = gesture.wristAngle.yaw * HEAD_YAW_SCALE;
+      const headAngle = clamp(rawHead, -35, 35);
+
+      // --- Wrist roll → body lean ---
+      const bodyLean = clamp(gesture.wristAngle.roll * ROLL_SCALE, -18, 18);
+
+      // --- Finger curl → arm angles (with dead zone) ---
+      const curls = gesture.fingerCurls;
+      const thumbCurl = curls.thumb;
+      const pinkyCurl = curls.pinky;
+      const prevCurl = lastCurlRef.current;
+
+      // Only update if curl changed enough (dead zone)
+      let leftArmTarget = activeState.joints['upperArmL']?.targetAngle ?? 0;
+      let rightArmTarget = activeState.joints['upperArmR']?.targetAngle ?? 0;
+
+      if (Math.abs(thumbCurl - prevCurl.thumb) > CURL_DEAD_ZONE) {
+        // Curled thumb = arm raises: (1 - curl) maps 0→1 to angle 0→130
+        leftArmTarget = clamp((1 - thumbCurl) * CURL_ARM_SCALE, -130, 130);
+        prevCurl.thumb = thumbCurl;
+      }
+
+      if (Math.abs(pinkyCurl - prevCurl.pinky) > CURL_DEAD_ZONE) {
+        rightArmTarget = clamp((1 - pinkyCurl) * CURL_ARM_SCALE, -130, 130);
+        prevCurl.pinky = pinkyCurl;
+      }
+      lastCurlRef.current = prevCurl;
 
       const isDragon = activeDef.id === 'dragon';
-      const now = Date.now();
-
-      // Map finger tips to joints via direct displacement
-      const fp = gesture.fingerTips; // [thumb, index, middle, ring, pinky]
-      if (fp && fp.length >= 5) {
-        const thumb = fp[0];
-        const index = fp[1];
-        const middle = fp[2];
-        const pinky = fp[4];
-
-        // Direct displacement: finger X offset from palm → joint angle
-        // More pixels away = more extreme angle
-        const idxDx = index.x - smooth.x;
-        const idxDy = index.y - smooth.y;
-        const thumbDx = thumb.x - smooth.x;
-        const pinkyDx = pinky.x - smooth.x;
-
-        // Head: index finger left/right from palm (screen space: right is +x)
-        const rawHead = idxDx * HEAD_SCALE;
-        const headAngle = clamp(rawHead, -35, 35);
-
-        // Arms: thumb controls left arm, pinky controls right arm
-        // In mirrored screen space: thumb on left side has negative dx → left arm angle
-        const rawLeftArm = -thumbDx * ARM_SCALE;
-        const rawRightArm = pinkyDx * ARM_SCALE;
-        const leftArmTarget = clamp(rawLeftArm, -130, 130);
-        const rightArmTarget = clamp(rawRightArm, -130, 130);
-
-        // Body lean from index vertical displacement
-        const bodyLean = clamp(idxDy * 0.6, -15, 15);
-
-        if (isDragon) {
-          const jsHead = updated.joints['head'];
-          if (jsHead) jsHead.targetAngle = clamp(headAngle * 0.7, -45, 45);
-          const jsMid = updated.joints['bodyMid'];
-          if (jsMid) jsMid.targetAngle = leftArmTarget * 0.5;
-          const jsTail = updated.joints['tail'];
-          if (jsTail) jsTail.targetAngle = rightArmTarget * 0.5;
-          const jsBody = updated.joints['body'];
-          if (jsBody) jsBody.targetAngle = bodyLean;
-        } else {
-          const jsHead = updated.joints['head'];
-          if (jsHead) jsHead.targetAngle = headAngle;
-          const jsLArm = updated.joints['upperArmL'];
-          if (jsLArm) jsLArm.targetAngle = leftArmTarget;
-          const jsRArm = updated.joints['upperArmR'];
-          if (jsRArm) jsRArm.targetAngle = rightArmTarget;
-          const jsBody = updated.joints['body'];
-          if (jsBody) jsBody.targetAngle = bodyLean;
-        }
+      if (isDragon) {
+        const jsHead = updated.joints['head'];
+        if (jsHead) jsHead.targetAngle = clamp(headAngle * 0.7, -45, 45);
+        const jsMid = updated.joints['bodyMid'];
+        if (jsMid) jsMid.targetAngle = bodyLean * 0.5;
+        const jsTail = updated.joints['tail'];
+        if (jsTail) jsTail.targetAngle = gesture.wristAngle.roll * 0.6;
+        const jsBody = updated.joints['body'];
+        if (jsBody) jsBody.targetAngle = bodyLean;
+      } else {
+        const jsHead = updated.joints['head'];
+        if (jsHead) jsHead.targetAngle = headAngle;
+        const jsLArm = updated.joints['upperArmL'];
+        if (jsLArm) jsLArm.targetAngle = leftArmTarget;
+        const jsRArm = updated.joints['upperArmR'];
+        if (jsRArm) jsRArm.targetAngle = rightArmTarget;
+        const jsBody = updated.joints['body'];
+        if (jsBody) jsBody.targetAngle = bodyLean;
       }
 
       updatePuppetState(activePuppetIndex, updated);
 
-      // Gesture combo triggers
+      // --- Gesture combo triggers (unchanged) ---
+      const now = Date.now();
       if (gesture.type === 'pinch' && now - lastComboRef.current > 2000 && sfxEnabled) {
         triggerEffect('burst', smooth.x, smooth.y - 60);
         lastComboRef.current = now;

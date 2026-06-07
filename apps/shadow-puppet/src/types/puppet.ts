@@ -65,6 +65,9 @@ export interface PuppetState {
   grabbedJointId: string | null;
   opacity: number;
   idleTime: number;
+  /** velocity for momentum-based body movement */
+  vx: number;
+  vy: number;
 }
 
 export interface SceneDef {
@@ -130,6 +133,12 @@ export interface GestureResult {
   fingerTips: { x: number; y: number }[];
   wristPosition?: { x: number; y: number };
   palmAngle?: number;
+  /** 0=curled, 1=fully extended per finger: thumb/index/middle/ring/pinky */
+  fingerCurls: Record<string, number>;
+  /** wrist rotation angles in degrees */
+  wristAngle: { yaw: number; roll: number };
+  /** palm position delta since last frame (px), EMA-smoothed */
+  palmDelta: { x: number; y: number };
 }
 
 export type TheaterMode = 'menu' | 'free' | 'story';
