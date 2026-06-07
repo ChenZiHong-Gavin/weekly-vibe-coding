@@ -88,6 +88,8 @@ jobs:
         npm run build
 
     - name: Install peking-opera dependencies
+      env:
+        npm_config_onnxruntime_node_install_cuda: skip
       run: |
         cd apps/peking-opera
         npm install
