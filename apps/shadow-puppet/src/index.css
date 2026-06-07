@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;700;900&family=ZCOOL+KuaiLe&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 25 40% 6%;
+    --foreground: 38 60% 90%;
+
+    --card: 25 35% 10%;
+    --card-foreground: 38 60% 90%;
+
+    --popover: 25 35% 10%;
+    --popover-foreground: 38 60% 90%;
+
+    --primary: 15 80% 50%;
+    --primary-foreground: 38 80% 95%;
+
+    --secondary: 35 60% 40%;
+    --secondary-foreground: 38 80% 95%;
+
+    --muted: 25 20% 15%;
+    --muted-foreground: 25 15% 55%;
+
+    --accent: 42 90% 55%;
+    --accent-foreground: 25 40% 6%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 38 80% 95%;
+
+    --border: 25 25% 18%;
+    --input: 25 20% 12%;
+    --ring: 15 80% 50%;
+
+    --radius: 0.5rem;
+
+    --lantern: 15 90% 55%;
+    --gold: 42 90% 55%;
+    --vermilion: 5 85% 50%;
+    --jade: 160 40% 35%;
+    --ink: 220 20% 12%;
+    --parchment: 38 50% 85%;
+
+    --sidebar-background: 25 35% 8%;
+    --sidebar-foreground: 38 60% 90%;
+    --sidebar-primary: 15 80% 50%;
+    --sidebar-primary-foreground: 38 80% 95%;
+    --sidebar-accent: 25 25% 14%;
+    --sidebar-accent-foreground: 38 60% 90%;
+    --sidebar-border: 25 25% 18%;
+    --sidebar-ring: 15 80% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
+    background: radial-gradient(ellipse at center top, hsl(25 40% 10%) 0%, hsl(25 40% 4%) 100%);
+    overflow: hidden;
+  }
+
+  #root {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer components {
+  .theater-title {
+    font-family: 'Ma Shan Zheng', serif;
+    @apply font-normal tracking-widest;
+    color: hsl(var(--gold));
+    text-shadow: 0 0 20px hsl(var(--gold) / 0.5), 0 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .theater-subtitle {
+    font-family: 'ZCOOL KuaiLe', serif;
+    color: hsl(var(--parchment));
+  }
+
+  .stage-frame {
+    border: 3px solid hsl(var(--gold) / 0.6);
+    box-shadow:
+      inset 0 0 80px hsl(var(--lantern) / 0.15),
+      0 0 40px hsl(var(--gold) / 0.1);
+    background: radial-gradient(ellipse at center, hsl(35 50% 75% / 0.95) 0%, hsl(30 40% 60% / 0.9) 100%);
+  }
+
+  .stage-screen {
+    background: radial-gradient(ellipse at center top, hsl(38 55% 82%) 0%, hsl(30 40% 65%) 60%, hsl(25 35% 50%) 100%);
+  }
+
+  .puppet-shadow {
+    filter: brightness(0) saturate(0);
+    opacity: 0.85;
+  }
+
+  .puppet-colored {
+    filter: saturate(1.2) contrast(1.1);
+  }
+
+  .lantern-glow {
+    background: radial-gradient(circle, hsl(var(--lantern) / 0.8) 0%, hsl(var(--lantern) / 0) 70%);
+  }
+
+  .gold-border {
+    border: 2px solid hsl(var(--gold) / 0.5);
+    box-shadow: 0 0 15px hsl(var(--gold) / 0.15);
+  }
+
+  .ink-bg {
+    background: linear-gradient(135deg, hsl(var(--ink)) 0%, hsl(220 25% 8%) 100%);
+  }
+
+  .parchment-bg {
+    background: linear-gradient(
+      180deg,
+      hsl(38 50% 85%) 0%,
+      hsl(35 45% 78%) 50%,
+      hsl(30 40% 70%) 100%
+    );
+  }
+
+  .panel-traditional {
+    background: hsl(25 35% 10% / 0.9);
+    border: 1px solid hsl(var(--gold) / 0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .btn-traditional {
+    @apply px-6 py-2 rounded font-song;
+    background: linear-gradient(180deg, hsl(var(--vermilion)) 0%, hsl(0 70% 40%) 100%);
+    color: hsl(var(--gold));
+    border: 1px solid hsl(var(--gold) / 0.5);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+  }
+
+  .btn-traditional:hover {
+    filter: brightness(1.15);
+    box-shadow: 0 0 20px hsl(var(--vermilion) / 0.4);
+  }
+
+  .scroll-decoration {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='20' viewBox='0 0 60 20'%3E%3Cpath d='M0 10 Q15 0 30 10 Q45 20 60 10' stroke='%23c4956a' stroke-width='1' fill='none' opacity='0.3'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-size: 60px 20px;
+  }
+}
+
+@layer utilities {
+  .text-shadow-gold {
+    text-shadow: 0 0 15px hsl(var(--gold) / 0.5);
+  }
+
+  .text-shadow-lantern {
+    text-shadow: 0 0 20px hsl(var(--lantern) / 0.6);
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 20px hsl(var(--gold) / 0.3);
+  }
+
+  .glow-lantern {
+    box-shadow: 0 0 25px hsl(var(--lantern) / 0.4);
+  }
+
+  .glow-vermilion {
+    box-shadow: 0 0 20px hsl(var(--vermilion) / 0.3);
+  }
+}
+
+.cloud-pattern {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='100' viewBox='0 0 200 100'%3E%3Cpath d='M20 80 Q40 20 80 50 Q100 10 140 40 Q170 20 180 60 Q190 80 160 80 Z' fill='%23d4a574' /%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 100px;
+}

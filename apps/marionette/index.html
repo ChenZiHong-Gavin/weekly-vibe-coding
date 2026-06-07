@@ -40,11 +40,22 @@
             pointer-events: none;
             z-index: 5;
         }
+        #musicBtn {
+            position: fixed; top: 16px; right: 16px;
+            width: 40px; height: 40px;
+            border: none; border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(6px);
+            font-size: 20px; cursor: pointer;
+            z-index: 10; transition: background 0.2s;
+        }
+        #musicBtn:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 <canvas id="canvas"></canvas>
 <video id="video" playsinline></video>
+<button id="musicBtn" title="切换背景音乐">🎵</button>
 <div id="overlay">
     <h1>提线木偶</h1>
     <div class="spinner"></div>
@@ -55,8 +66,12 @@
     拇指·食指·中指·无名指·小指 → 左脚·左手·头·右手·右脚
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
 <script>
+// suppress known MediaPipe WASM init error
+window.addEventListener('unhandledrejection', e => {
+    if (e.reason?.message?.includes('payload')) e.preventDefault();
+});
 (() => {
 'use strict';
 
@@ -65,6 +80,135 @@ const GRAVITY    = 900;
 const DAMPING    = 0.97;
 const STRING_PULL = 0.12;
 const ITERATIONS = 10;
+
+// ── Audio ───────────────────────────────────
+let audioCtx = null;
+let musicGain = null;
+let sfxGain = null;
+let musicPlaying = false;
+let musicTimer = null;
+
+function ensureAudio() {
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    musicGain = audioCtx.createGain();
+    musicGain.gain.value = 0.18;
+    musicGain.connect(audioCtx.destination);
+    sfxGain = audioCtx.createGain();
+    sfxGain.gain.value = 0.25;
+    sfxGain.connect(audioCtx.destination);
+}
+
+// music box melody — pentatonic lullaby loop
+const MELODY = [
+    [72,0.3],[67,0.3],[64,0.3],[67,0.3],[72,0.3],[72,0.3],[72,0.6],
+    [67,0.3],[67,0.3],[67,0.6],[72,0.3],[76,0.3],[76,0.6],
+    [72,0.3],[67,0.3],[64,0.3],[67,0.3],[72,0.3],[72,0.3],[72,0.3],[72,0.3],
+    [67,0.3],[67,0.3],[72,0.3],[67,0.3],[64,0.9],
+];
+
+function midiToFreq(n) { return 440 * Math.pow(2, (n - 69) / 12); }
+
+function playNote(freq, start, dur, dest) {
+    const osc = audioCtx.createOscillator();
+    const env = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    env.gain.setValueAtTime(0.001, start);
+    env.gain.exponentialRampToValueAtTime(1, start + 0.02);
+    env.gain.exponentialRampToValueAtTime(0.3, start + dur * 0.4);
+    env.gain.exponentialRampToValueAtTime(0.001, start + dur * 0.95);
+    osc.connect(env);
+    env.connect(dest);
+    osc.start(start);
+    osc.stop(start + dur);
+}
+
+function scheduleMelody() {
+    if (!audioCtx || !musicPlaying) return;
+    let t = audioCtx.currentTime + 0.05;
+    let totalDur = 0;
+    for (const [note, dur] of MELODY) {
+        playNote(midiToFreq(note), t, dur * 0.9, musicGain);
+        // soft octave shimmer
+        playNote(midiToFreq(note + 12), t, dur * 0.4, musicGain);
+        t += dur;
+        totalDur += dur;
+    }
+    musicTimer = setTimeout(scheduleMelody, totalDur * 1000 - 200);
+}
+
+function startMusic() {
+    ensureAudio();
+    musicPlaying = true;
+    updateMusicBtn();
+    const go = () => { if (musicPlaying) scheduleMelody(); };
+    if (audioCtx.state === 'suspended') audioCtx.resume().then(go);
+    else go();
+}
+
+function stopMusic() {
+    musicPlaying = false;
+    if (musicTimer) { clearTimeout(musicTimer); musicTimer = null; }
+    updateMusicBtn();
+}
+
+function toggleMusic() {
+    if (musicPlaying) stopMusic(); else startMusic();
+}
+
+// string pluck sfx
+function playPluck(pitch) {
+    if (!audioCtx || audioCtx.state !== 'running') return;
+    const freq = 200 + pitch * 120;
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const env = audioCtx.createGain();
+    const flt = audioCtx.createBiquadFilter();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    flt.type = 'lowpass';
+    flt.frequency.setValueAtTime(freq * 4, now);
+    flt.frequency.exponentialRampToValueAtTime(freq * 0.5, now + 0.3);
+    env.gain.setValueAtTime(0.6, now);
+    env.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc.connect(flt);
+    flt.connect(env);
+    env.connect(sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.3);
+}
+
+// wood creak sfx
+function playCreak() {
+    if (!audioCtx || audioCtx.state !== 'running') return;
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const env = audioCtx.createGain();
+    const flt = audioCtx.createBiquadFilter();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(80, now);
+    osc.frequency.linearRampToValueAtTime(60, now + 0.15);
+    flt.type = 'bandpass';
+    flt.frequency.value = 150;
+    flt.Q.value = 8;
+    env.gain.setValueAtTime(0.15, now);
+    env.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    osc.connect(flt);
+    flt.connect(env);
+    env.connect(sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.2);
+}
+
+let lastPluckTime = 0;
+let lastCreakTime = 0;
+let prevHandAlpha = 0;
+
+function updateMusicBtn() {
+    const btn = document.getElementById('musicBtn');
+    if (btn) btn.textContent = musicPlaying ? '🔇' : '🎵';
+}
 
 // ── Canvas ──────────────────────────────────
 const canvas = document.getElementById('canvas');
@@ -794,7 +938,7 @@ function initMediaPipe() {
     }
 
     mpHands = new Hands({
-        locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+        locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${f}`
     });
 
     mpHands.setOptions({
@@ -873,7 +1017,7 @@ function loop(now) {
 
     if (mpHands && !processing && video.readyState >= 2) {
         processing = true;
-        mpHands.send({ image: video }).finally(() => { processing = false; });
+        mpHands.send({ image: video }).catch(() => {}).finally(() => { processing = false; });
     }
 
     ctx.clearRect(0, 0, w, h);
@@ -901,6 +1045,33 @@ function loop(now) {
     ctx.stroke();
 
     updatePuppet(dt);
+
+    // sound triggers
+    if (audioCtx) {
+        const t = audioCtx.currentTime;
+        // pluck when hand first detected
+        if (handAlpha > 0.1 && prevHandAlpha <= 0.1) {
+            for (let i = 0; i < 5; i++) setTimeout(() => playPluck(i), i * 60);
+        }
+        // occasional pluck on large puppet movement
+        if (handAlpha > 0.3 && targets && t - lastPluckTime > 0.15) {
+            let maxV = 0;
+            for (let i = 0; i < controlEntries.length; i++) {
+                const pt = P[controlEntries[i][0]];
+                const vx = pt.x - pt.px, vy = pt.y - pt.py;
+                maxV = Math.max(maxV, vx * vx + vy * vy);
+            }
+            if (maxV > 80) {
+                playPluck(Math.random() * 3 + 1);
+                lastPluckTime = t;
+            }
+            if (maxV > 200 && t - lastCreakTime > 0.5) {
+                playCreak();
+                lastCreakTime = t;
+            }
+        }
+        prevHandAlpha = handAlpha;
+    }
     renderPuppet();
 
     // finger tracking visual feedback
@@ -930,6 +1101,12 @@ function loop(now) {
 
 requestAnimationFrame(loop);
 initMediaPipe();
+
+document.getElementById('musicBtn').addEventListener('click', toggleMusic);
+document.addEventListener('click', function initAudioOnce() {
+    ensureAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
 
 })();
 </script>

@@ -18,6 +18,7 @@ import louisXviSortPromptRaw from "@prompts/louis-xvi-sort.md?raw";
 import realToAiPromptRaw from "@prompts/real-to-ai.md?raw";
 import marionettePromptRaw from "@prompts/marionette.md?raw";
 import planetSlidesPromptRaw from "@prompts/planet-slides.md?raw";
+import shadowPuppetPromptRaw from "@prompts/shadow-puppet.md?raw";
 
 const categories = [
   {
@@ -99,6 +100,15 @@ const categories = [
         status: "live" as const,
         colorClass: "icon-pink",
         prompt: marionettePromptRaw,
+      },
+      {
+        title: "Shadow Puppet",
+        description: "手势操控数字皮影戏，摄像头识别手掌手指动作实时操控皮影人物，捏合挥手等手势触发舞台特效。",
+        icon: "🎪",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/shadow-puppet/",
+        status: "live" as const,
+        colorClass: "icon-teal",
+        prompt: shadowPuppetPromptRaw,
       },
     ],
   },

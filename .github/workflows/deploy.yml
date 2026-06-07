@@ -168,9 +168,19 @@ jobs:
         cd apps/real-to-ai
         npm run build
 
+    - name: Install shadow-puppet dependencies
+      run: |
+        cd apps/shadow-puppet
+        npm install
+
+    - name: Build shadow-puppet
+      run: |
+        cd apps/shadow-puppet
+        npm run build
+
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
@@ -188,6 +198,7 @@ jobs:
         cp -r apps/real-to-ai/dist/* dist/real-to-ai/
         cp apps/marionette/index.html dist/marionette/
         cp -r apps/planet-slides/* dist/planet-slides/
+        cp -r apps/shadow-puppet/dist/* dist/shadow-puppet/
  
     - name: Setup Pages
       uses: actions/configure-pages@v4
