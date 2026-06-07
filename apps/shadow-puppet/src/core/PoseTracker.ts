@@ -14,10 +14,12 @@ export class PoseTracker {
     this.onResults = onResults;
 
     try {
-      const poseModule = await import('@mediapipe/pose');
-      const cameraModule = await import('@mediapipe/camera_utils');
-      const Pose = poseModule.Pose;
-      const Camera = cameraModule.Camera;
+      // These packages are IIFE scripts that assign to window globals.
+      // Rollup may not detect the global→ESM export conversion, so use window globals.
+      await import('@mediapipe/pose');
+      await import('@mediapipe/camera_utils');
+      const Pose = (window as any).Pose;
+      const Camera = (window as any).Camera;
 
       this.pose = new Pose({
         locateFile: (file: string) => {

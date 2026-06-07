@@ -14,10 +14,12 @@ export class HandTracker {
     this.onResults = onResults;
 
     try {
-      const handsModule = await import('@mediapipe/hands');
-      const cameraModule = await import('@mediapipe/camera_utils');
-      const Hands = handsModule.Hands;
-      const Camera = cameraModule.Camera;
+      // These packages are IIFE scripts that assign to window.Hands / window.Camera.
+      // Rollup may not detect the global→ESM export conversion, so use window globals.
+      await import('@mediapipe/hands');
+      await import('@mediapipe/camera_utils');
+      const Hands = (window as any).Hands;
+      const Camera = (window as any).Camera;
 
       this.hands = new Hands({
         locateFile: (file: string) => {
