@@ -19,6 +19,7 @@ import realToAiPromptRaw from "@prompts/real-to-ai.md?raw";
 import marionettePromptRaw from "@prompts/marionette.md?raw";
 import planetSlidesPromptRaw from "@prompts/planet-slides.md?raw";
 import shadowPuppetPromptRaw from "@prompts/shadow-puppet.md?raw";
+import walkTheDogPromptRaw from "@prompts/walk-the-dog.md?raw";
 
 const categories = [
   {
@@ -69,6 +70,15 @@ const categories = [
         colorClass: "icon-orange",
         prompt: hairlineTrackerPromptRaw,
       },
+      {
+        title: "Walk The Dog",
+        description: "限时遛狗挑战游戏，5种狗狗4个场景3种道具，牵绳物理+狗狗自主AI，180秒冲刺高分。",
+        icon: "🐕",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/walk-the-dog/",
+        status: "live" as const,
+        colorClass: "icon-orange",
+        prompt: walkTheDogPromptRaw,
+      },
     ],
   },
   {
@@ -103,8 +113,8 @@ const categories = [
       },
       {
         title: "Shadow Puppet",
-        description: "手势操控数字皮影戏，摄像头识别手掌手指动作实时操控皮影人物，捏合挥手等手势触发舞台特效。",
-        icon: "🎪",
+        description: "手影戏台，摄像头捕捉手部轮廓投射到原始洞穴火光洞壁，11种手势姿势识别，捏合挥手握拳触发光影特效。",
+        icon: "🖐️",
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/shadow-puppet/",
         status: "live" as const,
         colorClass: "icon-teal",

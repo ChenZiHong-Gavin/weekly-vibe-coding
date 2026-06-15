@@ -182,7 +182,7 @@ jobs:
 
     - name: Copy all builds to dist
       run: |
-        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet}
+        mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog}
         cp -r apps/dice-verse/dist/* dist/dice-verse/
         cp -r apps/spin-art/dist/* dist/spin-art/
         cp -r apps/snap-puzzle/dist/* dist/snap-puzzle/
@@ -201,6 +201,7 @@ jobs:
         cp apps/marionette/index.html dist/marionette/
         cp -r apps/planet-slides/* dist/planet-slides/
         cp -r apps/shadow-puppet/dist/* dist/shadow-puppet/
+        cp apps/walk-the-dog/index.html dist/walk-the-dog/
  
     - name: Setup Pages
       uses: actions/configure-pages@v4

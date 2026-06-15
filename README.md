@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-17%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-18%2F100-blue)
 
 用提示词实现一百个idea。
 
@@ -79,6 +79,12 @@
   
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
 
+6. **[Walk The Dog](https://chenzihong-gavin.github.io/weekly-vibe-coding/walk-the-dog/)** (`apps/walk-the-dog`)
+    - 限时遛狗挑战游戏，选择狗狗、场景和道具，在 180 秒内牵绳遛狗应对各种随机事件，冲刺连击高分。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/walk-the-dog.md)
+
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/placeholder" />
+
 ### 专题二：手势交互
 
 7. **[FaceOpera](https://chenzihong-gavin.github.io/weekly-vibe-coding/peking-opera/)** (`apps/peking-opera`)
@@ -95,7 +101,7 @@
     - 手势操控提线木偶，通过 MediaPipe 实时追踪五根手指，用物理模拟的提线控制一个手绘风格的布偶。
 
 18. **[Shadow Puppet](https://chenzihong-gavin.github.io/weekly-vibe-coding/shadow-puppet/)** (`apps/shadow-puppet`)
-    - 手势操控数字皮影戏，通过摄像头识别手掌动作，实时操控皮影人物的身体、头部和手臂，捏合挥手等手势触发舞台特效。
+    - 手影戏台，摄像头实时捕捉手部轮廓投射到原始洞穴的火光洞壁上，支持 11 种手势姿势识别，捏合、挥手、握拳触发光影特效。火把摇曳，原始人剪影围观，沉浸式手影表演体验。
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/placeholder" />
 
