@@ -21,7 +21,7 @@ import planetSlidesPromptRaw from "@prompts/planet-slides.md?raw";
 import shadowPuppetPromptRaw from "@prompts/shadow-puppet.md?raw";
 import walkTheDogPromptRaw from "@prompts/walk-the-dog.md?raw";
 
-const categories = [
+export const categories = [
   {
     title: "专题一：想做点什么就做点什么",
     apps: [
@@ -239,6 +239,19 @@ const categories = [
     ],
   },
 ];
+
+export function getStats() {
+  const allApps = categories.flatMap(c => c.apps);
+  const liveApps = allApps.filter(a => a.status === "live");
+  const categoryCount = categories.filter(c =>
+    c.apps.some(a => a.status === "live")
+  ).length;
+  return {
+    total: allApps.length,
+    completed: liveApps.length,
+    categories: categoryCount,
+  };
+}
 
 const AppsSection = () => {
   const [searchQuery, setSearchQuery] = useState("");

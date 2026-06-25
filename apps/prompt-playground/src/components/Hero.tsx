@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Sparkles, Code2, Lightbulb, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getStats } from "./AppsSection";
 
 const toolBadges = [
   { name: "Cursor", icon: "💻" },
@@ -12,6 +13,8 @@ const toolBadges = [
 ];
 
 const Hero = () => {
+  const stats = getStats();
+
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center pt-24 pb-16 px-4 overflow-hidden">
       {/* Background glow effects */}
@@ -91,8 +94,8 @@ const Hero = () => {
         >
           {[
             { icon: <Lightbulb className="w-6 h-6 icon-orange" />, number: "100", label: "目标应用" },
-            { icon: <Rocket className="w-6 h-6 icon-teal" />, number: "7", label: "已完成" },
-            { icon: <Code2 className="w-6 h-6 icon-pink" />, number: "5", label: "专题系列" },
+            { icon: <Rocket className="w-6 h-6 icon-teal" />, number: String(stats.completed), label: "已完成" },
+            { icon: <Code2 className="w-6 h-6 icon-pink" />, number: String(stats.categories), label: "专题系列" },
             { icon: <Sparkles className="w-6 h-6 icon-purple" />, number: "∞", label: "创意想法" },
           ].map((stat, index) => (
             <div

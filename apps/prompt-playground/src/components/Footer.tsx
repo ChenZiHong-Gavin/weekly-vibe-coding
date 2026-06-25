@@ -1,6 +1,9 @@
 import { Heart } from "lucide-react";
+import { getStats } from "./AppsSection";
 
 const Footer = () => {
+  const stats = getStats();
+
   return (
     <footer className="py-8 px-4 border-t border-white/10">
       <div className="max-w-6xl mx-auto">
@@ -19,7 +22,7 @@ const Footer = () => {
             >
               GitHub
             </a>
-            <span>当前进度：7/100</span>
+            <span>当前进度：{stats.completed}/100</span>
           </div>
         </div>
       </div>
