@@ -31,287 +31,399 @@ jobs:
       # dice-verse
       # ═══════════════════════════════════════════════════════════════
       - name: Cache dice-verse node_modules
+        id: nm-dice-verse
         uses: actions/cache@v4
         with:
           path: apps/dice-verse/node_modules
           key: dice-verse-nm-${{ hashFiles('apps/dice-verse/package-lock.json') }}
 
       - name: Cache dice-verse dist
-        id: cache-dice-verse
+        id: dist-dice-verse
         uses: actions/cache@v4
         with:
           path: apps/dice-verse/dist
           key: dice-verse-dist-${{ hashFiles('apps/dice-verse/src/**', 'apps/dice-verse/public/**', 'apps/dice-verse/index.html', 'apps/dice-verse/vite.config.*', 'apps/dice-verse/tsconfig*.json', 'apps/dice-verse/package-lock.json') }}
 
       - name: Build dice-verse
-        if: steps.cache-dice-verse.outputs.cache-hit != 'true'
+        if: steps.dist-dice-verse.outputs.cache-hit != 'true'
+        continue-on-error: true
         env:
           VITE_OPENAI_API_KEY: ${{ secrets.VITE_OPENAI_API_KEY }}
           VITE_LLM_API_URL: ${{ secrets.VITE_LLM_API_URL }}
           VITE_LLM_MODEL: ${{ secrets.VITE_LLM_MODEL }}
-        run: cd apps/dice-verse && npm ci && npm run build
+        run: |
+          cd apps/dice-verse
+          if [ "${{ steps.nm-dice-verse.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # spin-art
       # ═══════════════════════════════════════════════════════════════
       - name: Cache spin-art node_modules
+        id: nm-spin-art
         uses: actions/cache@v4
         with:
           path: apps/spin-art/node_modules
           key: spin-art-nm-${{ hashFiles('apps/spin-art/package-lock.json') }}
 
       - name: Cache spin-art dist
-        id: cache-spin-art
+        id: dist-spin-art
         uses: actions/cache@v4
         with:
           path: apps/spin-art/dist
           key: spin-art-dist-${{ hashFiles('apps/spin-art/src/**', 'apps/spin-art/public/**', 'apps/spin-art/index.html', 'apps/spin-art/vite.config.*', 'apps/spin-art/tsconfig*.json', 'apps/spin-art/package-lock.json') }}
 
       - name: Build spin-art
-        if: steps.cache-spin-art.outputs.cache-hit != 'true'
-        run: cd apps/spin-art && npm ci && npm run build
+        if: steps.dist-spin-art.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/spin-art
+          if [ "${{ steps.nm-spin-art.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # snap-puzzle
       # ═══════════════════════════════════════════════════════════════
       - name: Cache snap-puzzle node_modules
+        id: nm-snap-puzzle
         uses: actions/cache@v4
         with:
           path: apps/snap-puzzle/node_modules
           key: snap-puzzle-nm-${{ hashFiles('apps/snap-puzzle/package-lock.json') }}
 
       - name: Cache snap-puzzle dist
-        id: cache-snap-puzzle
+        id: dist-snap-puzzle
         uses: actions/cache@v4
         with:
           path: apps/snap-puzzle/dist
           key: snap-puzzle-dist-${{ hashFiles('apps/snap-puzzle/src/**', 'apps/snap-puzzle/public/**', 'apps/snap-puzzle/index.html', 'apps/snap-puzzle/vite.config.*', 'apps/snap-puzzle/tsconfig*.json', 'apps/snap-puzzle/package-lock.json') }}
 
       - name: Build snap-puzzle
-        if: steps.cache-snap-puzzle.outputs.cache-hit != 'true'
-        run: cd apps/snap-puzzle && npm ci && npm run build
+        if: steps.dist-snap-puzzle.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/snap-puzzle
+          if [ "${{ steps.nm-snap-puzzle.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # danmaku-magic
       # ═══════════════════════════════════════════════════════════════
       - name: Cache danmaku-magic node_modules
+        id: nm-danmaku-magic
         uses: actions/cache@v4
         with:
           path: apps/danmaku-magic/node_modules
           key: danmaku-magic-nm-${{ hashFiles('apps/danmaku-magic/package-lock.json') }}
 
       - name: Cache danmaku-magic dist
-        id: cache-danmaku-magic
+        id: dist-danmaku-magic
         uses: actions/cache@v4
         with:
           path: apps/danmaku-magic/dist
           key: danmaku-magic-dist-${{ hashFiles('apps/danmaku-magic/src/**', 'apps/danmaku-magic/public/**', 'apps/danmaku-magic/index.html', 'apps/danmaku-magic/vite.config.*', 'apps/danmaku-magic/tsconfig*.json', 'apps/danmaku-magic/package-lock.json') }}
 
       - name: Build danmaku-magic
-        if: steps.cache-danmaku-magic.outputs.cache-hit != 'true'
-        run: cd apps/danmaku-magic && npm ci && npm run build
+        if: steps.dist-danmaku-magic.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/danmaku-magic
+          if [ "${{ steps.nm-danmaku-magic.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # hairline-tracker
       # ═══════════════════════════════════════════════════════════════
       - name: Cache hairline-tracker node_modules
+        id: nm-hairline-tracker
         uses: actions/cache@v4
         with:
           path: apps/hairline-tracker/node_modules
           key: hairline-tracker-nm-${{ hashFiles('apps/hairline-tracker/package-lock.json') }}
 
       - name: Cache hairline-tracker dist
-        id: cache-hairline-tracker
+        id: dist-hairline-tracker
         uses: actions/cache@v4
         with:
           path: apps/hairline-tracker/dist
           key: hairline-tracker-dist-${{ hashFiles('apps/hairline-tracker/src/**', 'apps/hairline-tracker/public/**', 'apps/hairline-tracker/index.html', 'apps/hairline-tracker/vite.config.*', 'apps/hairline-tracker/tsconfig*.json', 'apps/hairline-tracker/package-lock.json') }}
 
       - name: Build hairline-tracker
-        if: steps.cache-hairline-tracker.outputs.cache-hit != 'true'
-        run: cd apps/hairline-tracker && npm ci && npm run build
+        if: steps.dist-hairline-tracker.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/hairline-tracker
+          if [ "${{ steps.nm-hairline-tracker.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # peking-opera
       # ═══════════════════════════════════════════════════════════════
       - name: Cache peking-opera node_modules
+        id: nm-peking-opera
         uses: actions/cache@v4
         with:
           path: apps/peking-opera/node_modules
           key: peking-opera-nm-${{ hashFiles('apps/peking-opera/package-lock.json') }}
 
       - name: Cache peking-opera dist
-        id: cache-peking-opera
+        id: dist-peking-opera
         uses: actions/cache@v4
         with:
           path: apps/peking-opera/dist
           key: peking-opera-dist-${{ hashFiles('apps/peking-opera/src/**', 'apps/peking-opera/public/**', 'apps/peking-opera/index.html', 'apps/peking-opera/vite.config.*', 'apps/peking-opera/tsconfig*.json', 'apps/peking-opera/package-lock.json') }}
 
       - name: Build peking-opera
-        if: steps.cache-peking-opera.outputs.cache-hit != 'true'
+        if: steps.dist-peking-opera.outputs.cache-hit != 'true'
+        continue-on-error: true
         env:
           npm_config_onnxruntime_node_install_cuda: skip
-        run: cd apps/peking-opera && npm ci && npm run build
+        run: |
+          cd apps/peking-opera
+          if [ "${{ steps.nm-peking-opera.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # pi-matchmaker
       # ═══════════════════════════════════════════════════════════════
       - name: Cache pi-matchmaker node_modules
+        id: nm-pi-matchmaker
         uses: actions/cache@v4
         with:
           path: apps/pi-matchmaker/node_modules
           key: pi-matchmaker-nm-${{ hashFiles('apps/pi-matchmaker/package-lock.json') }}
 
       - name: Cache pi-matchmaker dist
-        id: cache-pi-matchmaker
+        id: dist-pi-matchmaker
         uses: actions/cache@v4
         with:
           path: apps/pi-matchmaker/dist
           key: pi-matchmaker-dist-${{ hashFiles('apps/pi-matchmaker/src/**', 'apps/pi-matchmaker/public/**', 'apps/pi-matchmaker/index.html', 'apps/pi-matchmaker/vite.config.*', 'apps/pi-matchmaker/tsconfig*.json', 'apps/pi-matchmaker/package-lock.json') }}
 
       - name: Build pi-matchmaker
-        if: steps.cache-pi-matchmaker.outputs.cache-hit != 'true'
-        run: cd apps/pi-matchmaker && npm ci && npm run build
+        if: steps.dist-pi-matchmaker.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/pi-matchmaker
+          if [ "${{ steps.nm-pi-matchmaker.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # air-drum-master
       # ═══════════════════════════════════════════════════════════════
       - name: Cache air-drum-master node_modules
+        id: nm-air-drum-master
         uses: actions/cache@v4
         with:
           path: apps/air-drum-master/node_modules
           key: air-drum-master-nm-${{ hashFiles('apps/air-drum-master/package-lock.json') }}
 
       - name: Cache air-drum-master dist
-        id: cache-air-drum-master
+        id: dist-air-drum-master
         uses: actions/cache@v4
         with:
           path: apps/air-drum-master/dist
           key: air-drum-master-dist-${{ hashFiles('apps/air-drum-master/src/**', 'apps/air-drum-master/public/**', 'apps/air-drum-master/index.html', 'apps/air-drum-master/vite.config.*', 'apps/air-drum-master/tsconfig*.json', 'apps/air-drum-master/package-lock.json') }}
 
       - name: Build air-drum-master
-        if: steps.cache-air-drum-master.outputs.cache-hit != 'true'
-        run: cd apps/air-drum-master && npm ci && npm run build
+        if: steps.dist-air-drum-master.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/air-drum-master
+          if [ "${{ steps.nm-air-drum-master.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # prompt-playground
       # ═══════════════════════════════════════════════════════════════
       - name: Cache prompt-playground node_modules
+        id: nm-prompt-playground
         uses: actions/cache@v4
         with:
           path: apps/prompt-playground/node_modules
           key: prompt-playground-nm-${{ hashFiles('apps/prompt-playground/package-lock.json') }}
 
       - name: Cache prompt-playground dist
-        id: cache-prompt-playground
+        id: dist-prompt-playground
         uses: actions/cache@v4
         with:
           path: apps/prompt-playground/dist
           key: prompt-playground-dist-${{ hashFiles('apps/prompt-playground/src/**', 'apps/prompt-playground/public/**', 'apps/prompt-playground/index.html', 'apps/prompt-playground/vite.config.*', 'apps/prompt-playground/tsconfig*.json', 'apps/prompt-playground/package-lock.json') }}
 
       - name: Build prompt-playground
-        if: steps.cache-prompt-playground.outputs.cache-hit != 'true'
-        run: cd apps/prompt-playground && npm ci && npm run build
+        if: steps.dist-prompt-playground.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/prompt-playground
+          if [ "${{ steps.nm-prompt-playground.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # vim-chaser
       # ═══════════════════════════════════════════════════════════════
       - name: Cache vim-chaser node_modules
+        id: nm-vim-chaser
         uses: actions/cache@v4
         with:
           path: apps/vim-chaser/node_modules
           key: vim-chaser-nm-${{ hashFiles('apps/vim-chaser/package-lock.json') }}
 
       - name: Cache vim-chaser dist
-        id: cache-vim-chaser
+        id: dist-vim-chaser
         uses: actions/cache@v4
         with:
           path: apps/vim-chaser/dist
           key: vim-chaser-dist-${{ hashFiles('apps/vim-chaser/src/**', 'apps/vim-chaser/public/**', 'apps/vim-chaser/index.html', 'apps/vim-chaser/vite.config.*', 'apps/vim-chaser/tsconfig*.json', 'apps/vim-chaser/package-lock.json') }}
 
       - name: Build vim-chaser
-        if: steps.cache-vim-chaser.outputs.cache-hit != 'true'
-        run: cd apps/vim-chaser && npm ci && npm run build
+        if: steps.dist-vim-chaser.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/vim-chaser
+          if [ "${{ steps.nm-vim-chaser.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # louis-xvi-sort
       # ═══════════════════════════════════════════════════════════════
       - name: Cache louis-xvi-sort node_modules
+        id: nm-louis-xvi-sort
         uses: actions/cache@v4
         with:
           path: apps/louis-xvi-sort/node_modules
           key: louis-xvi-sort-nm-${{ hashFiles('apps/louis-xvi-sort/package-lock.json') }}
 
       - name: Cache louis-xvi-sort dist
-        id: cache-louis-xvi-sort
+        id: dist-louis-xvi-sort
         uses: actions/cache@v4
         with:
           path: apps/louis-xvi-sort/dist
           key: louis-xvi-sort-dist-${{ hashFiles('apps/louis-xvi-sort/src/**', 'apps/louis-xvi-sort/public/**', 'apps/louis-xvi-sort/index.html', 'apps/louis-xvi-sort/vite.config.*', 'apps/louis-xvi-sort/tsconfig*.json', 'apps/louis-xvi-sort/package-lock.json') }}
 
       - name: Build louis-xvi-sort
-        if: steps.cache-louis-xvi-sort.outputs.cache-hit != 'true'
-        run: cd apps/louis-xvi-sort && npm ci && npm run build
+        if: steps.dist-louis-xvi-sort.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/louis-xvi-sort
+          if [ "${{ steps.nm-louis-xvi-sort.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # pretext-solar-system
       # ═══════════════════════════════════════════════════════════════
       - name: Cache pretext-solar-system node_modules
+        id: nm-pretext-solar-system
         uses: actions/cache@v4
         with:
           path: apps/pretext-solar-system/node_modules
           key: pretext-solar-system-nm-${{ hashFiles('apps/pretext-solar-system/package-lock.json') }}
 
       - name: Cache pretext-solar-system dist
-        id: cache-pretext-solar-system
+        id: dist-pretext-solar-system
         uses: actions/cache@v4
         with:
           path: apps/pretext-solar-system/dist
           key: pretext-solar-system-dist-${{ hashFiles('apps/pretext-solar-system/src/**', 'apps/pretext-solar-system/public/**', 'apps/pretext-solar-system/index.html', 'apps/pretext-solar-system/vite.config.*', 'apps/pretext-solar-system/tsconfig*.json', 'apps/pretext-solar-system/package-lock.json') }}
 
       - name: Build pretext-solar-system
-        if: steps.cache-pretext-solar-system.outputs.cache-hit != 'true'
-        run: cd apps/pretext-solar-system && npm ci && npm run build
+        if: steps.dist-pretext-solar-system.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/pretext-solar-system
+          if [ "${{ steps.nm-pretext-solar-system.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # real-to-ai
       # ═══════════════════════════════════════════════════════════════
       - name: Cache real-to-ai node_modules
+        id: nm-real-to-ai
         uses: actions/cache@v4
         with:
           path: apps/real-to-ai/node_modules
           key: real-to-ai-nm-${{ hashFiles('apps/real-to-ai/package-lock.json') }}
 
       - name: Cache real-to-ai dist
-        id: cache-real-to-ai
+        id: dist-real-to-ai
         uses: actions/cache@v4
         with:
           path: apps/real-to-ai/dist
           key: real-to-ai-dist-${{ hashFiles('apps/real-to-ai/src/**', 'apps/real-to-ai/public/**', 'apps/real-to-ai/index.html', 'apps/real-to-ai/vite.config.*', 'apps/real-to-ai/tsconfig*.json', 'apps/real-to-ai/package-lock.json') }}
 
       - name: Build real-to-ai
-        if: steps.cache-real-to-ai.outputs.cache-hit != 'true'
-        run: cd apps/real-to-ai && npm ci && npm run build
+        if: steps.dist-real-to-ai.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/real-to-ai
+          if [ "${{ steps.nm-real-to-ai.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # shadow-puppet
       # ═══════════════════════════════════════════════════════════════
       - name: Cache shadow-puppet node_modules
+        id: nm-shadow-puppet
         uses: actions/cache@v4
         with:
           path: apps/shadow-puppet/node_modules
           key: shadow-puppet-nm-${{ hashFiles('apps/shadow-puppet/package-lock.json') }}
 
       - name: Cache shadow-puppet dist
-        id: cache-shadow-puppet
+        id: dist-shadow-puppet
         uses: actions/cache@v4
         with:
           path: apps/shadow-puppet/dist
           key: shadow-puppet-dist-${{ hashFiles('apps/shadow-puppet/src/**', 'apps/shadow-puppet/public/**', 'apps/shadow-puppet/index.html', 'apps/shadow-puppet/vite.config.*', 'apps/shadow-puppet/tsconfig*.json', 'apps/shadow-puppet/package-lock.json') }}
 
       - name: Build shadow-puppet
-        if: steps.cache-shadow-puppet.outputs.cache-hit != 'true'
-        run: cd apps/shadow-puppet && npm ci && npm run build
+        if: steps.dist-shadow-puppet.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/shadow-puppet
+          if [ "${{ steps.nm-shadow-puppet.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
 
       # ═══════════════════════════════════════════════════════════════
       # Assemble all builds into dist/
@@ -321,20 +433,20 @@ jobs:
           mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog}
 
           # Built projects — copy dist/
-          cp -r apps/dice-verse/dist/*         dist/dice-verse/
-          cp -r apps/spin-art/dist/*           dist/spin-art/
-          cp -r apps/snap-puzzle/dist/*        dist/snap-puzzle/
-          cp -r apps/danmaku-magic/dist/*      dist/danmaku-magic/
-          cp -r apps/hairline-tracker/dist/*   dist/hairline-tracker/
-          cp -r apps/peking-opera/dist/*       dist/peking-opera/
-          cp -r apps/air-drum-master/dist/*    dist/air-drum-master/
-          cp -r apps/pi-matchmaker/dist/*      dist/pi-matchmaker/
-          cp -r apps/prompt-playground/dist/*  dist/prompt-playground/
-          cp -r apps/vim-chaser/dist/*         dist/vim-chaser/
-          cp -r apps/louis-xvi-sort/dist/*     dist/louis-xvi-sort/
-          cp -r apps/pretext-solar-system/dist/* dist/pretext-solar-system/
-          cp -r apps/real-to-ai/dist/*         dist/real-to-ai/
-          cp -r apps/shadow-puppet/dist/*      dist/shadow-puppet/
+          cp -r apps/dice-verse/dist/*         dist/dice-verse/        2>/dev/null || true
+          cp -r apps/spin-art/dist/*           dist/spin-art/          2>/dev/null || true
+          cp -r apps/snap-puzzle/dist/*        dist/snap-puzzle/       2>/dev/null || true
+          cp -r apps/danmaku-magic/dist/*      dist/danmaku-magic/     2>/dev/null || true
+          cp -r apps/hairline-tracker/dist/*   dist/hairline-tracker/  2>/dev/null || true
+          cp -r apps/peking-opera/dist/*       dist/peking-opera/      2>/dev/null || true
+          cp -r apps/air-drum-master/dist/*    dist/air-drum-master/   2>/dev/null || true
+          cp -r apps/pi-matchmaker/dist/*      dist/pi-matchmaker/     2>/dev/null || true
+          cp -r apps/prompt-playground/dist/*  dist/prompt-playground/ 2>/dev/null || true
+          cp -r apps/vim-chaser/dist/*         dist/vim-chaser/        2>/dev/null || true
+          cp -r apps/louis-xvi-sort/dist/*     dist/louis-xvi-sort/    2>/dev/null || true
+          cp -r apps/pretext-solar-system/dist/* dist/pretext-solar-system/ 2>/dev/null || true
+          cp -r apps/real-to-ai/dist/*         dist/real-to-ai/        2>/dev/null || true
+          cp -r apps/shadow-puppet/dist/*      dist/shadow-puppet/     2>/dev/null || true
 
           # Static projects — copy source files
           cp apps/walk-the-dog/index.html      dist/walk-the-dog/
@@ -343,7 +455,7 @@ jobs:
           cp apps/arxiv-to-novel/index.html apps/arxiv-to-novel/style.css apps/arxiv-to-novel/app.js apps/arxiv-to-novel/demo-novel.js dist/arxiv-to-novel/
 
           # prompt-playground also serves as site root
-          cp -r apps/prompt-playground/dist/*  dist/
+          cp -r apps/prompt-playground/dist/*  dist/ 2>/dev/null || true
 
           echo "=== dist structure ==="
           find dist -maxdepth 2 -type d | sort
