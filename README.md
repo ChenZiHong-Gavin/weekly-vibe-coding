@@ -165,7 +165,8 @@
     - 限时遛狗挑战游戏，选择狗狗、场景和道具，在 180 秒内牵绳遛狗应对各种随机事件，冲刺连击高分。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/walk-the-dog.md)
 
-      <img width="400" alt="image" src="https://github.com/user-attachments/assets/placeholder" />
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/474c1921-cd2a-40bb-8bf0-c5aa1ef92816" />
+
 
 
 
