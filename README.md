@@ -79,12 +79,6 @@
   
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
 
-6. **[Walk The Dog](https://chenzihong-gavin.github.io/weekly-vibe-coding/walk-the-dog/)** (`apps/walk-the-dog`)
-    - 限时遛狗挑战游戏，选择狗狗、场景和道具，在 180 秒内牵绳遛狗应对各种随机事件，冲刺连击高分。
-    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/walk-the-dog.md)
-
-      <img width="400" alt="image" src="https://github.com/user-attachments/assets/placeholder" />
-
 ### 专题二：手势交互
 
 7. **[FaceOpera](https://chenzihong-gavin.github.io/weekly-vibe-coding/peking-opera/)** (`apps/peking-opera`)
@@ -166,6 +160,12 @@
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/real-to-ai.md)
    
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/854ec939-9ca6-4e9e-aa8d-90269d7ec73d" />
+
+19. **[Walk The Dog](https://chenzihong-gavin.github.io/weekly-vibe-coding/walk-the-dog/)** (`apps/walk-the-dog`)
+    - 限时遛狗挑战游戏，选择狗狗、场景和道具，在 180 秒内牵绳遛狗应对各种随机事件，冲刺连击高分。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/walk-the-dog.md)
+
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/placeholder" />
 
 
 
