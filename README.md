@@ -93,11 +93,15 @@
 
 16. **[Marionette](https://chenzihong-gavin.github.io/weekly-vibe-coding/marionette/)** (`apps/marionette`)
     - 手势操控提线木偶，通过 MediaPipe 实时追踪五根手指，用物理模拟的提线控制一个手绘风格的布偶。
+   
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/1df66120-8de1-4b0c-b1ed-f65a83576eba" />
+
 
 18. **[Shadow Puppet](https://chenzihong-gavin.github.io/weekly-vibe-coding/shadow-puppet/)** (`apps/shadow-puppet`)
     - 手影戏台，摄像头实时捕捉手部轮廓投射到原始洞穴的火光洞壁上，支持 11 种手势姿势识别，捏合、挥手、握拳触发光影特效。火把摇曳，原始人剪影围观，沉浸式手影表演体验。
 
-      <img width="400" alt="image" src="https://github.com/user-attachments/assets/placeholder" />
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/92bea6fc-351a-4c4e-a826-f51dded417e4" />
+
 
 
 ### 专题三：语音交互
