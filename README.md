@@ -2,6 +2,8 @@
 
 ![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-18%2F100-blue)
 
+**中文** | [English](./README_EN.md)
+
 用提示词实现一百个idea。
 
 ## 目录
