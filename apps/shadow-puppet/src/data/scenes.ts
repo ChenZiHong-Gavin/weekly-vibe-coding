@@ -1,6 +1,25 @@
-import { SceneDef } from '@/types/puppet';
+import { SceneDef } from '@/types/hand-shadow';
 
 export const scenes: SceneDef[] = [
+  {
+    id: 'cave',
+    name: '山洞',
+    description: '原始洞穴，火光摇曳',
+    bgColor: '#1A0D04',
+    ambientColor: '#FF6622',
+    elements: [
+      // Left cave wall
+      {
+        type: 'rock', x: 0.0, y: 0.45, scale: 1.3, opacity: 0.7,
+        path: 'M-20,200 L-50,120 L-35,40 L-70,-40 L-40,-110 L-15,-160 L20,-120 L40,-50 L25,30 L50,110 L30,200 Z',
+      },
+      // Right cave wall
+      {
+        type: 'rock', x: 1.0, y: 0.45, scale: 1.3, opacity: 0.7,
+        path: 'M20,200 L50,120 L35,40 L70,-40 L40,-110 L15,-160 L-20,-120 L-40,-50 L-25,30 L-50,110 L-30,200 Z',
+      },
+    ],
+  },
   {
     id: 'palace',
     name: '金殿',

@@ -2,12 +2,10 @@ import { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTheaterStore } from '@/store/theaterStore';
 import { useTheaterLoop } from '@/hooks/useTheaterLoop';
 import { useHandTracking } from '@/hooks/useHandTracking';
-import { useHandGestureControl } from '@/hooks/useHandGestureControl';
-import { PuppetEngine } from '@/core/PuppetEngine';
+import { HandPoseClassifier } from '@/core/HandPoseClassifier';
 import { SoundManager } from '@/core/SoundManager';
-import { puppets as puppetDefs } from '@/data/puppets';
+import { GestureResult } from '@/types/hand-shadow';
 import { scenes } from '@/data/scenes';
-import { GestureResult } from '@/types/puppet';
 import CameraPreview from './CameraPreview';
 
 interface TheaterStageProps {
@@ -16,44 +14,25 @@ interface TheaterStageProps {
 
 export default function TheaterStage({ soundManager }: TheaterStageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef(new PuppetEngine());
-  const hasInputRef = useRef(false);
   const [showCamera, setShowCamera] = useState(true);
+  const poseClassifierRef = useRef(new HandPoseClassifier());
+  const lastComboRef = useRef(0);
+  const fistTimerRef = useRef(0);
 
   const {
-    puppetStates,
-    selectedSceneId,
-    isShadowMode,
     gestures,
     setGestures,
     setCameraReady,
-    mode,
-    activePuppetIndex,
+    setDetectedPose,
+    sfxEnabled,
     cameraFailed,
-    addPuppet,
+    selectedSceneId,
+    triggerEffect,
   } = useTheaterStore();
-
-  // Add default puppet when entering with no puppets on stage
-  useEffect(() => {
-    if (puppetStates.length === 0) {
-      const def = puppetDefs.find(d => d.id === 'warrior') || puppetDefs[0];
-      const state = engineRef.current.createPuppetState(def, 480, 320, 0.8);
-      addPuppet(state);
-    }
-  }, [puppetStates.length, addPuppet]);
 
   const scene = useMemo(
     () => scenes.find(s => s.id === selectedSceneId) || scenes[0],
     [selectedSceneId],
-  );
-
-  const puppetPairs = useMemo(
-    () => puppetStates.map((ps, i) => ({
-      def: puppetDefs.find(d => d.id === ps.puppetId) || puppetDefs[0],
-      state: ps,
-      isActive: i === activePuppetIndex,
-    })),
-    [puppetStates, activePuppetIndex],
   );
 
   const canvasW = canvasRef.current?.width || window.innerWidth;
@@ -66,58 +45,78 @@ export default function TheaterStage({ soundManager }: TheaterStageProps) {
     [setGestures],
   );
 
-  const trackingEnabled = mode === 'free' || mode === 'story';
-
-  const { ready, videoRef, rawHands } = useHandTracking(
+  const { ready, error, videoRef, rawHands } = useHandTracking(
     handleGestures,
     canvasW,
     canvasH,
-    trackingEnabled,
+    true,
   );
 
   useEffect(() => {
     setCameraReady(ready);
   }, [ready, setCameraReady]);
 
-  const handleUpdate = useCallback(() => {}, []);
-
-  const { engine, frameTimeRef } = useTheaterLoop({
-    canvasRef: canvasRef as React.RefObject<HTMLCanvasElement>,
-    scene,
-    puppets: puppetPairs,
-    allPuppetDefs: puppetDefs,
-    gestures,
-    isShadowMode,
-    onUpdate: handleUpdate,
-    hasInputRef,
-  });
-
-  useHandGestureControl(puppetDefs, engine || engineRef.current, soundManager, canvasRef, hasInputRef);
-
-  // Mouse fallback when camera is unavailable
-  const mouseMode = cameraFailed && trackingEnabled;
-
+  // Pose classification from raw hand data
   useEffect(() => {
-    if (!mouseMode) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (rawHands.length > 0) {
+      const result = poseClassifierRef.current.classify(rawHands[0]);
+      setDetectedPose(result.pose || null);
+    } else {
+      setDetectedPose(null);
+    }
+  }, [rawHands, setDetectedPose]);
 
-    const onMouseMove = (e: MouseEvent) => {
-      const { puppetStates, activePuppetIndex, updatePuppetState } = useTheaterStore.getState();
-      const ps = puppetStates[activePuppetIndex];
-      if (!ps) return;
-      updatePuppetState(activePuppetIndex, {
-        ...ps,
-        x: e.clientX,
-        y: e.clientY,
-        vx: 0,
-        vy: 0,
+  // Gesture combo → effects trigger
+  useEffect(() => {
+    const g = gestures[0];
+    if (!g || g.type === 'none') return;
+
+    const now = Date.now();
+    const pos = g.position;
+
+    if (g.type === 'pinch' && now - lastComboRef.current > 2000 && sfxEnabled) {
+      triggerEffect({
+        id: `fx-${now}-${Math.random().toString(36).slice(2, 6)}`,
+        type: 'burst', x: pos.x, y: pos.y - 60,
+        startTime: performance.now(),
       });
-    };
+      soundManager?.playGong();
+      lastComboRef.current = now;
+    }
 
-    canvas.addEventListener('mousemove', onMouseMove);
-    return () => canvas.removeEventListener('mousemove', onMouseMove);
-  }, [mouseMode]);
+    if (g.type === 'wave' && now - lastComboRef.current > 2000 && sfxEnabled) {
+      triggerEffect({
+        id: `fx-${now}-${Math.random().toString(36).slice(2, 6)}`,
+        type: 'petals', x: pos.x, y: pos.y,
+        startTime: performance.now(),
+      });
+      soundManager?.playWoodblock();
+      lastComboRef.current = now;
+    }
+
+    if (g.type === 'fist') {
+      if (fistTimerRef.current === 0) fistTimerRef.current = now;
+      if (now - fistTimerRef.current > 600 && sfxEnabled && now - lastComboRef.current > 2000) {
+        triggerEffect({
+          id: `fx-${now}-${Math.random().toString(36).slice(2, 6)}`,
+          type: 'smoke', x: pos.x, y: pos.y + 40,
+          startTime: performance.now(),
+        });
+        soundManager?.playDrum();
+        lastComboRef.current = now;
+        fistTimerRef.current = 0;
+      }
+    } else {
+      fistTimerRef.current = 0;
+    }
+  }, [gestures, sfxEnabled, triggerEffect, soundManager]);
+
+  useTheaterLoop({
+    canvasRef,
+    scene,
+    gestures,
+    handData: rawHands,
+  });
 
   return (
     <div className="relative w-full h-full">
@@ -126,19 +125,28 @@ export default function TheaterStage({ soundManager }: TheaterStageProps) {
         className="w-full h-full block"
       />
 
-      {cameraFailed && trackingEnabled && (
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <div className="panel-traditional rounded-lg px-4 py-1.5 text-center">
-            <span className="text-vermilion text-xs font-song">摄像头不可用，已启用鼠标控制</span>
+      {cameraFailed && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+          <div className="panel-traditional rounded-lg px-4 py-2 text-center max-w-md">
+            <p className="text-vermilion text-sm font-song">摄像头不可用</p>
+            {error && (
+              <p className="text-muted-foreground text-xs mt-1 font-song">{error}</p>
+            )}
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 text-xs text-gold underline hover:text-gold/80 font-song"
+            >
+              点击刷新页面重试
+            </button>
           </div>
         </div>
       )}
 
-      {!ready && !cameraFailed && trackingEnabled && (
+      {!ready && !cameraFailed && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="panel-traditional rounded-lg px-6 py-4 text-center">
             <div className="animate-pulse text-gold text-lg font-song">
-              正在启动手势识别...
+              正在启动手势识别
             </div>
             <div className="text-muted-foreground text-sm mt-2">
               请允许浏览器使用摄像头，将手掌对准屏幕
@@ -159,9 +167,7 @@ export default function TheaterStage({ soundManager }: TheaterStageProps) {
 
       <CameraPreview
         videoRef={videoRef}
-        landmarks={[]}
         visible={ready && showCamera}
-        handMode
         handData={rawHands}
       />
     </div>

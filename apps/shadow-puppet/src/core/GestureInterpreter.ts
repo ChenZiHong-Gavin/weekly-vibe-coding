@@ -1,4 +1,4 @@
-import { HandData, GestureResult } from '@/types/puppet';
+import { HandData, GestureResult } from '@/types/hand-shadow';
 
 const WRIST = 0;
 const THUMB_TIP = 4;

@@ -13,6 +13,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  optimizeDeps: {
+    include: ['@mediapipe/hands', '@mediapipe/camera_utils'],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

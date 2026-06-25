@@ -1,33 +1,33 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheaterStore } from '@/store/theaterStore';
-import { useMemo } from 'react';
-import {
-  OpenHandLabeled,
-  PinchHand,
-  FistHand,
-  WaveHand,
-} from './HandGestureIcons';
+import { POSE_NAMES } from '@/core/HandPoseClassifier';
+import { useState } from 'react';
+
+// Which fingers are extended for each pose
+// thumb, index, middle, ring, pinky — true = extended
+const POSE_FINGERS: Record<string, { fingers: boolean[]; instruction: string }> = {
+  bird:      { fingers: [true,  true,  true,  false, false], instruction: '食指中指并拢伸直，拇指外展，其余握拳' },
+  dog:       { fingers: [true,  true,  true,  false, true],  instruction: '食指中指小指伸直，无名指弯曲贴手心' },
+  rabbit:    { fingers: [false, true,  true,  false, false], instruction: '食指中指分开伸直成V字，其余弯曲握拳' },
+  eagle:     { fingers: [true,  true,  true,  true,  true],  instruction: '五指全部张开，指间尽量分开伸展' },
+  deer:      { fingers: [true,  false, false, false, true],  instruction: '拇指小指伸直，中间三指向掌心弯曲' },
+  goose:     { fingers: [true,  false, true,  true,  true],  instruction: '拇指食指指尖相捏，其余三指伸直并拢' },
+  peacock:   { fingers: [true,  true,  true,  true,  true],  instruction: '五指全部张开，指间用力撑开到最大' },
+  fox:       { fingers: [true,  true,  true,  false, false], instruction: '拇指食指中指伸直并拢，无名指小指弯曲' },
+  cat:       { fingers: [false, false, false, false, false], instruction: '五指自然微曲放松，指尖靠近，如猫爪状' },
+  cobra:     { fingers: [true,  true,  true,  true,  true],  instruction: '五指并拢伸直，手掌平展，如蛇头状' },
+  old_man:   { fingers: [true,  true,  false, false, false], instruction: '拇指食指伸直成L形，其余三指弯曲握拳' },
+};
+
+const FINGER_NAMES = ['拇', '食', '中', '无', '小'];
 
 export default function GestureGuide() {
-  const { showGestureGuide, gestures, puppetStates, activePuppetIndex, cameraReady } = useTheaterStore();
+  const { showGestureGuide, gestures, cameraReady, detectedPose } = useTheaterStore();
+  const [selectedPose, setSelectedPose] = useState<string | null>(null);
 
-  const activePuppet = puppetStates[activePuppetIndex];
-  const isDragon = activePuppet?.puppetId === 'dragon';
-
-  const detection = useMemo(() => {
-    if (!cameraReady || gestures.length === 0) return null;
-    const g = gestures[0];
-    return {
-      hasHand: g && g.type !== 'none',
-      fingertips: g?.fingerTips?.length || 0,
-      gestureType: g?.type || 'none',
-    };
-  }, [gestures, cameraReady]);
-
-  const getPuppetName = (id: string) => {
-    const map: Record<string, string> = { warrior: '武生', maiden: '花旦', monkey: '孙悟空', dragon: '神龙', scholar: '老生' };
-    return map[id] || id;
-  };
+  const gesture = gestures[0];
+  const hasHand = gesture && gesture.type !== 'none';
+  const poseName = detectedPose ? (POSE_NAMES[detectedPose] || detectedPose) : null;
 
   return (
     <AnimatePresence>
@@ -41,90 +41,86 @@ export default function GestureGuide() {
         >
           <div className="panel-traditional rounded-xl px-5 py-4 max-w-[340px]">
 
-            {/* ── Header ── */}
+            {/* Header */}
             <div className="flex items-center gap-2 mb-3">
               <span className={`w-2.5 h-2.5 rounded-full ${cameraReady ? 'bg-jade animate-pulse' : 'bg-vermilion'}`} />
-              <span className="text-base text-gold font-song">手势操控</span>
-              {activePuppet && (
-                <span className="text-sm text-muted-foreground font-song">
-                  {getPuppetName(activePuppet.puppetId)}
-                </span>
-              )}
+              <span className="text-base text-gold font-song">手影戏台</span>
             </div>
 
             {!cameraReady && (
               <p className="text-sm text-vermilion font-song mb-2">摄像头未就绪，请检查权限</p>
             )}
 
-            {/* ── Detection status ── */}
-            {detection && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Chip ok={detection.hasHand} label={detection.hasHand ? '手掌已检测' : '寻找手掌'} />
-                <Chip ok={detection.fingertips >= 5} label={detection.fingertips >= 5 ? '五指已识别' : '手指追踪中'} />
+            {/* Detection status */}
+            {cameraReady && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                <Chip ok={hasHand} label={hasHand ? '手掌已检测' : '寻找手掌'} />
+                {poseName && <Chip ok label={`当前姿势：${poseName}`} />}
               </div>
             )}
 
-            {/* ── Main hand illustration with labels ── */}
-            {detection?.hasHand && (
-              <>
-                {/* Large labeled hand */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="flex-shrink-0">
-                    <OpenHandLabeled size={90} className="text-gold" />
-                  </div>
+            {/* Pose guide with finger diagrams */}
+            <div className="pt-3 border-t border-[hsl(var(--gold)/0.15)]">
+              <p className="text-xs text-muted-foreground font-song mb-2">点击姿势查看手指位置</p>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs font-song mb-3">
+                {Object.entries(POSE_NAMES).map(([key, name]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedPose(selectedPose === key ? null : key)}
+                    className={`text-left flex items-center gap-1.5 px-1.5 py-1 rounded transition-colors ${
+                      detectedPose === key
+                        ? 'text-gold bg-gold/10'
+                        : selectedPose === key
+                          ? 'text-gold/80 bg-gold/5'
+                          : 'text-muted-foreground hover:text-parchment/80'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                      detectedPose === key ? 'bg-gold shadow-[0_0_6px_hsl(var(--gold))]' : 'bg-muted-foreground/30'
+                    }`} />
+                    {name}
+                  </button>
+                ))}
+              </div>
 
-                  {/* Legend — controls mapping */}
-                  <div className="flex flex-col gap-1.5 text-sm font-song">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-white/50" />
-                      <span className="text-muted-foreground">移动手掌</span>
-                      <span className="text-gold">身体惯性移动</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#66B2FF' }} />
-                      <span className="text-muted-foreground">转动手腕</span>
-                      <span className="text-gold">{isDragon ? '龙头方向' : '头部转动 & 倾斜'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF6B4A' }} />
-                      <span className="text-muted-foreground">弯拇指</span>
-                      <span className="text-gold">{isDragon ? '龙腰摆动' : '左臂挥舞'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF88CC' }} />
-                      <span className="text-muted-foreground">弯小指</span>
-                      <span className="text-gold">{isDragon ? '龙尾摆动' : '右臂挥舞'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── Combo gestures ── */}
-                <div className="pt-3 border-t border-[hsl(var(--gold)/0.15)]">
-                  <p className="text-xs text-muted-foreground font-song mb-2">手势组合特效</p>
-                  <div className="flex gap-5">
-                    <div className="flex flex-col items-center gap-1">
-                      <PinchHand size={40} className="text-gold" />
-                      <span className="text-xs text-gold font-song">捏合</span>
-                      <span className="text-xs text-muted-foreground font-song">金光特效</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                      <WaveHand size={40} className="text-gold" />
-                      <span className="text-xs text-gold font-song">挥手</span>
-                      <span className="text-xs text-muted-foreground font-song">花瓣特效</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                      <FistHand size={40} className="text-gold" />
-                      <span className="text-xs text-gold font-song">握拳</span>
-                      <span className="text-xs text-muted-foreground font-song">烟雾特效</span>
+              {/* Selected pose detail with finger diagram */}
+              {selectedPose && POSE_FINGERS[selectedPose] && (
+                <div className="bg-[hsl(25_35%_10%/0.6)] rounded-lg p-3 mb-2">
+                  <div className="flex items-center gap-3">
+                    <FingerDiagram fingers={POSE_FINGERS[selectedPose].fingers} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gold font-song mb-1">
+                        {POSE_NAMES[selectedPose]}
+                      </p>
+                      <p className="text-xs text-muted-foreground font-song leading-relaxed">
+                        {POSE_FINGERS[selectedPose].instruction}
+                      </p>
                     </div>
                   </div>
                 </div>
-              </>
-            )}
+              )}
 
-            {/* ── Waiting for hand ── */}
-            {cameraReady && !detection?.hasHand && (
-              <div className="text-sm text-muted-foreground font-song">
+              {/* Current detected pose highlight */}
+              {detectedPose && POSE_FINGERS[detectedPose] && !selectedPose && (
+                <div className="bg-[hsl(var(--gold)/0.08)] rounded-lg p-3">
+                  <div className="flex items-center gap-3">
+                    <FingerDiagram fingers={POSE_FINGERS[detectedPose].fingers} highlight />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gold font-song mb-1">
+                        {POSE_NAMES[detectedPose]} ✓
+                      </p>
+                      <p className="text-xs text-muted-foreground font-song leading-relaxed">
+                        {POSE_FINGERS[detectedPose].instruction}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Waiting for hand */}
+            {cameraReady && !hasHand && (
+              <div className="text-sm text-muted-foreground font-song mt-3">
                 <p>将手掌对准摄像头</p>
                 <p className="mt-1 text-xs opacity-60">张开五指，掌心朝向镜头</p>
               </div>
@@ -133,6 +129,61 @@ export default function GestureGuide() {
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+// Simple 5-finger hand diagram SVG
+function FingerDiagram({ fingers, highlight }: { fingers: boolean[]; highlight?: boolean }) {
+  const w = 56, h = 64;
+  const activeColor = highlight ? '#FFD700' : '#C9A84C';
+  const dimColor = '#4A4030';
+
+  // Finger lines: x1,y1 (base) → x2,y2 (tip)
+  const fingerLines = [
+    { x1: 40, y1: 20, x2: 46, y2: 4 },  // thumb
+    { x1: 28, y1: 20, x2: 24, y2: 3 },  // index
+    { x1: 20, y1: 20, x2: 16, y2: 2 },  // middle
+    { x1: 12, y1: 20, x2: 8, y2: 5 },   // ring
+    { x1: 5, y1: 22, x2: 1, y2: 10 },   // pinky
+  ];
+
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="flex-shrink-0">
+      {/* Palm */}
+      <rect x="2" y="18" width="40" height="28" rx="10"
+        stroke={activeColor} strokeWidth="1.5" fill="none" opacity="0.6" />
+
+      {/* Wrist */}
+      <line x1="14" y1="44" x2="14" y2="58" stroke={activeColor} strokeWidth="1.5" opacity="0.4" />
+      <line x1="30" y1="44" x2="30" y2="58" stroke={activeColor} strokeWidth="1.5" opacity="0.4" />
+
+      {/* Fingers */}
+      {fingerLines.map((f, i) => {
+        const active = fingers[i];
+        return (
+          <g key={i}>
+            <line x1={f.x1} y1={f.y1} x2={f.x2} y2={f.y2}
+              stroke={active ? activeColor : dimColor}
+              strokeWidth={active ? "2.5" : "1.8"}
+              strokeLinecap="round"
+              opacity={active ? 1 : 0.4}
+            />
+            <circle cx={f.x2} cy={f.y2} r={active ? 2.5 : 1.5}
+              fill={active ? activeColor : dimColor}
+              opacity={active ? 1 : 0.35}
+            />
+            {/* Finger label */}
+            <text x={f.x2} y={f.y2 + (active ? -6 : -4)}
+              fill={active ? activeColor : dimColor}
+              fontSize="7" textAnchor="middle"
+              opacity={active ? 0.9 : 0.4}
+            >
+              {FINGER_NAMES[i]}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
   );
 }
 

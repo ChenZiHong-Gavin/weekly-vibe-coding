@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { HandTracker } from '@/core/HandTracker';
 import { GestureInterpreter } from '@/core/GestureInterpreter';
-import { HandData, GestureResult } from '@/types/puppet';
+import { HandData, GestureResult } from '@/types/hand-shadow';
 import { useTheaterStore } from '@/store/theaterStore';
 
 export function useHandTracking(
@@ -58,7 +58,7 @@ export function useHandTracking(
         const ok = await tracker.init(video, handleResults);
         if (!mounted) return;
         if (!ok) {
-          setError('无法初始化手势追踪，请检查摄像头权限');
+          setError(tracker.lastError || '无法初始化手势追踪，请检查摄像头权限');
           useTheaterStore.getState().setCameraFailed(true);
           return;
         }
@@ -66,10 +66,10 @@ export function useHandTracking(
         if (mounted) {
           setReady(true);
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error('Hand tracking start failed:', e);
         if (mounted) {
-          setError('摄像头启动失败');
+          setError(tracker.lastError || `摄像头启动失败：${e?.message || e}`);
           useTheaterStore.getState().setCameraFailed(true);
         }
       }

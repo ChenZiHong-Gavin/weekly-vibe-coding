@@ -1,25 +1,18 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { StageRenderer } from '@/core/StageRenderer';
-import { PuppetEngine } from '@/core/PuppetEngine';
-import { PuppetDef, PuppetState, SceneDef, GestureResult } from '@/types/puppet';
+import { SceneDef, GestureResult, HandData } from '@/types/hand-shadow';
 
 interface TheaterLoopOptions {
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
   scene: SceneDef;
-  puppets: { def: PuppetDef; state: PuppetState; isActive?: boolean }[];
-  allPuppetDefs: PuppetDef[];
   gestures: GestureResult[];
-  isShadowMode: boolean;
-  onUpdate: (puppets: { def: PuppetDef; state: PuppetState }[]) => void;
-  hasInputRef: React.RefObject<boolean>;
+  handData: HandData[];
 }
 
 export function useTheaterLoop(options: TheaterLoopOptions) {
   const rendererRef = useRef<StageRenderer | null>(null);
-  const engineRef = useRef(new PuppetEngine());
   const animRef = useRef(0);
   const lastTimeRef = useRef(0);
-  const frameTimeRef = useRef(0);
 
   const optionsRef = useRef(options);
   optionsRef.current = options;
@@ -27,24 +20,13 @@ export function useTheaterLoop(options: TheaterLoopOptions) {
   const loop = useCallback((timestamp: number) => {
     const dt = lastTimeRef.current ? Math.min((timestamp - lastTimeRef.current) / 1000, 0.05) : 0.016;
     lastTimeRef.current = timestamp;
-    frameTimeRef.current = timestamp;
 
-    const { scene, puppets, gestures, isShadowMode, onUpdate } = optionsRef.current;
+    const { scene, gestures, handData } = optionsRef.current;
     const renderer = rendererRef.current;
-    const engine = engineRef.current;
 
-    if (!renderer) {
-      animRef.current = requestAnimationFrame(loop);
-      return;
+    if (renderer) {
+      renderer.renderFrame(scene, handData, gestures, dt);
     }
-
-    const hasInput = optionsRef.current.hasInputRef.current;
-    for (const { def, state } of puppets) {
-      engine.update(state, def, dt, hasInput);
-    }
-
-    renderer.renderFrame(scene, puppets, gestures, isShadowMode, dt);
-    onUpdate(puppets);
 
     animRef.current = requestAnimationFrame(loop);
   }, []);
@@ -68,7 +50,6 @@ export function useTheaterLoop(options: TheaterLoopOptions) {
     };
 
     rendererRef.current = new StageRenderer(ctx, canvas.width, canvas.height);
-    rendererRef.current.preloadImages(options.allPuppetDefs);
     resizeCanvas();
 
     const observer = new ResizeObserver(resizeCanvas);
@@ -83,9 +64,5 @@ export function useTheaterLoop(options: TheaterLoopOptions) {
     };
   }, [options.canvasRef, loop]);
 
-  return {
-    engine: engineRef.current,
-    renderer: rendererRef.current,
-    frameTimeRef,
-  };
+  return { renderer: rendererRef.current };
 }
