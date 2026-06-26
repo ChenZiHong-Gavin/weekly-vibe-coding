@@ -170,10 +170,6 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/474c1921-cd2a-40bb-8bf0-c5aa1ef92816" />
 
-20. **[Blow & Glow](https://chenzihong-gavin.github.io/weekly-vibe-coding/blow-and-glow/)** (`apps/blow-and-glow`)
-    - Full-screen smoke field, camera tracks mouth position, blow to scatter smoke — MediaPipe face mesh + Canvas particle physics.
-    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/blow-and-glow.md)
-
 
 
 

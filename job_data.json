@@ -1,0 +1,561 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 83490369867,
+      "run_id": 28186706166,
+      "workflow_name": "Deploy to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/ChenZiHong-Gavin/weekly-vibe-coding/actions/runs/28186706166",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOPLcq4c8AAAATcGnxSw",
+      "head_sha": "b0e0a63cdce52def871224c2eb8e03630875d77b",
+      "url": "https://api.github.com/repos/ChenZiHong-Gavin/weekly-vibe-coding/actions/jobs/83490369867",
+      "html_url": "https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/actions/runs/28186706166/job/83490369867",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-06-25T16:57:21Z",
+      "started_at": "2026-06-25T16:57:23Z",
+      "completed_at": "2026-06-25T16:59:01Z",
+      "name": "build-and-deploy",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-06-25T16:57:24Z",
+          "completed_at": "2026-06-25T16:57:27Z"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-06-25T16:57:27Z",
+          "completed_at": "2026-06-25T16:57:28Z"
+        },
+        {
+          "name": "Setup Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-06-25T16:57:28Z",
+          "completed_at": "2026-06-25T16:57:29Z"
+        },
+        {
+          "name": "Cache dice-verse node_modules",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-06-25T16:57:29Z",
+          "completed_at": "2026-06-25T16:57:29Z"
+        },
+        {
+          "name": "Cache dice-verse dist",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-06-25T16:57:29Z",
+          "completed_at": "2026-06-25T16:57:30Z"
+        },
+        {
+          "name": "Build dice-verse",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-06-25T16:57:30Z",
+          "completed_at": "2026-06-25T16:57:45Z"
+        },
+        {
+          "name": "Cache spin-art node_modules",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-06-25T16:57:45Z",
+          "completed_at": "2026-06-25T16:57:46Z"
+        },
+        {
+          "name": "Cache spin-art dist",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-06-25T16:57:46Z",
+          "completed_at": "2026-06-25T16:57:46Z"
+        },
+        {
+          "name": "Build spin-art",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-06-25T16:57:46Z",
+          "completed_at": "2026-06-25T16:57:57Z"
+        },
+        {
+          "name": "Cache snap-puzzle node_modules",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-06-25T16:57:57Z",
+          "completed_at": "2026-06-25T16:57:58Z"
+        },
+        {
+          "name": "Cache snap-puzzle dist",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-06-25T16:57:58Z",
+          "completed_at": "2026-06-25T16:57:58Z"
+        },
+        {
+          "name": "Build snap-puzzle",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-06-25T16:57:58Z",
+          "completed_at": "2026-06-25T16:58:09Z"
+        },
+        {
+          "name": "Cache danmaku-magic node_modules",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-06-25T16:58:09Z",
+          "completed_at": "2026-06-25T16:58:09Z"
+        },
+        {
+          "name": "Cache danmaku-magic dist",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-06-25T16:58:09Z",
+          "completed_at": "2026-06-25T16:58:10Z"
+        },
+        {
+          "name": "Build danmaku-magic",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-06-25T16:58:10Z",
+          "completed_at": "2026-06-25T16:58:20Z"
+        },
+        {
+          "name": "Cache hairline-tracker node_modules",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-06-25T16:58:20Z",
+          "completed_at": "2026-06-25T16:58:21Z"
+        },
+        {
+          "name": "Cache hairline-tracker dist",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-06-25T16:58:21Z",
+          "completed_at": "2026-06-25T16:58:21Z"
+        },
+        {
+          "name": "Build hairline-tracker",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-06-25T16:58:21Z",
+          "completed_at": "2026-06-25T16:58:42Z"
+        },
+        {
+          "name": "Cache peking-opera node_modules",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-06-25T16:58:42Z",
+          "completed_at": "2026-06-25T16:58:43Z"
+        },
+        {
+          "name": "Cache peking-opera dist",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-06-25T16:58:43Z",
+          "completed_at": "2026-06-25T16:58:43Z"
+        },
+        {
+          "name": "Build peking-opera",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-06-25T16:58:43Z",
+          "completed_at": "2026-06-25T16:58:56Z"
+        },
+        {
+          "name": "Cache pi-matchmaker node_modules",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-06-25T16:58:56Z",
+          "completed_at": "2026-06-25T16:58:57Z"
+        },
+        {
+          "name": "Cache pi-matchmaker dist",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-06-25T16:58:57Z",
+          "completed_at": "2026-06-25T16:58:57Z"
+        },
+        {
+          "name": "Build pi-matchmaker",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 24,
+          "started_at": "2026-06-25T16:58:57Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache air-drum-master node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 25,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache air-drum-master dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 26,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Build air-drum-master",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 27,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache prompt-playground node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 28,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache prompt-playground dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 29,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Build prompt-playground",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 30,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache vim-chaser node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 31,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache vim-chaser dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 32,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Build vim-chaser",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 33,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache louis-xvi-sort node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 34,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache louis-xvi-sort dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 35,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Build louis-xvi-sort",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 36,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache pretext-solar-system node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 37,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache pretext-solar-system dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 38,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Build pretext-solar-system",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 39,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache real-to-ai node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 40,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache real-to-ai dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 41,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Build real-to-ai",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 42,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache shadow-puppet node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 43,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Cache shadow-puppet dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 44,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Build shadow-puppet",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 45,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Assemble dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 46,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Setup Pages",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 47,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Upload artifact",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 48,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Deploy to GitHub Pages",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 49,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache pi-matchmaker dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 83,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache pi-matchmaker node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 84,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache peking-opera dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 85,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache peking-opera node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 86,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache hairline-tracker dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 87,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache hairline-tracker node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 88,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache danmaku-magic dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 89,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache danmaku-magic node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 90,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache snap-puzzle dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 91,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache snap-puzzle node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 92,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache spin-art dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 93,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache spin-art node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 94,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache dice-verse dist",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 95,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Cache dice-verse node_modules",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 96,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Setup Node.js",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 97,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 98,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 99,
+          "started_at": "2026-06-25T16:58:58Z",
+          "completed_at": "2026-06-25T16:58:58Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/ChenZiHong-Gavin/weekly-vibe-coding/check-runs/83490369867",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000000373,
+      "runner_name": "GitHub Actions 1000000373",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

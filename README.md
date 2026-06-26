@@ -173,9 +173,6 @@
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/474c1921-cd2a-40bb-8bf0-c5aa1ef92816" />
 
-20. **[Blow & Glow](https://chenzihong-gavin.github.io/weekly-vibe-coding/blow-and-glow/)** (`apps/blow-and-glow`)
-    - 全屏烟雾场，摄像头追踪嘴部位置，吹气驱散烟雾，MediaPipe 面部识别 + Canvas 粒子物理。
-    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/blow-and-glow.md)
 
 
 

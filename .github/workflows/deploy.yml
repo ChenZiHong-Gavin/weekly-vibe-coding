@@ -430,7 +430,7 @@ jobs:
       # ═══════════════════════════════════════════════════════════════
       - name: Assemble dist
         run: |
-          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,blow-and-glow}
+          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog}
 
           # Built projects — copy dist/
           cp -r apps/dice-verse/dist/*         dist/dice-verse/        2>/dev/null || true
@@ -450,7 +450,6 @@ jobs:
 
           # Static projects — copy source files
           cp apps/walk-the-dog/index.html      dist/walk-the-dog/
-          cp apps/blow-and-glow/index.html     dist/blow-and-glow/
           cp apps/marionette/index.html        dist/marionette/
           cp -r apps/planet-slides/*           dist/planet-slides/
           cp apps/arxiv-to-novel/index.html apps/arxiv-to-novel/style.css apps/arxiv-to-novel/app.js apps/arxiv-to-novel/demo-novel.js dist/arxiv-to-novel/

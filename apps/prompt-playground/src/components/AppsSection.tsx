@@ -20,7 +20,6 @@ import marionettePromptRaw from "@prompts/marionette.md?raw";
 import planetSlidesPromptRaw from "@prompts/planet-slides.md?raw";
 import shadowPuppetPromptRaw from "@prompts/shadow-puppet.md?raw";
 import walkTheDogPromptRaw from "@prompts/walk-the-dog.md?raw";
-import blowAndGlowPromptRaw from "@prompts/blow-and-glow.md?raw";
 
 export const categories = [
   {
@@ -236,15 +235,6 @@ export const categories = [
         status: "live" as const,
         colorClass: "icon-orange",
         prompt: walkTheDogPromptRaw,
-      },
-      {
-        title: "Blow & Glow",
-        description: "全屏烟雾场，摄像头追踪嘴部位置，吹气驱散烟雾，MediaPipe + Canvas 粒子物理。",
-        icon: "🕯️",
-        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/blow-and-glow/",
-        status: "live" as const,
-        colorClass: "icon-orange",
-        prompt: blowAndGlowPromptRaw,
       },
     ],
   },
