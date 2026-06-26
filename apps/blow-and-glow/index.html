@@ -52,12 +52,13 @@
   #mouth-ring {
     position: fixed; pointer-events: none; z-index: 5;
     width: 100px; height: 100px; border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.2);
     transform: translate(-50%, -50%); display: none;
+    box-shadow: 0 0 30px rgba(255,200,150,0.12), inset 0 0 30px rgba(255,200,150,0.06);
     transition: left 0.06s ease-out, top 0.06s ease-out, border-color 0.2s, box-shadow 0.2s;
   }
   #mouth-ring.visible { display: block; }
-  #mouth-ring.blowing { border-color: rgba(255,160,60,0.5); box-shadow: 0 0 60px rgba(255,120,20,0.3); }
+  #mouth-ring.blowing { border-color: rgba(255,150,40,0.8); border-width: 3px; box-shadow: 0 0 80px rgba(255,120,20,0.5), inset 0 0 60px rgba(255,100,10,0.25); }
 </style>
 </head>
 <body>
