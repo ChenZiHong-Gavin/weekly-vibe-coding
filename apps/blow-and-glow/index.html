@@ -8,61 +8,49 @@
   :root { color-scheme: dark; }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    background: #000;
-    overflow: hidden;
+    background: #000; overflow: hidden;
     font-family: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
-    user-select: none;
-    -webkit-user-select: none;
+    user-select: none; -webkit-user-select: none;
     touch-action: none;
-    cursor: auto;
   }
 
   #smoke-canvas { display:block; position:fixed; inset:0; width:100%; height:100%; }
 
-  /* Title overlay */
+  /* Title overlay - fades out */
   #title-overlay {
     position: fixed; inset: 0; z-index: 20;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     pointer-events: none;
-    transition: opacity 1.5s ease-out;
+    transition: opacity 1.8s ease-out;
   }
   #title-overlay.fade { opacity: 0; }
   #title-overlay h1 {
-    font-size: clamp(3rem, 8vw, 6rem);
-    font-weight: 200;
-    background: linear-gradient(180deg, rgba(200,200,210,0.9) 0%, rgba(120,120,130,0.6) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: 0.25em;
+    font-size: clamp(3rem, 8vw, 6rem); font-weight: 200;
+    background: linear-gradient(180deg, rgba(200,200,210,0.9) 0%, rgba(120,120,130,0.5) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; letter-spacing: 0.25em;
   }
   #title-overlay .sub {
-    color: rgba(255,255,255,0.35);
-    font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-    letter-spacing: 0.4em;
-    margin-top: 0.5rem;
+    color: rgba(255,255,255,0.3); font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+    letter-spacing: 0.4em; margin-top: 0.5rem;
   }
 
-  /* Status bar — minimal */
+  /* Status bar */
   #status-bar {
     position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 10;
     display: flex; align-items: center; gap: 10px;
     background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.06);
     border-radius: 20px; padding: 6px 18px;
     backdrop-filter: blur(10px);
-    font-size: 0.72rem; color: #777;
-    letter-spacing: 0.05em;
+    font-size: 0.72rem; color: #888; letter-spacing: 0.05em;
     transition: opacity 1s;
   }
   #status-bar.fading { opacity: 0.15; }
   #blow-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #555; transition: background 0.1s, box-shadow 0.1s;
+    width: 7px; height: 7px; border-radius: 50%; background: #555;
+    transition: background 0.1s, box-shadow 0.1s;
   }
-  #blow-dot.active {
-    background: #ff9944;
-    box-shadow: 0 0 10px rgba(255,150,60,0.8);
-  }
+  #blow-dot.active { background: #ff9944; box-shadow: 0 0 12px rgba(255,150,60,0.9); }
 
   /* Camera preview */
   #cam-container {
@@ -77,7 +65,7 @@
   #cam-dot {
     position:absolute; width:6px; height:6px; background:#ff4444;
     border-radius:50%; transform:translate(-50%,-50%); pointer-events:none;
-    box-shadow: 0 0 6px rgba(255,60,60,0.7);
+    box-shadow: 0 0 6px rgba(255,60,60,0.8);
     transition: left 0.04s linear, top 0.04s linear;
   }
 
@@ -86,15 +74,14 @@
     position: fixed; pointer-events: none; z-index: 5;
     width: 120px; height: 120px; border-radius: 50%;
     border: 1px solid rgba(255,255,255,0.05);
-    transform: translate(-50%, -50%);
-    display: none;
+    transform: translate(-50%, -50%); display: none;
     transition: left 0.06s ease-out, top 0.06s ease-out,
                 border-color 0.2s, box-shadow 0.2s, width 0.15s, height 0.15s;
   }
   #mouth-ring.visible { display: block; }
   #mouth-ring.blowing {
-    border-color: rgba(255,180,80,0.5);
-    box-shadow: 0 0 40px rgba(255,140,30,0.2), inset 0 0 40px rgba(255,140,30,0.06);
+    border-color: rgba(255,180,80,0.6);
+    box-shadow: 0 0 50px rgba(255,140,30,0.25), inset 0 0 50px rgba(255,140,30,0.08);
   }
 </style>
 </head>
@@ -136,21 +123,17 @@ const statusBar  = document.getElementById('status-bar');
 const blowDot    = document.getElementById('blow-dot');
 const statusText = document.getElementById('status-text');
 
-// ═══════════════════════════════════════════════════════════════
-// State
-// ═══════════════════════════════════════════════════════════════
 let W, H;
 let mouthScreenX = 0, mouthScreenY = 0;
 let mouthNormX = 0.5, mouthNormY = 0.4;
 let mouthVisible = false;
 let blowIntensity = 0, smoothBlow = 0;
 let audioReady = false, faceReady = false;
-let camAspect = 4/3;
+const CAM_ASPECT = 4/3;
 let hudTimeout = null;
 
-// Particles
-const BG_PARTICLES = 800;     // Background smoke
-const BURST_MAX = 200;        // Blow burst particles
+const BG_COUNT = 900;
+const BURST_MAX = 250;
 let bgParticles = [];
 let burstParticles = [];
 
@@ -172,59 +155,57 @@ function noise2D(x,y){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Pre-rendered glow textures
+// Glow textures
 // ═══════════════════════════════════════════════════════════════
 function makeGlow(size, innerAlpha) {
-  const c = document.createElement('canvas'); c.width=size; c.height=size;
-  const x = c.getContext('2d');
-  const g = x.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
-  g.addColorStop(0, `rgba(230,228,225,${innerAlpha})`);
-  g.addColorStop(0.25, `rgba(210,208,205,${innerAlpha*0.8})`);
-  g.addColorStop(0.5, `rgba(170,168,165,${innerAlpha*0.35})`);
-  g.addColorStop(0.75, `rgba(120,118,115,${innerAlpha*0.08})`);
-  g.addColorStop(1, 'rgba(60,60,60,0)');
-  x.fillStyle=g; x.fillRect(0,0,size,size);
+  const c=document.createElement('canvas');c.width=size;c.height=size;
+  const x=c.getContext('2d');
+  const g=x.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+  g.addColorStop(0,`rgba(235,232,228,${innerAlpha})`);
+  g.addColorStop(0.2,`rgba(215,212,208,${innerAlpha*0.85})`);
+  g.addColorStop(0.45,`rgba(175,172,168,${innerAlpha*0.4})`);
+  g.addColorStop(0.7,`rgba(125,122,118,${innerAlpha*0.1})`);
+  g.addColorStop(1,'rgba(50,50,50,0)');
+  x.fillStyle=g;x.fillRect(0,0,size,size);
   return c;
 }
-const glowLarge = makeGlow(256, 0.40);
-const glowSmall = makeGlow(128, 0.55);
-const glowTiny  = makeGlow(64, 0.7);
+const glowLarge = makeGlow(256,0.42);
+const glowSmall = makeGlow(128,0.58);
+const glowTiny  = makeGlow(64,0.75);
 
 // ═══════════════════════════════════════════════════════════════
 // Particles
 // ═══════════════════════════════════════════════════════════════
 function spawnBg() {
+  const op = 0.03+Math.random()*0.12;
   return {
-    x: Math.random()*W, y: Math.random()*H,
-    vx: 0, vy: 0,
-    size: 40+Math.random()*130,
-    baseSize: 0,
-    opacity: 0.03+Math.random()*0.11,
-    life: Math.random()*6.28,
-    layer: Math.floor(Math.random()*3),
-    tex: Math.random()<0.6 ? glowLarge : (Math.random()<0.7 ? glowSmall : glowTiny),
+    x:Math.random()*W,y:Math.random()*H, vx:0,vy:0,
+    size:35+Math.random()*140, baseSize:0,
+    opacity:op, _baseOpacity:op, _blownAway:0,
+    life:Math.random()*6.28, layer:Math.floor(Math.random()*3),
+    tex:Math.random()<0.55?glowLarge:(Math.random()<0.7?glowSmall:glowTiny),
   };
 }
 
-function spawnBurst(x, y, force) {
-  const angle = Math.random()*Math.PI*2;
-  const speed = force*(0.3+Math.random()*1.4);
+function spawnBurst(x,y,force){
+  const a=Math.random()*Math.PI*2;
+  const s=force*(0.4+Math.random()*2.2);
+  const r=Math.random();
   return {
-    x, y,
-    vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed - force*0.2,
-    size: 3+Math.random()*25,
-    opacity: 0.15+Math.random()*0.5,
-    life: 0, maxLife: 0.3+Math.random()*0.7,
-    tex: glowTiny,
+    x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s+force*0.1,
+    size:8+Math.random()*65,
+    opacity:0.25+Math.random()*0.7, life:0,
+    maxLife:0.4+Math.random()*1.3,
+    tex:r<0.25?glowLarge:(r<0.55?glowSmall:glowTiny),
   };
 }
 
-function initParticles() {
-  bgParticles.length = 0;
-  burstParticles.length = 0;
-  for (let i=0; i<BG_PARTICLES; i++) {
-    const p = spawnBg(); p.baseSize = p.size;
-    p.x = Math.random()*W; p.y = Math.random()*H;
+function initParticles(){
+  bgParticles.length=0; burstParticles.length=0;
+  for(let i=0;i<BG_COUNT;i++){
+    const p=spawnBg(); p.baseSize=p.size;
+    p.x=Math.random()*W; p.y=Math.random()*H;
+    p._baseOpacity=p.opacity;
     bgParticles.push(p);
   }
 }
@@ -232,365 +213,298 @@ function initParticles() {
 // ═══════════════════════════════════════════════════════════════
 // Audio
 // ═══════════════════════════════════════════════════════════════
-let audioCtx=null, analyser=null, freqData=null, timeData=null;
+let audioCtx=null,analyser=null,freqData=null,timeData=null;
 
-async function initAudio() {
-  if (audioReady) return true;
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation:false, noiseSuppression:false, autoGainControl:false }
+async function initAudio(){
+  if(audioReady)return true;
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({
+      audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}
     });
-    audioCtx = new AudioContext();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = 0.3;
-    audioCtx.createMediaStreamSource(stream).connect(analyser);
-    freqData = new Uint8Array(analyser.frequencyBinCount);
-    timeData = new Uint8Array(analyser.fftSize);
-    audioReady = true;
-    statusText.textContent = faceReady ? '麦克风就绪' : '初始化摄像头…';
+    audioCtx=new AudioContext(); analyser=audioCtx.createAnalyser();
+    analyser.fftSize=256; analyser.smoothingTimeConstant=0.3;
+    audioCtx.createMediaStreamSource(s).connect(analyser);
+    freqData=new Uint8Array(analyser.frequencyBinCount);
+    timeData=new Uint8Array(analyser.fftSize);
+    audioReady=true;
+    statusText.textContent=faceReady?'对着屏幕吹气':'初始化摄像头…';
     return true;
-  } catch(e) { console.warn('Mic denied'); return false; }
+  }catch(e){console.warn('Mic denied');return false;}
 }
 
-function analyzeBlow() {
-  if (!audioReady) return { intensity:0 };
+function analyzeBlow(){
+  if(!audioReady)return{intensity:0};
   analyser.getByteTimeDomainData(timeData);
   analyser.getByteFrequencyData(freqData);
   let sum=0;
   for(let i=0;i<timeData.length;i++){const v=(timeData[i]-128)/128;sum+=v*v;}
-  const rms = Math.sqrt(sum/timeData.length);
-  // Spectral flatness: blow = noise-like broadband
-  const lo=freqData.slice(2,64);
-  let gM=0,aM=0;
+  const rms=Math.sqrt(sum/timeData.length);
+  const lo=freqData.slice(2,64);let gM=0,aM=0;
   for(const v of lo){const vv=Math.max(v,1);gM+=Math.log(vv);aM+=vv;}
-  gM=Math.exp(gM/lo.length); aM/=lo.length;
+  gM=Math.exp(gM/lo.length);aM/=lo.length;
   const flat=aM>0?gM/aM:0;
-  const isBlowing = rms>0.025 && flat>0.45;
-  return { intensity: isBlowing ? Math.min(1,(rms-0.025)/0.35) : 0 };
+  const isBlowing=rms>0.025&&flat>0.45;
+  return{intensity:isBlowing?Math.min(1,(rms-0.025)/0.35):0};
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Face tracking
+// Face tracking (MediaPipe)
 // ═══════════════════════════════════════════════════════════════
 let faceMesh=null;
 
-async function initFace() {
-  if (faceReady) return true;
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width:320, height:240, facingMode:'user' }
+async function initFace(){
+  if(faceReady)return true;
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({
+      video:{width:320,height:240,facingMode:'user'}
     });
-    camVid.srcObject = stream; await camVid.play();
-
-    faceMesh = new FaceMesh({
-      locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${f}`
+    camVid.srcObject=s;await camVid.play();
+    faceMesh=new FaceMesh({
+      locateFile:(f)=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${f}`
     });
     faceMesh.setOptions({
-      maxNumFaces:1, refineLandmarks:true,
-      minDetectionConfidence:0.6, minTrackingConfidence:0.5,
+      maxNumFaces:1,refineLandmarks:true,
+      minDetectionConfidence:0.6,minTrackingConfidence:0.5,
     });
-    faceMesh.onResults(results => {
-      if (results.multiFaceLandmarks?.length>0) {
-        const lm = results.multiFaceLandmarks[0];
-        // Mouth: lips center (landmark 13 upper, 14 lower)
-        mouthNormX = 1 - (lm[13].x + lm[14].x)/2; // mirror
-        mouthNormY = (lm[13].y + lm[14].y)/2;
-        mouthVisible = true;
-        // Camera preview dot
-        const cx = (lm[13].x + lm[14].x)/2;
-        const cy = (lm[13].y + lm[14].y)/2;
-        camDot.style.left = `${cx*100}%`;
-        camDot.style.top  = `${cy*100}%`;
-      } else { mouthVisible = false; }
+    faceMesh.onResults(r=>{
+      if(r.multiFaceLandmarks?.length>0){
+        const lm=r.multiFaceLandmarks[0];
+        mouthNormX=1-(lm[13].x+lm[14].x)/2; // mirror
+        mouthNormY=(lm[13].y+lm[14].y)/2;
+        mouthVisible=true;
+        const cx=(lm[13].x+lm[14].x)/2,cy=(lm[13].y+lm[14].y)/2;
+        camDot.style.left=`${cx*100}%`;camDot.style.top=`${cy*100}%`;
+      }else{mouthVisible=false;}
     });
-
-    const camUtil = new Camera(camVid, {
-      onFrame: async ()=>{ await faceMesh.send({image:camVid}); },
-      width:320, height:240
+    const camU=new Camera(camVid,{
+      onFrame:async()=>{await faceMesh.send({image:camVid});},
+      width:320,height:240
     });
-    camUtil.start();
-    faceReady = true;
+    camU.start(); faceReady=true;
     camCont.classList.remove('hidden');
-    statusText.textContent = audioReady ? '对着屏幕吹气' : '初始化麦克风…';
+    statusText.textContent=audioReady?'对着屏幕吹气':'初始化麦克风…';
     return true;
-  } catch(e) {
+  }catch(e){
     console.warn('Camera denied');
-    // Fallback: use screen center
-    mouthNormX=0.5; mouthNormY=0.4; mouthVisible=true;
+    mouthNormX=0.5;mouthNormY=0.4;mouthVisible=true;
     return false;
   }
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Map camera coords → screen coords
-// Camera is 4:3. Screen is variable. Fit 4:3 region centered.
+// Map camera 4:3 → screen, centered
 // ═══════════════════════════════════════════════════════════════
-function mapMouthToScreen() {
-  // Fit camera's 4:3 view into the screen, centered
-  const camH = H;
-  const camW = camH * camAspect; // 4:3 width at screen height
-  const camLeft = (W - camW) / 2; // center horizontally
-
-  mouthScreenX = camLeft + mouthNormX * camW;
-  mouthScreenY = mouthNormY * camH;
-
-  // Clamp to screen
-  mouthScreenX = Math.max(0, Math.min(W, mouthScreenX));
-  mouthScreenY = Math.max(0, Math.min(H, mouthScreenY));
+function mapMouth(){
+  const camH=H,camW=camH*CAM_ASPECT,camL=(W-camW)/2;
+  mouthScreenX=camL+mouthNormX*camW;
+  mouthScreenY=mouthNormY*camH;
+  mouthScreenX=Math.max(0,Math.min(W,mouthScreenX));
+  mouthScreenY=Math.max(0,Math.min(H,mouthScreenY));
 }
 
 // ═══════════════════════════════════════════════════════════════
 // Update
 // ═══════════════════════════════════════════════════════════════
-function update(dt) {
-  dt = Math.min(dt, 0.06);
+function update(dt){
+  dt=Math.min(dt,0.06);
 
-  // Audio
-  const blow = analyzeBlow();
-  smoothBlow += (blow.intensity - smoothBlow) * 15 * dt;
+  const blow=analyzeBlow();
+  smoothBlow+=(blow.intensity-smoothBlow)*15*dt;
 
-  // Map mouth
-  mapMouthToScreen();
+  mapMouth();
 
-  // Smooth mouth position on screen
-  const smoothX = mouthRing._sx ?? mouthScreenX;
-  const smoothY = mouthRing._sy ?? mouthScreenY;
-  mouthRing._sx = smoothX + (mouthScreenX - smoothX) * 0.25;
-  mouthRing._sy = smoothY + (mouthScreenY - smoothY) * 0.25;
+  // Smooth mouth
+  mouthRing._sx=mouthRing._sx||mouthScreenX;
+  mouthRing._sy=mouthRing._sy||mouthScreenY;
+  mouthRing._sx+=(mouthScreenX-mouthRing._sx)*0.25;
+  mouthRing._sy+=(mouthScreenY-mouthRing._sy)*0.25;
 
-  const mx = mouthRing._sx;
-  const my = mouthRing._sy;
+  const mx=mouthRing._sx,my=mouthRing._sy;
+  const blowR=300;
+  const blowForce=smoothBlow*1500;
 
-  const blowR = 220;       // Radius of blow effect
-  const blowForce = smoothBlow * 750;
+  const tm=performance.now()*0.0003;
 
-  // Update bg particles
-  const t = performance.now() * 0.0003;
-  for (const p of bgParticles) {
-    // Natural motion: noise swirl + slow rise
-    const n = noise2D(p.x*0.007 + t*0.4 + p.life, p.y*0.007);
-    const nx = (n - 0.5) * 1.2;
-    const ny = (noise2D(p.x*0.007 + t*0.4 + p.life + 50, p.y*0.007 + 50) - 0.5) * 0.9;
-    const up = -0.15 - p.layer * 0.1;
+  // ── Background smoke ──
+  for(const p of bgParticles){
+    const nx=(noise2D(p.x*0.007+tm*0.4+p.life,p.y*0.007)-0.5)*1.2;
+    const ny=(noise2D(p.x*0.007+tm*0.4+p.life+50,p.y*0.007+50)-0.5)*0.9;
+    const up=-0.15-p.layer*0.1;
+    let fx=nx,fy=ny+up;
 
-    let fx = nx, fy = ny + up;
-
-    // Blow force
-    if (smoothBlow > 0.02 && mouthVisible) {
-      const dx = p.x - mx, dy = p.y - my;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < blowR) {
-        const falloff = Math.exp(-dist*dist/(blowR*blowR*0.35));
-        const force = falloff * blowForce;
-        const angle = Math.atan2(dy, dx) + (Math.random()-0.5)*0.5;
-        fx += Math.cos(angle) * force;
-        fy += Math.sin(angle) * force;
-        // Thinning: reduce opacity temporarily
-        p.opacity = Math.max(0.01, p.opacity - falloff*smoothBlow*3*dt);
+    // Blow: push away + visible opacity drop
+    if(smoothBlow>0.02&&mouthVisible){
+      const dx=p.x-mx,dy=p.y-my,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<blowR){
+        const falloff=Math.exp(-dist*dist/(blowR*blowR*0.28));
+        const angle=Math.atan2(dy,dx)+(Math.random()-0.5)*0.6;
+        fx+=Math.cos(angle)*falloff*blowForce;
+        fy+=Math.sin(angle)*falloff*blowForce;
+        // Aggressive opacity drop → visible clearing
+        p._blownAway=Math.min(0.95,(p._blownAway||0)+falloff*smoothBlow*14*dt);
       }
     }
 
-    p.vx += fx*dt*60;
-    p.vy += fy*dt*60;
-    p.vx *= 0.955;
-    p.vy *= 0.955;
-    const spd = Math.sqrt(p.vx*p.vx+p.vy*p.vy);
-    if(spd>280){p.vx=p.vx/spd*280;p.vy=p.vy/spd*280;}
+    p.vx+=fx*dt*60; p.vy+=fy*dt*60;
+    p.vx*=0.95; p.vy*=0.95;
+    const spd=Math.sqrt(p.vx*p.vx+p.vy*p.vy);
+    if(spd>380){p.vx=p.vx/spd*380;p.vy=p.vy/spd*380;}
+    p.x+=p.vx*dt; p.y+=p.vy*dt;
 
-    p.x += p.vx*dt;
-    p.y += p.vy*dt;
+    // Opacity: driven by _blownAway
+    p.opacity=p._baseOpacity*(1-p._blownAway);
 
-    // Recover opacity when not being blown
-    const targetOp = 0.03+Math.random()*0.11;
-    p.opacity += (p.baseSize ? (0.03+Math.random()*0.11) - p.opacity : 0) * 0.8 * dt;
-    // Actually track a target opacity
-    if (!p._targetOp) p._targetOp = p.opacity;
-    if (smoothBlow < 0.03) {
-      p.opacity += (p._targetOp - p.opacity) * 0.5 * dt;
+    // Recovery
+    if(smoothBlow<0.03){
+      p._blownAway=Math.max(0,(p._blownAway||0)-dt*0.5);
     }
 
     // Wrap
-    const m = 80;
-    if(p.x<-m)p.x=W+m; if(p.x>W+m)p.x=-m;
-    if(p.y<-m)p.y=H+m; if(p.y>H+m)p.y=-m;
+    const m=80;
+    if(p.x<-m)p.x=W+m;if(p.x>W+m)p.x=-m;
+    if(p.y<-m)p.y=H+m;if(p.y>H+m)p.y=-m;
   }
 
-  // Burst particles
-  if (smoothBlow > 0.08 && mouthVisible) {
-    const spawnCount = Math.floor(smoothBlow * 60 * dt * 60);
-    for (let i=0; i<spawnCount; i++) {
-      burstParticles.push(spawnBurst(mx, my, smoothBlow*400));
-    }
+  // ── Burst particles: visible smoke wisps ──
+  if(smoothBlow>0.04&&mouthVisible){
+    const n=Math.floor(smoothBlow*240*dt*60);
+    for(let i=0;i<n;i++)burstParticles.push(spawnBurst(mx,my,smoothBlow*500));
   }
 
-  for (let i=burstParticles.length-1; i>=0; i--) {
-    const p = burstParticles[i];
-    p.life += dt;
-    if (p.life >= p.maxLife) { burstParticles.splice(i,1); continue; }
-    p.x += p.vx*dt; p.y += p.vy*dt;
-    p.vx *= 0.92; p.vy *= 0.92;
-    p.opacity *= 0.96;
-    p.size *= 0.995;
+  for(let i=burstParticles.length-1;i>=0;i--){
+    const p=burstParticles[i];
+    p.life+=dt;
+    if(p.life>=p.maxLife){burstParticles.splice(i,1);continue;}
+    p.x+=p.vx*dt;p.y+=p.vy*dt;
+    p.vx*=0.88;p.vy*=0.88;
+    p.opacity*=0.965;
+    p.size+=dt*40; // Grow as they spread → looks like dispersing smoke
   }
+  while(burstParticles.length>BURST_MAX)burstParticles.shift();
 
-  // Cap burst particles
-  while (burstParticles.length > BURST_MAX) burstParticles.shift();
-
-  // HUD
-  if (smoothBlow > 0.04) {
+  // ── HUD ──
+  if(smoothBlow>0.04){
     blowDot.classList.add('active');
-    statusText.textContent = '💨 吹气中';
-  } else {
+    statusText.textContent='💨 吹气中';
+  }else{
     blowDot.classList.remove('active');
-    if (!audioReady) statusText.textContent = '麦克风未授权';
-    else if (!faceReady) statusText.textContent = '摄像头未就绪';
-    else statusText.textContent = '对着屏幕吹气';
+    if(!audioReady)statusText.textContent='麦克风未授权';
+    else if(!faceReady)statusText.textContent='摄像头未就绪';
+    else statusText.textContent='对着屏幕吹气';
   }
 
-  // Mouth ring
-  if (mouthVisible) {
+  // ── Mouth ring ──
+  if(mouthVisible){
     mouthRing.classList.add('visible');
-    mouthRing.style.left = mouthRing._sx + 'px';
-    mouthRing.style.top  = mouthRing._sy + 'px';
-    if (smoothBlow > 0.04) {
+    mouthRing.style.left=mouthRing._sx+'px';
+    mouthRing.style.top=mouthRing._sy+'px';
+    if(smoothBlow>0.04){
       mouthRing.classList.add('blowing');
-      const s = 1 + smoothBlow * 2;
-      mouthRing.style.width  = (120*s) + 'px';
-      mouthRing.style.height = (120*s) + 'px';
-    } else {
+      const s=1+smoothBlow*2;
+      mouthRing.style.width=(120*s)+'px';
+      mouthRing.style.height=(120*s)+'px';
+    }else{
       mouthRing.classList.remove('blowing');
-      mouthRing.style.width = '120px';
-      mouthRing.style.height = '120px';
+      mouthRing.style.width='120px';mouthRing.style.height='120px';
     }
-  } else {
-    mouthRing.classList.remove('visible','blowing');
-  }
+  }else{mouthRing.classList.remove('visible','blowing');}
 }
 
 // ═══════════════════════════════════════════════════════════════
 // Render
 // ═══════════════════════════════════════════════════════════════
-function render() {
+function render(){
   ctx.clearRect(0,0,W,H);
 
-  // Background gradient
-  const bg = ctx.createRadialGradient(W/2, H*0.3, 0, W/2, H*0.3, Math.max(W,H)*0.75);
-  bg.addColorStop(0, '#141418');
-  bg.addColorStop(1, '#030306');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0,0,W,H);
+  // Background
+  const bg=ctx.createRadialGradient(W/2,H*0.3,0,W/2,H*0.3,Math.max(W,H)*0.75);
+  bg.addColorStop(0,'#121216');bg.addColorStop(1,'#020204');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
 
-  // Blow zone glow
-  if (smoothBlow > 0.05 && mouthVisible) {
-    const mx = mouthRing._sx, my = mouthRing._sy;
-    const glowGrad = ctx.createRadialGradient(mx, my, 0, mx, my, 200);
-    glowGrad.addColorStop(0, `rgba(255,200,140,${smoothBlow*0.06})`);
-    glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = glowGrad;
-    ctx.fillRect(0,0,W,H);
+  // Blow glow
+  if(smoothBlow>0.04&&mouthVisible){
+    const mx=mouthRing._sx,my=mouthRing._sy;
+    const g=ctx.createRadialGradient(mx,my,0,mx,my,250);
+    g.addColorStop(0,`rgba(255,200,140,${smoothBlow*0.08})`);
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   }
 
-  // Draw bg smoke (additive blending)
-  ctx.globalCompositeOperation = 'lighter';
-  for (const p of bgParticles) {
-    if (p.opacity < 0.003) continue;
-    ctx.globalAlpha = p.opacity * 0.55;
-    const s = p.size * 2;
-    ctx.drawImage(p.tex || glowLarge, p.x-s/2, p.y-s/2, s, s);
+  // Smoke particles — additive blending
+  ctx.globalCompositeOperation='lighter';
+
+  for(const p of bgParticles){
+    if(p.opacity<0.002)continue;
+    ctx.globalAlpha=p.opacity*0.5;
+    const s=p.size*2;
+    ctx.drawImage(p.tex||glowLarge,p.x-s/2,p.y-s/2,s,s);
   }
 
-  // Draw burst particles
-  for (const p of burstParticles) {
-    if (p.opacity < 0.003) continue;
-    ctx.globalAlpha = p.opacity * 0.7;
-    ctx.drawImage(p.tex, p.x-p.size, p.y-p.size, p.size*2, p.size*2);
+  for(const p of burstParticles){
+    if(p.opacity<0.002)continue;
+    ctx.globalAlpha=p.opacity*0.6;
+    ctx.drawImage(p.tex,p.x-p.size,p.y-p.size,p.size*2,p.size*2);
   }
 
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation='source-over';
+  ctx.globalAlpha=1;
 
   // Vignette
-  const vig = ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.45, W/2,H/2,Math.max(W,H)*0.85);
-  vig.addColorStop(0,'rgba(0,0,0,0)');
-  vig.addColorStop(1,'rgba(0,0,0,0.55)');
-  ctx.fillStyle = vig;
-  ctx.fillRect(0,0,W,H);
+  const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.4,W/2,H/2,Math.max(W,H)*0.85);
+  v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,0.6)');
+  ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
 }
 
 // ═══════════════════════════════════════════════════════════════
 // Loop
 // ═══════════════════════════════════════════════════════════════
-let lastT = performance.now();
-function loop() {
+let lt=performance.now();
+function loop(){
   requestAnimationFrame(loop);
-  const now = performance.now();
-  update((now-lastT)/1000);
-  lastT = now;
-  render();
+  const n=performance.now();update((n-lt)/1000);lt=n;render();
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Resize
-// ═══════════════════════════════════════════════════════════════
-function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-  // Scale existing particles to new dimensions
-  for (const p of bgParticles) {
-    p.x = Math.min(p.x, W); p.y = Math.min(p.y, H);
-    p.baseSize = 30+Math.random()*140;
-    if (p.size > W*0.3) p.size = p.baseSize;
+function resize(){
+  W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;
+  for(const p of bgParticles){
+    p.x=Math.min(p.x,W);p.y=Math.min(p.y,H);
+    p.baseSize=30+Math.random()*150;if(p.size>W*0.3)p.size=p.baseSize;
   }
 }
-window.addEventListener('resize', resize);
-resize();
+window.addEventListener('resize',resize);resize();
 
 // ═══════════════════════════════════════════════════════════════
 // HUD auto-hide
 // ═══════════════════════════════════════════════════════════════
-function resetHud() {
-  statusBar.classList.remove('fading');
-  camCont.classList.remove('hidden');
+function resetHud(){
+  statusBar.classList.remove('fading');camCont.classList.remove('hidden');
   clearTimeout(hudTimeout);
-  hudTimeout = setTimeout(()=>{
-    statusBar.classList.add('fading');
-    camCont.classList.add('hidden');
-  }, 5000);
+  hudTimeout=setTimeout(()=>{statusBar.classList.add('fading');camCont.classList.add('hidden');},5000);
 }
-document.addEventListener('mousemove', resetHud);
-document.addEventListener('touchstart', resetHud);
+document.addEventListener('mousemove',resetHud);
+document.addEventListener('touchstart',resetHud);
 
 // ═══════════════════════════════════════════════════════════════
-// Init
+// Boot
 // ═══════════════════════════════════════════════════════════════
-(async ()=>{
-  initParticles();
-  loop();
-
-  // Start mic + camera in parallel
-  const [micOk, camOk] = await Promise.all([initAudio(), initFace()]);
-
-  // Fade title after everything is ready
+(async()=>{
+  initParticles();loop();
+  const[micOk,camOk]=await Promise.all([initAudio(),initFace()]);
   setTimeout(()=>{
     titleOverlay.classList.add('fade');
-    setTimeout(()=> titleOverlay.remove(), 1600);
-  }, 2000);
-
-  if (!micOk) statusText.textContent = '按 M 重试麦克风';
-  if (!camOk) statusText.textContent = '按 C 重试摄像头';
+    setTimeout(()=>titleOverlay.remove(),1900);
+  },2000);
+  if(!micOk)statusText.textContent='按 M 重试麦克风';
+  if(!camOk)statusText.textContent='按 C 重试摄像头';
   resetHud();
 })();
 
-// Keyboard shortcuts
-window.addEventListener('keydown', async e=>{
-  if (e.key==='m' && !audioReady) { await initAudio(); resetHud(); }
-  if (e.key==='c' && !faceReady)  { await initFace(); resetHud(); }
+window.addEventListener('keydown',async e=>{
+  if(e.key==='m'&&!audioReady){await initAudio();resetHud();}
+  if(e.key==='c'&&!faceReady){await initFace();resetHud();}
 });
 
-console.log('💨 烟 — SMOKE');
-console.log('   Blow on the screen. Camera tracks your mouth.');
-console.log('   M = retry mic | C = retry camera');
+console.log('💨 烟 SMOKE | Blow to scatter');
 </script>
 </body>
 </html>
