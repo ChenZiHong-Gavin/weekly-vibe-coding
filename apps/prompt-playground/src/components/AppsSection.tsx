@@ -239,7 +239,7 @@ export const categories = [
       },
       {
         title: "Blow & Glow",
-        description: "吹烛焚香，麦克风检测吹气，Three.js火焰粒子+烟雾物理，4个禅意场景可切换。",
+        description: "全屏烟雾场，摄像头追踪嘴部位置，吹气驱散烟雾，MediaPipe + Canvas 粒子物理。",
         icon: "🕯️",
         url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/blow-and-glow/",
         status: "live" as const,
