@@ -116,7 +116,7 @@ function noise2D(x, y) {
   const a = perm[X] + Y, aa = perm[a], ab = perm[a + 1], b = perm[X + 1] + Y, ba = perm[b], bb = perm[b + 1];
   const g = (h, x, y) => ((h & 1) ? x : -x) + ((h & 2) ? y : -y);
   const l = (a, b, t) => a + t * (b - a);
-  return (1 + (l(l(g(perm[aa], xf, yf), g(perm[ba], xf - 1, yf), u), l(g(perm[ab], xf, yf - 1), g(perm[bb], xf - 1, yf - 1), u), v)) / 2;
+  return (1 + l(l(g(perm[aa], xf, yf), g(perm[ba], xf - 1, yf), u), l(g(perm[ab], xf, yf - 1), g(perm[bb], xf - 1, yf - 1), u), v)) / 2;
 }
 
 // ═══ Pre-rendered soft smoke textures ═══
