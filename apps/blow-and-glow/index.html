@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blow & Glow · 吹烛焚香</title>
+<style>
+  :root { color-scheme: dark; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #0a0a0a;
+    overflow: hidden;
+    font-family: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  canvas { display:block; }
+
+  /* ── Scene Selector Overlay ── */
+  #selector {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at center, #1a1410 0%, #0a0806 100%);
+    transition: opacity 0.6s, visibility 0.6s;
+  }
+  #selector.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  #selector h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    background: linear-gradient(180deg, #ffd89b 0%, #f76b1c 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.08em;
+  }
+  #selector .subtitle {
+    color: #8b7355;
+    font-size: 1rem;
+    margin-bottom: 3rem;
+    letter-spacing: 0.15em;
+  }
+  #scene-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    max-width: 700px;
+    width: 90vw;
+  }
+  @media (max-width: 500px) { #scene-grid { grid-template-columns: 1fr; } }
+  .scene-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 1.8rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    backdrop-filter: blur(8px);
+  }
+  .scene-card:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,180,100,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(255,120,20,0.12);
+  }
+  .scene-card .icon { font-size: 2.5rem; margin-bottom: 0.6rem; }
+  .scene-card .name {
+    color: #e0d6c8;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .scene-card .desc {
+    color: #7a6e60;
+    font-size: 0.8rem;
+  }
+
+  /* ── HUD ── */
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 5;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 20px 24px;
+    pointer-events: none;
+    transition: opacity 0.8s;
+  }
+  #hud.fading { opacity: 0.15; }
+  #hud > * { pointer-events: auto; }
+
+  /* Volume indicator */
+  #volume-indicator {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  #volume-ring {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  #volume-ring::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    transition: background 0.15s, transform 0.15s;
+  }
+  #volume-ring.active { border-color: rgba(255,160,60,0.8); }
+  #volume-ring.active::after {
+    background: rgba(255,140,40,0.4);
+    transform: scale(var(--vol-scale, 0));
+  }
+  #mic-status {
+    font-size: 0.65rem;
+    color: #888;
+    text-align: center;
+    max-width: 60px;
+    transition: color 0.3s;
+  }
+  #mic-status.active { color: #f90; }
+
+  /* Back button */
+  #back-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #999;
+    padding: 8px 18px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: all 0.3s;
+    backdrop-filter: blur(8px);
+  }
+  #back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
+
+  /* Scene label */
+  #scene-label {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 5;
+    color: rgba(255,255,255,0.3);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    transition: opacity 0.8s;
+  }
+
+  /* Mic prompt toast */
+  #mic-toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 20;
+    background: rgba(0,0,0,0.85);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #ddd;
+    padding: 14px 28px;
+    border-radius: 32px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.4s;
+    backdrop-filter: blur(12px);
+    letter-spacing: 0.05em;
+  }
+  #mic-toast:hover { border-color: rgba(255,160,60,0.4); color: #fff; }
+  #mic-toast.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<!-- Scene Selector -->
+<div id="selector">
+  <h1>Blow &amp; Glow</h1>
+  <p class="subtitle">吹 烛 焚 香</p>
+  <div id="scene-grid">
+    <div class="scene-card" data-scene="0">
+      <div class="icon">🕯️</div>
+      <div class="name">佛堂供桌</div>
+      <div class="desc">红木案上三烛三香，暗金帷幔</div>
+    </div>
+    <div class="scene-card" data-scene="1">
+      <div class="icon">📜</div>
+      <div class="name">书房案头</div>
+      <div class="desc">铜烛台单烛，线香一炷伴书卷</div>
+    </div>
+    <div class="scene-card" data-scene="2">
+      <div class="icon">🏮</div>
+      <div class="name">石庭夜灯</div>
+      <div class="desc">石灯笼幽光，沙盘散香，竹影月下</div>
+    </div>
+    <div class="scene-card" data-scene="3">
+      <div class="icon">⛰️</div>
+      <div class="name">洞穴祭坛</div>
+      <div class="desc">五烛环绕中央香炉，岩壁火光跳动</div>
+    </div>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div id="volume-indicator">
+    <div id="volume-ring"></div>
+    <div id="mic-status">等待麦克风</div>
+  </div>
+  <button id="back-btn">↩ 选场景</button>
+</div>
+<div id="scene-label"></div>
+
+<!-- Mic toast -->
+<button id="mic-toast" class="hidden">🎤 点击启用麦克风</button>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ═══════════════════════════════════════════════════════════════
+// DOM refs
+// ═══════════════════════════════════════════════════════════════
+const $selector  = document.getElementById('selector');
+const $hud       = document.getElementById('hud');
+const $volRing   = document.getElementById('volume-ring');
+const $micStatus = document.getElementById('mic-status');
+const $backBtn   = document.getElementById('back-btn');
+const $sceneLabel = document.getElementById('scene-label');
+const $micToast  = document.getElementById('mic-toast');
+
+// ═══════════════════════════════════════════════════════════════
+// Scene metadata
+// ═══════════════════════════════════════════════════════════════
+const SCENE_META = [
+  { name: '佛堂供桌', label: 'Temple Altar' },
+  { name: '书房案头', label: 'Study Desk' },
+  { name: '石庭夜灯', label: 'Stone Garden' },
+  { name: '洞穴祭坛', label: 'Cave Shrine' },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// Three.js setup
+// ═══════════════════════════════════════════════════════════════
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 50);
+camera.position.set(0, 1.8, 3.8);
+camera.lookAt(0, 0.2, 0);
+
+// ── Lighting base ──
+const ambientLight = new THREE.AmbientLight(0x1a1a2e, 0.5);
+scene.add(ambientLight);
+
+// ── Orbit control via mouse drag ──
+let orbit = { theta: 0, phi: -0.35, radius: 4.2, target: new THREE.Vector3(0, 0.25, 0) };
+let isDragging = false, prevMouse = { x: 0, y: 0 };
+
+renderer.domElement.addEventListener('pointerdown', e => {
+  if (e.target === renderer.domElement) { isDragging = true; prevMouse.x = e.clientX; prevMouse.y = e.clientY; }
+});
+window.addEventListener('pointerup', () => { isDragging = false; });
+window.addEventListener('pointermove', e => {
+  if (!isDragging) return;
+  const dx = e.clientX - prevMouse.x;
+  const dy = e.clientY - prevMouse.y;
+  orbit.theta -= dx * 0.005;
+  orbit.phi = Math.max(-1.2, Math.min(-0.05, orbit.phi - dy * 0.005));
+  prevMouse.x = e.clientX; prevMouse.y = e.clientY;
+});
+window.addEventListener('wheel', e => {
+  orbit.radius = Math.max(2.0, Math.min(8.0, orbit.radius + e.deltaY * 0.005));
+});
+
+function updateCamera() {
+  const { theta, phi, radius, target } = orbit;
+  camera.position.set(
+    target.x + radius * Math.sin(theta) * Math.cos(phi),
+    target.y + radius * Math.sin(phi),
+    target.z + radius * Math.cos(theta) * Math.cos(phi)
+  );
+  camera.lookAt(target);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Textures
+// ═══════════════════════════════════════════════════════════════
+function createGlowTexture(innerColor, outerColor) {
+  const size = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const g = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+  g.addColorStop(0, innerColor);
+  g.addColorStop(0.25, innerColor);
+  g.addColorStop(0.5, outerColor);
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  return new THREE.CanvasTexture(canvas);
+}
+
+const TEX_FLAME = createGlowTexture('rgba(255,255,240,0.95)', 'rgba(255,140,20,0)');
+const TEX_SMOKE = createGlowTexture('rgba(200,195,185,0.35)', 'rgba(150,145,135,0)');
+
+// ═══════════════════════════════════════════════════════════════
+// Helpers
+// ═══════════════════════════════════════════════════════════════
+function randomRange(min, max) { return min + Math.random() * (max - min); }
+
+// ═══════════════════════════════════════════════════════════════
+// Flame particle system (per candle)
+// ═══════════════════════════════════════════════════════════════
+class FlameSystem {
+  constructor(parent, position, maxParticles = 70) {
+    this.parent = parent;
+    this.maxParticles = maxParticles;
+    this.particles = [];
+    this.alive = true;
+    this.baseIntensity = 1.0;
+    this.blowForce = 0;
+
+    // Geometry + material
+    this.geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(maxParticles * 3);
+    const colors = new Float32Array(maxParticles * 3);
+    const sizes = new Float32Array(maxParticles);
+    this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    this.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    this.geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    // Init with off-screen positions
+    for (let i = 0; i < maxParticles; i++) { positions[i*3+1] = -999; sizes[i] = 0; }
+
+    this.material = new THREE.PointsMaterial({
+      map: TEX_FLAME,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      depthTest: true,
+      vertexColors: true,
+      size: 0.12,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.85,
+    });
+
+    this.points = new THREE.Points(this.geometry, this.material);
+    this.points.position.copy(position);
+    this.points.renderOrder = 1;
+    parent.add(this.points);
+
+    // Point light for illumination
+    this.light = new THREE.PointLight(0xff9944, 2.5, 2.0, 1.5);
+    this.light.position.copy(position);
+    this.light.position.y += 0.12;
+    this.light.castShadow = true;
+    this.light.shadow.mapSize.width = 128;
+    this.light.shadow.mapSize.height = 128;
+    this.light.shadow.bias = -0.0005;
+    parent.add(this.light);
+  }
+
+  update(dt, blowIntensity) {
+    if (!this.alive) {
+      // Ember glow only — just dim the light
+      this.light.intensity += (0.2 - this.light.intensity) * 3 * dt;
+      this.light.color.set(0xff4411);
+      // Still update existing particles (fade them out)
+      this._updateParticles(dt, 0);
+      return;
+    }
+
+    this.blowForce += (blowIntensity - this.blowForce) * 8 * dt;
+
+    // Spawn particles
+    const spawnRate = 40 + this.blowForce * 20;
+    const toSpawn = Math.floor(spawnRate * dt * (0.9 + Math.random() * 0.2));
+    for (let i = 0; i < toSpawn; i++) {
+      this._spawnParticle();
+    }
+
+    this._updateParticles(dt, blowIntensity);
+
+    // Update light
+    const flicker = 1 + (Math.random() - 0.5) * 0.3 + Math.sin(Date.now() * 0.03) * 0.1;
+    const blowDim = 1 - this.blowForce * 0.4;
+    this.light.intensity += ((2.5 * flicker * blowDim) - this.light.intensity) * 6 * dt;
+    this.light.color.lerp(
+      this.blowForce > 0.6 ? new THREE.Color(0xff6633) : new THREE.Color(0xff9944),
+      4 * dt
+    );
+  }
+
+  _spawnParticle() {
+    if (this.particles.length >= this.maxParticles) {
+      // Recycle oldest
+      this.particles.shift();
+    }
+    this.particles.push({
+      life: 0,
+      maxLife: randomRange(0.25, 0.7),
+      x: randomRange(-0.015, 0.015),
+      y: 0,
+      z: randomRange(-0.015, 0.015),
+      vx: randomRange(-0.03, 0.03),
+      vy: randomRange(1.0, 2.0),
+      vz: randomRange(-0.03, 0.03),
+      baseSize: randomRange(0.04, 0.09),
+    });
+  }
+
+  _updateParticles(dt, blowIntensity) {
+    const posArr = this.geometry.attributes.position.array;
+    const colArr = this.geometry.attributes.color.array;
+    const sizeArr = this.geometry.attributes.size.array;
+
+    // Clear unused slots
+    for (let i = this.particles.length; i < this.maxParticles; i++) {
+      posArr[i*3+1] = -999;
+      sizeArr[i] = 0;
+    }
+
+    // Blow pushes particles in Z (away from viewer)
+    const windZ = blowIntensity * 2.5;
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.life += dt;
+      if (p.life >= p.maxLife) {
+        this.particles.splice(i, 1);
+        continue;
+      }
+      const t = p.life / p.maxLife;
+
+      p.vy += dt * randomRange(-0.3, 0.5);
+      p.vx += dt * randomRange(-0.5, 0.5);
+      p.vz += dt * randomRange(-0.5, 0.5);
+
+      p.x += (p.vx * 0.3 + windZ * 0.1 + (Math.sin(Date.now()*0.015 + i) * 0.02)) * dt;
+      p.y += p.vy * dt;
+      p.z += (p.vz * 0.3 + windZ * 0.8) * dt;
+
+      const idx = i;
+      posArr[idx*3]   = p.x;
+      posArr[idx*3+1] = p.y;
+      posArr[idx*3+2] = p.z;
+
+      // Size: grows then shrinks
+      const sizeCurve = 1 - Math.abs(t - 0.25) / 0.75;
+      sizeArr[idx] = p.baseSize * Math.max(0, sizeCurve) * (1 + blowIntensity * 0.5);
+
+      // Color: white → yellow → orange → red → transparent
+      const r = 1.0;
+      const g = Math.max(0, 1 - t * 1.8);
+      const b = Math.max(0, 0.1 - t * 0.5);
+      colArr[idx*3]   = r;
+      colArr[idx*3+1] = g;
+      colArr[idx*3+2] = b;
+    }
+
+    this.geometry.attributes.position.needsUpdate = true;
+    this.geometry.attributes.color.needsUpdate = true;
+    this.geometry.attributes.size.needsUpdate = true;
+    this.geometry.setDrawRange(0, this.particles.length);
+  }
+
+  blowOut() { this.alive = false; }
+  relight() { this.alive = true; }
+
+  dispose() {
+    this.parent.remove(this.points);
+    this.parent.remove(this.light);
+    this.geometry.dispose();
+    this.material.dispose();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Smoke particle system (per incense)
+// ═══════════════════════════════════════════════════════════════
+class SmokeSystem {
+  constructor(parent, position, maxParticles = 50) {
+    this.parent = parent;
+    this.maxParticles = maxParticles;
+    this.particles = [];
+
+    this.geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(maxParticles * 3);
+    const sizes = new Float32Array(maxParticles);
+    this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    this.geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    for (let i = 0; i < maxParticles; i++) { positions[i*3+1] = -999; sizes[i] = 0; }
+
+    this.material = new THREE.PointsMaterial({
+      map: TEX_SMOKE,
+      blending: THREE.NormalBlending,
+      depthWrite: false,
+      depthTest: true,
+      size: 0.18,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.5,
+      color: 0xc8c0b0,
+    });
+
+    this.points = new THREE.Points(this.geometry, this.material);
+    this.points.position.copy(position);
+    this.points.renderOrder = 0;
+    parent.add(this.points);
+
+    // Small emissive sphere for the ember
+    this.emberGeo = new THREE.SphereGeometry(0.015, 8, 8);
+    this.emberMat = new THREE.MeshBasicMaterial({ color: 0xff3300 });
+    this.ember = new THREE.Mesh(this.emberGeo, this.emberMat);
+    this.ember.position.copy(position);
+    parent.add(this.ember);
+  }
+
+  update(dt, blowIntensity) {
+    const spawnRate = 15 + blowIntensity * 8;
+    const toSpawn = Math.floor(spawnRate * dt * (1 + Math.random() * 0.3));
+    for (let i = 0; i < toSpawn; i++) {
+      this._spawnParticle();
+    }
+
+    const posArr = this.geometry.attributes.position.array;
+    const sizeArr = this.geometry.attributes.size.array;
+    const windZ = blowIntensity * 1.8;
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.life += dt;
+      if (p.life >= p.maxLife) {
+        this.particles.splice(i, 1);
+        continue;
+      }
+      const t = p.life / p.maxLife;
+
+      p.x += (p.vx + windZ * 0.2 + Math.sin(Date.now()*0.008 + i) * 0.015) * dt;
+      p.y += p.vy * dt;
+      p.z += (p.vz + windZ * 0.9) * dt;
+
+      const idx = i;
+      posArr[idx*3]   = p.x;
+      posArr[idx*3+1] = p.y;
+      posArr[idx*3+2] = p.z;
+
+      // Size grows over lifetime
+      sizeArr[idx] = p.baseSize * (0.2 + t * 1.8);
+
+      if (i >= this.maxParticles) break;
+    }
+
+    for (let i = this.particles.length; i < this.maxParticles; i++) {
+      posArr[i*3+1] = -999; sizeArr[i] = 0;
+    }
+
+    this.geometry.attributes.position.needsUpdate = true;
+    this.geometry.attributes.size.needsUpdate = true;
+    this.geometry.setDrawRange(0, Math.min(this.particles.length, this.maxParticles));
+
+    // Ember glow
+    const emberBright = 1 + blowIntensity * 3;
+    this.ember.material.color.setRGB(emberBright, emberBright * 0.2, 0);
+    this.ember.scale.setScalar(0.8 + blowIntensity * 0.8);
+  }
+
+  _spawnParticle() {
+    if (this.particles.length >= this.maxParticles) {
+      this.particles.shift();
+    }
+    this.particles.push({
+      life: 0,
+      maxLife: randomRange(1.5, 3.5),
+      x: randomRange(-0.005, 0.005),
+      y: 0,
+      z: randomRange(-0.005, 0.005),
+      vx: randomRange(-0.04, 0.04),
+      vy: randomRange(0.15, 0.45),
+      vz: randomRange(-0.04, 0.04),
+      baseSize: randomRange(0.05, 0.12),
+    });
+  }
+
+  dispose() {
+    this.parent.remove(this.points);
+    this.parent.remove(this.ember);
+    this.geometry.dispose();
+    this.material.dispose();
+    this.emberGeo.dispose();
+    this.emberMat.dispose();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Candle factory
+// ═══════════════════════════════════════════════════════════════
+function createCandle(parent, x, y, z, waxColor = 0xf5f0e8) {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+
+  // Wax body
+  const waxGeo = new THREE.CylinderGeometry(0.035, 0.04, 0.22, 24);
+  const waxMat = new THREE.MeshStandardMaterial({ color: waxColor, roughness: 0.65, metalness: 0.02 });
+  const wax = new THREE.Mesh(waxGeo, waxMat);
+  wax.position.y = 0.11;
+  wax.castShadow = true;
+  wax.receiveShadow = true;
+  group.add(wax);
+
+  // Wax drips
+  for (let i = 0; i < 5; i++) {
+    const dripGeo = new THREE.SphereGeometry(0.008, 6, 4);
+    dripGeo.scale(1, randomRange(1, 2.5), 1);
+    const drip = new THREE.Mesh(dripGeo, waxMat);
+    const angle = randomRange(0, Math.PI * 2);
+    drip.position.set(Math.cos(angle)*0.033, randomRange(0.05, 0.19), Math.sin(angle)*0.033);
+    drip.castShadow = true;
+    group.add(drip);
+  }
+
+  // Wick
+  const wickGeo = new THREE.CylinderGeometry(0.004, 0.005, 0.03, 8);
+  const wickMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.9 });
+  const wick = new THREE.Mesh(wickGeo, wickMat);
+  wick.position.y = 0.23;
+  group.add(wick);
+
+  // Flame particles (relative to group, at wick tip)
+  const flamePos = new THREE.Vector3(x, y + 0.24, z);
+  const flame = new FlameSystem(parent, flamePos);
+
+  // Small candle holder (simple ring)
+  const holderGeo = new THREE.TorusGeometry(0.042, 0.008, 8, 24);
+  const holderMat = new THREE.MeshStandardMaterial({ color: 0xb8a060, roughness: 0.3, metalness: 0.7 });
+  const holder = new THREE.Mesh(holderGeo, holderMat);
+  holder.rotation.x = Math.PI / 2;
+  holder.position.y = 0.01;
+  holder.castShadow = true;
+  group.add(holder);
+
+  parent.add(group);
+
+  // Blow tracking per candle
+  let stability = 1.0;
+  let cumulativeBlow = 0;
+
+  return {
+    group,
+    flame,
+    update(dt, blowIntensity) {
+      if (blowIntensity > 0.1) {
+        cumulativeBlow += blowIntensity * dt;
+      } else {
+        cumulativeBlow = Math.max(0, cumulativeBlow - dt * 0.8);
+      }
+
+      // Blow out threshold
+      if (cumulativeBlow > 0.5 && stability > 0) {
+        stability = Math.max(0, stability - blowIntensity * 1.2 * dt);
+        if (stability <= 0.05 && flame.alive) {
+          flame.blowOut();
+        }
+      }
+
+      // Relight
+      if (!flame.alive && cumulativeBlow < 0.1) {
+        stability = Math.min(1, stability + dt * 0.3);
+        if (stability > 0.35 && !flame.alive) {
+          flame.relight();
+        }
+      }
+
+      flame.update(dt, flame.alive ? blowIntensity : 0);
+    },
+    dispose() {
+      flame.dispose();
+      parent.remove(group);
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Incense factory
+// ═══════════════════════════════════════════════════════════════
+function createIncense(parent, x, y, z, stickColor = 0x8B6914) {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+
+  // Stick
+  const stickGeo = new THREE.CylinderGeometry(0.003, 0.004, 0.38, 8);
+  const stickMat = new THREE.MeshStandardMaterial({ color: stickColor, roughness: 0.7 });
+  const stick = new THREE.Mesh(stickGeo, stickMat);
+  stick.position.y = 0.19;
+  stick.rotation.z = 0.1; // slight tilt
+  stick.castShadow = true;
+  group.add(stick);
+
+  // Red burning tip
+  const tipGeo = new THREE.SphereGeometry(0.006, 8, 8);
+  const tipMat = new THREE.MeshBasicMaterial({ color: 0xff3300 });
+  const tip = new THREE.Mesh(tipGeo, tipMat);
+  tip.position.y = 0.375;
+  tip.position.x = 0.035;
+  group.add(tip);
+
+  // Smoke system
+  const smokePos = new THREE.Vector3(x + 0.035, y + 0.38, z);
+  const smoke = new SmokeSystem(parent, smokePos);
+
+  parent.add(group);
+
+  return {
+    group,
+    smoke,
+    update(dt, blowIntensity) {
+      smoke.update(dt, blowIntensity);
+      // Ember tip glows brighter when blown
+      const glow = 1 + blowIntensity * 4;
+      tip.material.color.setRGB(glow, glow * 0.15, 0);
+    },
+    dispose() {
+      smoke.dispose();
+      parent.remove(group);
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Scene builders
+// ═══════════════════════════════════════════════════════════════
+function buildFloor(parent, width, depth, color, y = -0.05) {
+  const geo = new THREE.BoxGeometry(width, 0.04, depth);
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.8 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.y = y;
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
+
+function buildBackWall(parent, width, height, color, z = -1.8) {
+  const geo = new THREE.PlaneGeometry(width, height);
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.9 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.z = z;
+  mesh.position.y = height / 2 - 0.2;
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
+
+// Scene 0: 佛堂供桌 — 3 candles + 3 incense, dark red table
+function buildTempleAltar(parent) {
+  const floor = buildFloor(parent, 2.6, 1.4, 0x4a3020, -0.02);
+  buildBackWall(parent, 3.0, 2.5, 0x2a1810, -1.5);
+  // Table
+  const tableGeo = new THREE.BoxGeometry(2.0, 0.08, 1.1);
+  const tableMat = new THREE.MeshStandardMaterial({ color: 0x5c2a1e, roughness: 0.55, metalness: 0.05 });
+  const table = new THREE.Mesh(tableGeo, tableMat);
+  table.position.set(0, 0.08, -0.3);
+  table.castShadow = true; table.receiveShadow = true;
+  parent.add(table);
+  // Table legs
+  for (let lx of [-0.85, 0.85]) {
+    for (let lz of [-0.7, 0.1]) {
+      const legGeo = new THREE.CylinderGeometry(0.04, 0.05, 0.16, 8);
+      const leg = new THREE.Mesh(legGeo, tableMat);
+      leg.position.set(lx, -0.04, lz - 0.3);
+      leg.castShadow = true;
+      parent.add(leg);
+    }
+  }
+
+  const objects = [];
+  // 3 candles across the table
+  for (let i = -1; i <= 1; i++) {
+    objects.push(createCandle(parent, i * 0.35, 0.16, -0.3, 0xf8f2e4));
+  }
+  // 3 incense in center, slightly back
+  for (let i = 0; i < 3; i++) {
+    objects.push(createIncense(parent, -0.08 + i * 0.08, 0.16, -0.1));
+  }
+  return objects;
+}
+
+// Scene 1: 书房案头 — 1 candle + 1 incense, wooden desk
+function buildStudyDesk(parent) {
+  buildFloor(parent, 2.8, 1.6, 0x3a2a1a);
+  buildBackWall(parent, 3.2, 2.5, 0x2a2018, -1.6);
+  // Desk
+  const deskGeo = new THREE.BoxGeometry(1.6, 0.06, 0.9);
+  const deskMat = new THREE.MeshStandardMaterial({ color: 0x5c3a1e, roughness: 0.5, metalness: 0.03 });
+  const desk = new THREE.Mesh(deskGeo, deskMat);
+  desk.position.set(0, 0.15, -0.5);
+  desk.castShadow = true; desk.receiveShadow = true;
+  parent.add(desk);
+  // Books (background decoration)
+  for (let i = 0; i < 6; i++) {
+    const bookGeo = new THREE.BoxGeometry(0.06, randomRange(0.12, 0.22), randomRange(0.04, 0.08));
+    const bookMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color().setHSL(randomRange(0, 0.15), 0.4, randomRange(0.2, 0.5)),
+      roughness: 0.6
+    });
+    const book = new THREE.Mesh(bookGeo, bookMat);
+    book.position.set(-0.6 + i * 0.13, 0.1, -1.1);
+    book.castShadow = true; book.receiveShadow = true;
+    parent.add(book);
+  }
+  // Brass candle holder
+  const holderGeo = new THREE.CylinderGeometry(0.03, 0.04, 0.08, 16);
+  const holderMat = new THREE.MeshStandardMaterial({ color: 0xc8a050, roughness: 0.25, metalness: 0.8 });
+  const holder = new THREE.Mesh(holderGeo, holderMat);
+  holder.position.set(-0.3, 0.18, -0.5);
+  holder.castShadow = true;
+  parent.add(holder);
+
+  const objects = [];
+  objects.push(createCandle(parent, -0.3, 0.22, -0.5, 0xfaf5eb));
+  objects.push(createIncense(parent, 0.35, 0.18, -0.4));
+  return objects;
+}
+
+// Scene 2: 石庭夜灯 — 2 candles in stone lantern + 2 incense in sand
+function buildStoneGarden(parent) {
+  const groundGeo = new THREE.PlaneGeometry(4, 4);
+  const groundMat = new THREE.MeshStandardMaterial({ color: 0x3a3835, roughness: 0.95 });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.05;
+  ground.receiveShadow = true;
+  parent.add(ground);
+  buildBackWall(parent, 4, 3, 0x1a1a20, -2.2);
+
+  // Stone lantern base
+  const baseGeo = new THREE.CylinderGeometry(0.15, 0.18, 0.25, 16);
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x7a7a78, roughness: 0.8, metalness: 0.05 });
+  const base = new THREE.Mesh(baseGeo, stoneMat);
+  base.position.set(0, 0.1, -0.3);
+  base.castShadow = true; base.receiveShadow = true;
+  parent.add(base);
+  // Lantern body
+  const bodyGeo = new THREE.CylinderGeometry(0.09, 0.12, 0.35, 16, 1, true);
+  const body = new THREE.Mesh(bodyGeo, stoneMat);
+  body.position.set(0, 0.35, -0.3);
+  body.castShadow = true;
+  parent.add(body);
+
+  // Bamboo stalks
+  for (let i = 0; i < 4; i++) {
+    const bambooGeo = new THREE.CylinderGeometry(0.025, 0.03, 2.5, 8);
+    const bambooMat = new THREE.MeshStandardMaterial({ color: 0x3a5a2a, roughness: 0.7 });
+    const bamboo = new THREE.Mesh(bambooGeo, bambooMat);
+    bamboo.position.set(-1.2 + i * 0.7, 1.2, -1.4);
+    bamboo.castShadow = true;
+    parent.add(bamboo);
+  }
+
+  // Sand tray for incense
+  const sandGeo = new THREE.BoxGeometry(0.3, 0.03, 0.15);
+  const sandMat = new THREE.MeshStandardMaterial({ color: 0xc8b898, roughness: 0.95 });
+  const sand = new THREE.Mesh(sandGeo, sandMat);
+  sand.position.set(0.4, 0.02, -0.1);
+  sand.receiveShadow = true;
+  parent.add(sand);
+
+  const objects = [];
+  objects.push(createCandle(parent, -0.05, 0.52, -0.3, 0xfaf5e8));
+  objects.push(createCandle(parent, 0.05, 0.52, -0.3, 0xfaf5e8));
+  objects.push(createIncense(parent, 0.3, 0.03, -0.1));
+  objects.push(createIncense(parent, 0.45, 0.03, -0.08));
+  return objects;
+}
+
+// Scene 3: 洞穴祭坛 — 5 candles in circle + central incense
+function buildCaveShrine(parent) {
+  const platformGeo = new THREE.CylinderGeometry(0.9, 1.0, 0.2, 32);
+  const platformMat = new THREE.MeshStandardMaterial({ color: 0x5a5048, roughness: 0.85, metalness: 0.02 });
+  const platform = new THREE.Mesh(platformGeo, platformMat);
+  platform.position.y = 0.01;
+  platform.castShadow = true; platform.receiveShadow = true;
+  parent.add(platform);
+
+  // Cave walls (rough curved planes)
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2;
+    const wallGeo = new THREE.PlaneGeometry(1.5, 2.2);
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x3a3530, roughness: 0.95 });
+    const wall = new THREE.Mesh(wallGeo, wallMat);
+    wall.position.set(Math.sin(angle) * 1.6, 1.0, Math.cos(angle) * 1.6);
+    wall.rotation.y = -angle + Math.PI;
+    wall.receiveShadow = true;
+    parent.add(wall);
+  }
+
+  const objects = [];
+  // 5 candles in a circle
+  for (let i = 0; i < 5; i++) {
+    const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
+    const r = 0.55;
+    objects.push(createCandle(parent, Math.cos(angle) * r, 0.2, Math.sin(angle) * r, 0xf0e8d8));
+  }
+  // Central incense burner
+  const burnerGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.1, 16);
+  const burnerMat = new THREE.MeshStandardMaterial({ color: 0x6a5040, roughness: 0.5, metalness: 0.4 });
+  const burner = new THREE.Mesh(burnerGeo, burnerMat);
+  burner.position.y = 0.2;
+  burner.castShadow = true; burner.receiveShadow = true;
+  parent.add(burner);
+  for (let i = 0; i < 3; i++) {
+    objects.push(createIncense(parent, -0.04 + i * 0.04, 0.25, 0));
+  }
+  return objects;
+}
+
+const SCENE_BUILDERS = [buildTempleAltar, buildStudyDesk, buildStoneGarden, buildCaveShrine];
+
+// ═══════════════════════════════════════════════════════════════
+// Audio
+// ═══════════════════════════════════════════════════════════════
+let audioCtx = null;
+let analyser = null;
+let freqData = null;
+let timeData = null;
+let audioReady = false;
+
+async function initAudio() {
+  if (audioReady) return true;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+    audioCtx = new AudioContext();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.4;
+    const source = audioCtx.createMediaStreamSource(stream);
+    source.connect(analyser);
+    freqData = new Uint8Array(analyser.frequencyBinCount);
+    timeData = new Uint8Array(analyser.fftSize);
+    audioReady = true;
+    $micStatus.textContent = '麦克风已就绪';
+    $micToast.classList.add('hidden');
+    return true;
+  } catch (e) {
+    console.warn('Microphone access denied:', e);
+    $micStatus.textContent = '麦克风未授权';
+    return false;
+  }
+}
+
+function analyzeBlow() {
+  if (!audioReady || !analyser) return { intensity: 0, isBlowing: false };
+
+  analyser.getByteTimeDomainData(timeData);
+  analyser.getByteFrequencyData(freqData);
+
+  // RMS volume
+  let sum = 0;
+  for (let i = 0; i < timeData.length; i++) {
+    const v = (timeData[i] - 128) / 128;
+    sum += v * v;
+  }
+  const rms = Math.sqrt(sum / timeData.length);
+
+  // Spectral flatness: distinguish blowing (broadband noise) from speech (harmonic peaks)
+  let geoMean = 0, arithMean = 0;
+  const lowBand = freqData.slice(2, 64); // ~30Hz-2000Hz, where blow energy is
+  for (let i = 0; i < lowBand.length; i++) {
+    const v = Math.max(lowBand[i], 1);
+    geoMean += Math.log(v);
+    arithMean += v;
+  }
+  geoMean = Math.exp(geoMean / lowBand.length);
+  arithMean /= lowBand.length;
+  const flatness = arithMean > 0 ? geoMean / arithMean : 0;
+  // Flatness close to 1 = noise-like (blowing), < 0.3 = harmonic (speech)
+
+  const isNoise = flatness > 0.45;
+  const isBlowing = rms > 0.04 && isNoise;
+  const intensity = isBlowing ? Math.min(1, (rms - 0.04) / 0.25) : 0;
+
+  return { intensity, isBlowing, rms };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// App state
+// ═══════════════════════════════════════════════════════════════
+let currentScene = -1;
+let sceneObjects = []; // Array of { update(dt, blowIntensity), dispose() }
+let sceneGroup = null;
+let hudTimeout = null;
+
+// Smooth blow intensity for visual
+let smoothBlow = 0;
+
+function clearScene() {
+  sceneObjects.forEach(o => o.dispose());
+  sceneObjects = [];
+  if (sceneGroup) {
+    scene.remove(sceneGroup);
+    // Recursively dispose
+    sceneGroup.traverse(child => {
+      if (child.geometry && child.geometry !== sceneGroup) child.geometry.dispose();
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach(m => m.dispose());
+        } else {
+          child.material.dispose();
+        }
+      }
+    });
+    sceneGroup = null;
+  }
+  // Remove leftover lights (keep ambient)
+  const toRemove = [];
+  scene.traverse(c => { if (c.isPointLight) toRemove.push(c); });
+  toRemove.forEach(l => scene.remove(l));
+}
+
+function loadScene(index) {
+  clearScene();
+  currentScene = index;
+  sceneGroup = new THREE.Group();
+  scene.add(sceneGroup);
+  sceneObjects = SCENE_BUILDERS[index](sceneGroup);
+
+  // Reset orbit
+  orbit = { theta: 0, phi: -0.35, radius: 4.2, target: new THREE.Vector3(0, 0.25, 0) };
+
+  $sceneLabel.textContent = SCENE_META[index].label;
+  $selector.classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HUD auto-hide
+// ═══════════════════════════════════════════════════════════════
+function resetHudTimer() {
+  $hud.classList.remove('fading');
+  $sceneLabel.style.opacity = '1';
+  clearTimeout(hudTimeout);
+  hudTimeout = setTimeout(() => {
+    $hud.classList.add('fading');
+    $sceneLabel.style.opacity = '0';
+  }, 5000);
+}
+
+document.addEventListener('mousemove', () => { if (currentScene >= 0) resetHudTimer(); });
+document.addEventListener('touchstart', () => { if (currentScene >= 0) resetHudTimer(); });
+
+// ═══════════════════════════════════════════════════════════════
+// Event handlers
+// ═══════════════════════════════════════════════════════════════
+$backBtn.addEventListener('click', () => {
+  clearScene();
+  currentScene = -1;
+  scene.remove(sceneGroup);
+  sceneGroup = null;
+  $selector.classList.remove('hidden');
+  $sceneLabel.textContent = '';
+});
+
+// Scene card clicks — init audio on first interaction
+document.querySelectorAll('.scene-card').forEach(card => {
+  card.addEventListener('click', async () => {
+    const idx = parseInt(card.dataset.scene);
+    await initAudio();
+    loadScene(idx);
+    resetHudTimer();
+  });
+});
+
+// Mic toast click
+$micToast.addEventListener('click', async () => {
+  await initAudio();
+});
+
+// Keyboard shortcut to retry mic
+window.addEventListener('keydown', async (e) => {
+  if (e.key === 'm' && !audioReady) {
+    await initAudio();
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// Resize
+// ═══════════════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// Main loop
+// ═══════════════════════════════════════════════════════════════
+const clock = new THREE.Clock();
+let lastBlowState = false;
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const dt = Math.min(clock.getDelta(), 0.1);
+
+  // Audio analysis
+  const blow = analyzeBlow();
+  smoothBlow += (blow.intensity - smoothBlow) * 10 * dt;
+
+  // Update HUD
+  const isBlowing = smoothBlow > 0.08;
+  if (isBlowing !== lastBlowState) {
+    lastBlowState = isBlowing;
+    if (isBlowing) {
+      $volRing.classList.add('active');
+      $micStatus.classList.add('active');
+      $micStatus.textContent = '检测到吹气';
+    } else {
+      $volRing.classList.remove('active');
+      $micStatus.classList.remove('active');
+      $micStatus.textContent = audioReady ? '麦克风已就绪' : '等待麦克风';
+    }
+  }
+  const volScale = Math.min(1, smoothBlow * 1.5);
+  $volRing.style.setProperty('--vol-scale', volScale.toFixed(2));
+
+  // Show mic toast if not ready
+  if (!audioReady && currentScene >= 0 && !$micToast.classList.contains('hidden') === false) {
+    // Already visible logic handled by class
+  }
+  if (!audioReady && currentScene >= 0) {
+    $micToast.classList.remove('hidden');
+  } else {
+    $micToast.classList.add('hidden');
+  }
+
+  // Update scene objects
+  if (currentScene >= 0) {
+    sceneObjects.forEach(o => o.update(dt, smoothBlow));
+  }
+
+  // Update camera
+  updateCamera();
+
+  // Render
+  renderer.render(scene, camera);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Start
+// ═══════════════════════════════════════════════════════════════
+updateCamera();
+animate();
+
+// Warm up: show mic toast on page load so user can enable before picking a scene
+setTimeout(() => {
+  if (!audioReady) {
+    $micToast.classList.remove('hidden');
+  }
+}, 2000);
+
+console.log('🕯️ Blow & Glow — 吹烛焚香');
+console.log('   Pick a scene, blow on your microphone, and watch the flames dance.');
+console.log('   Mouse drag = orbit  |  Scroll = zoom  |  M = retry mic');
+</script>
+</body>
+</html>

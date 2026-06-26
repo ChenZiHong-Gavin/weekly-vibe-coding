@@ -20,6 +20,7 @@ import marionettePromptRaw from "@prompts/marionette.md?raw";
 import planetSlidesPromptRaw from "@prompts/planet-slides.md?raw";
 import shadowPuppetPromptRaw from "@prompts/shadow-puppet.md?raw";
 import walkTheDogPromptRaw from "@prompts/walk-the-dog.md?raw";
+import blowAndGlowPromptRaw from "@prompts/blow-and-glow.md?raw";
 
 export const categories = [
   {
@@ -235,6 +236,15 @@ export const categories = [
         status: "live" as const,
         colorClass: "icon-orange",
         prompt: walkTheDogPromptRaw,
+      },
+      {
+        title: "Blow & Glow",
+        description: "吹烛焚香，麦克风检测吹气，Three.js火焰粒子+烟雾物理，4个禅意场景可切换。",
+        icon: "🕯️",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/blow-and-glow/",
+        status: "live" as const,
+        colorClass: "icon-orange",
+        prompt: blowAndGlowPromptRaw,
       },
     ],
   },

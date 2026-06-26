@@ -173,6 +173,10 @@
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/474c1921-cd2a-40bb-8bf0-c5aa1ef92816" />
 
+20. **[Blow & Glow](https://chenzihong-gavin.github.io/weekly-vibe-coding/blow-and-glow/)** (`apps/blow-and-glow`)
+    - 吹烛焚香，麦克风检测吹气，Three.js 火焰粒子系统 + 烟雾物理，4 个禅意场景可切换。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/blow-and-glow.md)
+
 
 
 
