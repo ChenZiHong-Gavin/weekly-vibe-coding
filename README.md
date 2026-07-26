@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-18%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-19%2F100-blue)
 
 **中文** | [English](./README_EN.md)
 
@@ -103,6 +103,12 @@
     - 手影戏台，摄像头实时捕捉手部轮廓投射到原始洞穴的火光洞壁上，支持 11 种手势姿势识别，捏合、挥手、握拳触发光影特效。火把摇曳，原始人剪影围观，沉浸式手影表演体验。
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/92bea6fc-351a-4c4e-a826-f51dded417e4" />
+
+19. **[Paper Kite](https://chenzihong-gavin.github.io/weekly-vibe-coding/paper-kite/)** (`apps/paper-kite`)
+    - 水墨风第一人称放风筝：摄像头追踪手部，握拳抓线、上下拉动收放线，牵引真实气动的风筝在黄昏水景里起伏；可自定义骨架、对称笔刷画皮、盖传统纹样图章。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/paper-kite.md)
+
+      <!-- 截图待补：把一张运行截图拖进 GitHub Issue/PR 生成 user-attachments 链接后替换此处 -->
 
 
 

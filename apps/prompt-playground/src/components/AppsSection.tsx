@@ -20,6 +20,7 @@ import marionettePromptRaw from "@prompts/marionette.md?raw";
 import planetSlidesPromptRaw from "@prompts/planet-slides.md?raw";
 import shadowPuppetPromptRaw from "@prompts/shadow-puppet.md?raw";
 import walkTheDogPromptRaw from "@prompts/walk-the-dog.md?raw";
+import paperKitePromptRaw from "@prompts/paper-kite.md?raw";
 
 export const categories = [
   {
@@ -110,6 +111,15 @@ export const categories = [
         status: "live" as const,
         colorClass: "icon-teal",
         prompt: shadowPuppetPromptRaw,
+      },
+      {
+        title: "Paper Kite",
+        description: "水墨风第一人称放风筝，摄像头追踪手部握拳抓线、收放线牵引真实气动风筝，可自定义骨架与对称画皮，黄昏水景与声景。",
+        icon: "🪁",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/paper-kite/",
+        status: "live" as const,
+        colorClass: "icon-blue",
+        prompt: paperKitePromptRaw,
       },
     ],
   },

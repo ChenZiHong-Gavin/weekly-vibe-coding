@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-18%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-19%2F100-blue)
 
 [中文](./README.md) | **English**
 
@@ -100,6 +100,12 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
     - Hand shadow theater — camera captures hand silhouettes cast onto a prehistoric cave wall by flickering torchlight. Recognizes 11 hand poses; pinch, wave, and fist trigger light effects. Cave-painting figures watch from the shadows.
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/92bea6fc-351a-4c4e-a826-f51dded417e4" />
+
+19. **[Paper Kite](https://chenzihong-gavin.github.io/weekly-vibe-coding/paper-kite/)** (`apps/paper-kite`)
+    - First-person ink-wash kite flying. The camera tracks your hand — make a fist to grab the line, pull to reel in / feed to let out, guiding a truly aerodynamic kite through a dusk waterscape. Design your own kite: frames, symmetric brush painting, and traditional pattern stamps.
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/paper-kite.md)
+
+      <!-- screenshot TBD: drop an image into a GitHub Issue/PR to get a user-attachments URL, then replace here -->
 
 
 

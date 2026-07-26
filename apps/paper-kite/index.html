@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>紙鳶 · 御風</title>
+  <link rel="stylesheet" href="style.css?v=7" />
+</head>
+<body>
+  <canvas id="stage"></canvas>
+
+  <!-- 开场：入画 -->
+  <div id="intro">
+    <div class="intro-inner">
+      <div class="intro-title">紙&nbsp;鳶</div>
+      <div class="intro-sub">御 風 · 水 墨 放 風 箏</div>
+      <div class="intro-tap">輕點 入畫</div>
+    </div>
+    <div class="intro-seal">御風</div>
+  </div>
+
+  <!-- 左上：风况（墨字） -->
+  <div id="hud">
+    <div class="hud-speed">
+      <span id="windSpeed">3.4</span><span class="unit">m/s</span>
+      <span id="windArrow">↑</span>
+    </div>
+    <div class="hud-sub">
+      <span id="layer">地表</span><span class="sep">·</span><span id="altitude">0</span><span class="unit"> 米</span>
+    </div>
+  </div>
+
+  <!-- 右上：控制（墨字按钮） -->
+  <div id="controls">
+    <button id="btnDesign" class="ink-btn">設計</button>
+    <button id="btnHand" class="ink-btn">用手牽線</button>
+    <button id="btnSound" class="ink-btn">聲</button>
+  </div>
+
+  <!-- 设计模式的工具栏（只在设计时显示） -->
+  <div id="designBar" class="hidden">
+    <div class="dgroup" id="frameGroup">
+      <button class="frameBtn on" data-frame="diamond">菱</button>
+      <button class="frameBtn" data-frame="swallow">燕</button>
+      <button class="frameBtn" data-frame="delta">翼</button>
+      <button class="frameBtn" data-frame="hex">六</button>
+    </div>
+    <div class="dgroup" id="toolGroup">
+      <button class="toolBtn on" data-tool="brush">筆</button>
+      <button class="toolBtn" data-tool="flower">花</button>
+      <button class="toolBtn" data-tool="cloud">雲</button>
+      <button class="toolBtn" data-tool="meander">回</button>
+      <button class="toolBtn" data-tool="bat">蝠</button>
+      <button class="toolBtn" data-tool="fish">魚</button>
+      <button class="toolBtn" data-tool="coin">錢</button>
+    </div>
+    <div class="dgroup" id="colorGroup">
+      <button class="colorBtn on" data-color="58,54,48" style="background:rgb(58,54,48)"></button>
+      <button class="colorBtn" data-color="156,58,48" style="background:rgb(156,58,48)"></button>
+      <button class="colorBtn" data-color="52,88,122" style="background:rgb(52,88,122)"></button>
+      <button class="colorBtn" data-color="150,92,56" style="background:rgb(150,92,56)"></button>
+      <button class="colorBtn" data-color="196,158,60" style="background:rgb(196,158,60)"></button>
+    </div>
+    <div class="dgroup">
+      <button id="btnUndo" class="ink-btn small">撤</button>
+      <button id="btnClear" class="ink-btn small">清</button>
+      <button id="btnDoneDesign" class="ink-btn primary">放飛 →</button>
+    </div>
+  </div>
+
+  <!-- 隐藏的摄像头画面，供手部追踪使用（画面不上传，全程本地） -->
+  <video id="cam" playsinline muted style="display:none"></video>
+
+  <!-- 中上：阶段诗字 -->
+  <div id="caption"></div>
+
+  <!-- 右下：题字 + 朱印 -->
+  <div id="seal">
+    <span class="title">紙鳶</span>
+    <span class="stamp">御風</span>
+  </div>
+
+  <!-- 底部提示 -->
+  <div id="hint">點右上 <b>用手牽線</b> · 把手伸到線上 <b>握拳抓住</b> · 往下拉 <b>收線</b>、往上送 <b>放線</b> · 張開手放開</div>
+
+  <script src="src/main.js?v=7"></script>
+  <script type="module" src="src/hand.js?v=7"></script>
+</body>
+</html>

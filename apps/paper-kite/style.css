@@ -1,0 +1,238 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f3f0e7;               /* 宣纸底 */
+  font-family: "Songti SC", "STSong", "SimSun", "Noto Serif SC", serif;
+  color: #3a3630;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+#stage {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  cursor: grab;
+}
+#stage.grabbing { cursor: grabbing; }
+
+/* ---- 右上角：墨字按钮，极克制 ---- */
+#controls {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  display: flex;
+  gap: 18px;
+  z-index: 10;
+}
+.ink-btn {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 30px;
+  color: rgba(58, 54, 48, 0.62);
+  letter-spacing: 4px;
+  cursor: pointer;
+  padding: 2px 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.3s, border-color 0.3s;
+}
+.ink-btn:hover { color: rgba(58, 54, 48, 0.9); }
+.ink-btn.on { color: #9c3a30; border-bottom-color: rgba(156, 58, 48, 0.5); }
+
+/* ---- 左上角风况：竖排墨字 ---- */
+#hud {
+  position: fixed;
+  top: 22px;
+  left: 26px;
+  z-index: 10;
+  color: rgba(58, 54, 48, 0.78);
+  pointer-events: none;
+  line-height: 1.5;
+}
+.hud-speed { display: flex; align-items: baseline; gap: 8px; }
+#windSpeed { font-size: 56px; font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
+.hud-speed .unit { font-size: 24px; opacity: 0.6; }
+#windArrow {
+  display: inline-block;
+  font-size: 36px;
+  margin-left: 8px;
+  transform-origin: center;
+  transition: transform 0.5s ease-out;
+  opacity: 0.7;
+}
+.hud-sub { font-size: 27px; opacity: 0.65; margin-top: 6px; letter-spacing: 1px; }
+.hud-sub .sep { opacity: 0.4; margin: 0 6px; }
+
+/* ---- 中上：诗意阶段字，会淡出 ---- */
+#caption {
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+  font-size: 48px;
+  letter-spacing: 12px;
+  color: rgba(58, 54, 48, 0.74);
+  opacity: 0;
+  transition: opacity 1.6s ease;
+  pointer-events: none;
+  text-indent: 8px;                 /* 抵消字间距造成的右偏 */
+}
+#caption.show { opacity: 1; }
+
+/* ---- 右下角：题字 + 朱印 ---- */
+#seal {
+  position: fixed;
+  right: 30px;
+  bottom: 28px;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+#seal .title {
+  writing-mode: vertical-rl;
+  font-size: 58px;
+  letter-spacing: 10px;
+  color: rgba(58, 54, 48, 0.8);
+}
+#seal .stamp {
+  width: 54px; height: 54px;
+  border: 2.5px solid #9c3a30;
+  border-radius: 5px;
+  color: #9c3a30;
+  font-size: 21px;
+  line-height: 24px;
+  text-align: center;
+  padding: 4px;
+  opacity: 0.88;
+  writing-mode: vertical-rl;
+}
+
+/* ---- 底部提示 ---- */
+#hint {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  color: rgba(58, 54, 48, 0.64);
+  font-size: 27px;
+  letter-spacing: 2px;
+  transition: opacity 1.4s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+#hint b { color: #9c3a30; font-weight: normal; }
+#hint.gone { opacity: 0; }
+
+/* ---- 风筝设计工具栏 ---- */
+.hidden { display: none !important; }
+
+#designBar {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 26px;
+  align-items: center;
+  padding: 14px 26px;
+  background: rgba(243, 240, 231, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(58, 54, 48, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 6px 30px rgba(80, 60, 40, 0.12);
+}
+.dgroup { display: flex; gap: 12px; align-items: center; }
+.dgroup + .dgroup { border-left: 1px solid rgba(58,54,48,0.14); padding-left: 26px; }
+
+.frameBtn {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 26px;
+  color: rgba(58, 54, 48, 0.5);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+.frameBtn:hover { color: rgba(58,54,48,0.85); }
+.frameBtn.on { color: #9c3a30; border-bottom-color: #9c3a30; }
+
+.colorBtn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 2px solid rgba(243,240,231,0.9);
+  box-shadow: 0 0 0 1px rgba(58,54,48,0.2);
+  cursor: pointer;
+  padding: 0;
+  transition: transform .12s;
+}
+.colorBtn:hover { transform: scale(1.12); }
+.colorBtn.on { box-shadow: 0 0 0 2px #9c3a30; transform: scale(1.12); }
+
+.ink-btn.small { font-size: 22px; letter-spacing: 2px; }
+.ink-btn.primary {
+  font-size: 24px; color: #9c3a30; letter-spacing: 3px;
+  border-bottom: 2px solid rgba(156,58,48,0.55);
+}
+.ink-btn.primary:hover { color: #7d2c24; }
+
+#stage.designing { cursor: crosshair; }
+
+.toolBtn {
+  border: none; background: none; font-family: inherit;
+  font-size: 22px; color: rgba(58, 54, 48, 0.5);
+  cursor: pointer; padding: 2px 4px;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+.toolBtn:hover { color: rgba(58,54,48,0.85); }
+.toolBtn.on { color: #9c3a30; border-bottom-color: #9c3a30; }
+#designBar { gap: 20px; max-width: 96vw; flex-wrap: wrap; justify-content: center; }
+.dgroup { flex-wrap: wrap; }
+
+/* ---- 开场：入画 ---- */
+#intro {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(243, 240, 231, 0.9);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  cursor: pointer;
+  transition: opacity 1.4s ease;
+}
+#intro.gone { opacity: 0; pointer-events: none; }
+.intro-inner { text-align: center; color: rgba(58, 54, 48, 0.86); }
+.intro-title {
+  font-size: 92px; letter-spacing: 14px; font-weight: 500;
+  text-indent: 14px;
+}
+.intro-sub {
+  margin-top: 18px; font-size: 24px; letter-spacing: 6px;
+  color: rgba(58, 54, 48, 0.55); text-indent: 6px;
+}
+.intro-tap {
+  margin-top: 60px; font-size: 20px; letter-spacing: 5px;
+  color: #9c3a30; opacity: 0.9;
+  animation: breathe 2.6s ease-in-out infinite;
+  text-indent: 5px;
+}
+@keyframes breathe { 0%,100% { opacity: 0.45; } 50% { opacity: 0.95; } }
+.intro-seal {
+  position: absolute; right: 40px; bottom: 40px;
+  width: 58px; height: 58px; padding: 5px;
+  border: 2.5px solid #9c3a30; border-radius: 5px;
+  color: #9c3a30; font-size: 22px; line-height: 24px;
+  writing-mode: vertical-rl; text-align: center; opacity: 0.82;
+}
