@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PHOENIX — 琴葛蕾</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:#05060a;overflow:hidden;
+    font-family:ui-sans-serif,-apple-system,"PingFang SC","Hiragino Sans GB",sans-serif;
+    color:#dfe4ee;-webkit-font-smoothing:antialiased}
+  canvas{display:block;width:100%;height:100%;cursor:none}
+  body:not(.locked) canvas{cursor:pointer}
+  #boot{position:fixed;inset:0;display:grid;place-items:center;background:#05060a;z-index:50;
+    transition:opacity .6s}
+  #boot.gone{opacity:0;pointer-events:none}
+  #boot .t{font-size:13px;letter-spacing:.4em;color:#8a7fb0;text-transform:uppercase}
+  #boot .b{width:220px;height:2px;background:rgba(255,255,255,.08);margin-top:16px;overflow:hidden}
+  #boot .b i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#7b4ad1,#ff8a3d);
+    transition:width .3s}
+  #boot .s{margin-top:10px;font-size:11px;color:#565d72;height:14px}
+  #stats{position:fixed;left:10px;bottom:8px;font-size:10px;color:#4c5468;
+    font-variant-numeric:tabular-nums;z-index:20;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="boot">
+  <div style="text-align:center">
+    <div class="t">Phoenix</div>
+    <div class="b"><i id="bfill"></i></div>
+    <div class="s" id="bmsg">初始化…</div>
+  </div>
+</div>
+<div id="stats"></div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

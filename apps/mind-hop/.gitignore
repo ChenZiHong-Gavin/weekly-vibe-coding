@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.DS_Store
+
+# 模型：只提交瘦身后的 public/models/opt/（跑 tools/optimize-models.mjs 生成）。
+# 原始件按"能不能重新取回"分两类：
+#   · Michelle / Xbot / Soldier 来自 three.js examples/models/gltf/，
+#     公开素材，随时可取回 → 不进库。
+#   · readyplayer.me.glb 是 Ready Player Me 上导出的一个具体头像
+#     （asset.generator/copyright 都写着 Ready Player Me），不是公开示例，
+#     删掉就没了 → **必须进库**，否则 opt/ 无法重新生成。
+# kira.glb / nemetona.glb 没有任何代码引用，纯粹留在磁盘上备用。
+public/models/*.glb
+!public/models/readyplayer.me.glb
+!public/models/opt/

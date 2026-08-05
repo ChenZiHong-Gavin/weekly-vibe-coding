@@ -1,0 +1,52 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#20242e;overflow:hidden}canvas{display:block}
+#l{position:fixed;top:6px;left:6px;color:#cdd;font:11px monospace;white-space:pre;z-index:9}
+</style></head><body><div id="l">loading…</div>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { retargetAll } from '/src/core/retarget.js';
+import { boneName } from '/src/core/utils.js';
+const r=new THREE.WebGLRenderer({antialias:true});r.setSize(innerWidth,innerHeight);
+r.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(r.domElement);
+const sc=new THREE.Scene();sc.background=new THREE.Color(0x20242e);
+sc.add(new THREE.HemisphereLight(0xd8e6ff,0x60503a,2.8));
+const dl=new THREE.DirectionalLight(0xffffff,2.2);dl.position.set(2,5,7);sc.add(dl);
+const cam=new THREE.PerspectiveCamera(30,innerWidth/innerHeight,.1,100);
+const L=new GLTFLoader(),g=u=>new Promise(s=>L.load(u,s));
+const files=(new URLSearchParams(location.search).get('m')||'Xbot.glb,readyplayer.me.glb').split(',');
+const clip=new URLSearchParams(location.search).get('c')||'walk';
+const xb=await g('/models/opt/Xbot.glb');
+const mixers=[];const info=[];
+let i=0;
+for(const f of files){
+  const m=await g('/models/'+f);
+  m.scene.updateMatrixWorld(true);
+  const box=new THREE.Box3();const pv=new THREE.Vector3();
+  m.scene.traverse(o=>{ if(o.isSkinnedMesh){const P=o.geometry.attributes.position;o.skeleton.update();
+    for(let k=0;k<P.count;k+=5){pv.fromBufferAttribute(P,k);o.applyBoneTransform(k,pv);pv.applyMatrix4(o.matrixWorld);box.expandByPoint(pv);} } });
+  const h=box.max.y-box.min.y||1.7;const s=1.7/h;
+  m.scene.scale.multiplyScalar(s);m.scene.position.set((i-(files.length-1)/2)*1.5,-box.min.y*s,0);
+  sc.add(m.scene);
+  const rc=(f==='Xbot.glb')?null:retargetAll(xb.animations,xb.scene,m.scene,['walk','idle','run']);
+  const cl=rc?rc[clip]:xb.animations.find(c=>c.name===clip);
+  if(cl){const mx=new THREE.AnimationMixer(m.scene);mx.clipAction(cl).play();mixers.push(mx);}
+  // 左右手标记球：左=红，右=蓝
+  const find=n=>{let b=null;m.scene.traverse(o=>{if(o.isBone&&boneName(o.name)===n)b=o;});return b;};
+  for(const [bn,col] of [['LeftHand',0xff3344],['RightHand',0x3388ff]]){
+    const bone=find(bn); if(!bone) continue;
+    const s2=new THREE.Mesh(new THREE.SphereGeometry(0.055,12,10),
+      new THREE.MeshBasicMaterial({color:col}));
+    bone.add(s2); s2.scale.setScalar(1/(bone.getWorldScale(new THREE.Vector3()).x||1));
+  }
+  info.push(f);
+  i++;
+}
+cam.position.set(0,1.0,files.length*1.7+1.2);cam.lookAt(0,0.9,0);
+document.getElementById('l').textContent=
+  `clip=${clip}   ${info.join('  |  ')}\n红=左手  蓝=右手   正对镜头时：左手(红)应在画面右侧`;
+let t=performance.now();
+(function loop(){requestAnimationFrame(loop);const n=performance.now(),d=(n-t)/1000;t=n;
+ for(const m of mixers)m.update(d);r.render(sc,cam);})();
+</script></body></html>

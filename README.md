@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-19%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-20%2F100-blue)
 
 **中文** | [English](./README_EN.md)
 
@@ -80,6 +80,11 @@
     - 追踪记录你的发际线。
   
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
+
+20. **[Mind Hop](https://chenzihong-gavin.github.io/weekly-vibe-coding/mind-hop/)** (`apps/mind-hop`)
+    - 一个第三人称附身潜入游戏。你的能力不是变强，而是变成别人 —— 意识跳进 13 米内任何一个人，
+      而你自己的身体就那样留在街上，一动不动。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/mind-hop.md)
 
 ### 专题二：手势交互
 

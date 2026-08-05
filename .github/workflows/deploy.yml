@@ -426,11 +426,39 @@ jobs:
           fi
 
       # ═══════════════════════════════════════════════════════════════
+      # mind-hop
+      # ═══════════════════════════════════════════════════════════════
+      - name: Cache mind-hop node_modules
+        id: nm-mind-hop
+        uses: actions/cache@v4
+        with:
+          path: apps/mind-hop/node_modules
+          key: mind-hop-nm-${{ hashFiles('apps/mind-hop/package-lock.json') }}
+
+      - name: Cache mind-hop dist
+        id: dist-mind-hop
+        uses: actions/cache@v4
+        with:
+          path: apps/mind-hop/dist
+          key: mind-hop-dist-${{ hashFiles('apps/mind-hop/src/**', 'apps/mind-hop/public/**', 'apps/mind-hop/index.html', 'apps/mind-hop/vite.config.*', 'apps/mind-hop/tsconfig*.json', 'apps/mind-hop/package-lock.json') }}
+
+      - name: Build mind-hop
+        if: steps.dist-mind-hop.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/mind-hop
+          if [ "${{ steps.nm-mind-hop.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
+
+      # ═══════════════════════════════════════════════════════════════
       # Assemble all builds into dist/
       # ═══════════════════════════════════════════════════════════════
       - name: Assemble dist
         run: |
-          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite}
+          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop}
 
           # Built projects — copy dist/
           cp -r apps/dice-verse/dist/*         dist/dice-verse/        2>/dev/null || true
@@ -447,6 +475,7 @@ jobs:
           cp -r apps/pretext-solar-system/dist/* dist/pretext-solar-system/ 2>/dev/null || true
           cp -r apps/real-to-ai/dist/*         dist/real-to-ai/        2>/dev/null || true
           cp -r apps/shadow-puppet/dist/*      dist/shadow-puppet/     2>/dev/null || true
+          cp -r apps/mind-hop/dist/*           dist/mind-hop/          2>/dev/null || true
 
           # Static projects — copy source files
           cp apps/walk-the-dog/index.html      dist/walk-the-dog/

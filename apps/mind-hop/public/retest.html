@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#11141c;overflow:hidden}canvas{display:block}
+#l{position:fixed;top:8px;left:8px;color:#9aa;font:12px monospace;white-space:pre}
+</style></head><body><div id="l">loading</div>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { retargetAll, modelHeight } from '/src/core/retarget.js';
+const r=new THREE.WebGLRenderer({antialias:true});r.setSize(innerWidth,innerHeight);document.body.appendChild(r.domElement);
+const sc=new THREE.Scene();sc.background=new THREE.Color(0x11141c);
+sc.add(new THREE.HemisphereLight(0xbfd0ff,0x40382c,2.4));
+const dl=new THREE.DirectionalLight(0xffffff,2.2);dl.position.set(3,6,5);sc.add(dl);
+const cam=new THREE.PerspectiveCamera(38,innerWidth/innerHeight,.1,100);cam.position.set(0,1.1,5.2);cam.lookAt(0,0.9,0);
+const L=new GLTFLoader(),g=u=>new Promise(s=>L.load(u,s));
+const [mi,xb]=await Promise.all([g('/models/opt/Michelle.glb'),g('/models/opt/Xbot.glb')]);
+const ratio=modelHeight(mi.scene)/modelHeight(xb.scene);
+const rc=retargetAll(xb.animations,xb.scene,mi.scene,['idle','walk','run']);
+const clip=new URLSearchParams(location.search).get('c')||'walk';
+// 左：Xbot 原生   右：Michelle 重定向
+xb.scene.position.x=-1.0;sc.add(xb.scene);
+mi.scene.position.x=1.0;sc.add(mi.scene);
+const mx1=new THREE.AnimationMixer(xb.scene),mx2=new THREE.AnimationMixer(mi.scene);
+mx1.clipAction(xb.animations.find(c=>c.name===clip)).play();
+mx2.clipAction(rc[clip]).play();
+document.getElementById('l').textContent=
+ `clip=${clip}  ratio=${ratio.toFixed(3)}\n左=Xbot原生  右=Michelle重定向\n轨道 ${xb.animations.find(c=>c.name===clip).tracks.length} → ${rc[clip].tracks.length}`;
+let t=performance.now();
+(function loop(){requestAnimationFrame(loop);const n=performance.now(),d=(n-t)/1000;t=n;
+ mx1.update(d);mx2.update(d);r.render(sc,cam);})();
+</script></body></html>

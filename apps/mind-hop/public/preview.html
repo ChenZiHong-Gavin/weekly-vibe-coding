@@ -1,0 +1,48 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#1a1d26;overflow:hidden}canvas{display:block}
+#l{position:fixed;top:8px;left:8px;color:#aab;font:11px monospace;white-space:pre;z-index:9}
+</style></head><body><div id="l">loading…</div>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { retargetAll } from '/src/core/retarget.js';
+import { boneName } from '/src/core/utils.js';
+const r=new THREE.WebGLRenderer({antialias:true});r.setSize(innerWidth,innerHeight);
+r.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(r.domElement);
+const sc=new THREE.Scene();sc.background=new THREE.Color(0x1a1d26);
+sc.add(new THREE.HemisphereLight(0xcfe0ff,0x50412c,2.6));
+const dl=new THREE.DirectionalLight(0xffffff,2.4);dl.position.set(3,6,6);sc.add(dl);
+const dl2=new THREE.DirectionalLight(0x88aaff,0.9);dl2.position.set(-4,3,-5);sc.add(dl2);
+const cam=new THREE.PerspectiveCamera(34,innerWidth/innerHeight,.1,100);
+const L=new GLTFLoader(),g=u=>new Promise(s=>L.load(u,s));
+const files=(new URLSearchParams(location.search).get('m')||'readyplayer.me.glb,Michelle.glb,Soldier.glb').split(',');
+const clip=new URLSearchParams(location.search).get('c')||'walk';
+const [xb]=await Promise.all([g('/models/opt/Xbot.glb')]);
+const mixers=[];const info=[];
+let i=0;
+for(const f of files){
+  const m=await g('/models/opt/'+f);
+  m.scene.updateMatrixWorld(true);
+  // 归一化到 1.7m（量蒙皮后顶点）
+  const box=new THREE.Box3();const pv=new THREE.Vector3();
+  m.scene.traverse(o=>{ if(o.isSkinnedMesh){const P=o.geometry.attributes.position;o.skeleton.update();
+    for(let k=0;k<P.count;k+=5){pv.fromBufferAttribute(P,k);o.applyBoneTransform(k,pv);pv.applyMatrix4(o.matrixWorld);box.expandByPoint(pv);} }
+    else if(o.isMesh){const gg=o.geometry;if(!gg.boundingBox)gg.computeBoundingBox();box.union(gg.boundingBox.clone().applyMatrix4(o.matrixWorld));} });
+  const h=box.max.y-box.min.y||1.7;const s=1.7/h;
+  m.scene.scale.multiplyScalar(s);m.scene.position.set((i-(files.length-1)/2)*1.35, -box.min.y*s, 0);
+  sc.add(m.scene);
+  // 重定向 Xbot 动画
+  const names=[];m.scene.traverse(o=>{if(o.isBone)names.push(boneName(o.name));});
+  const rc=retargetAll(xb.animations, xb.scene, m.scene, ['idle','walk','run']);
+  const has=!!rc[clip];
+  if(has){const mx=new THREE.AnimationMixer(m.scene);mx.clipAction(rc[clip]).play();mixers.push(mx);}
+  info.push(`${f}  骨骼${names.length}  轨道${has?rc[clip].tracks.length:0}  ${has?'✓可重定向':'✗'}`);
+  i++;
+}
+cam.position.set(0,1.0,files.length*1.5+1.4);cam.lookAt(0,0.9,0);
+document.getElementById('l').textContent=`clip=${clip}\n`+info.join('\n');
+let t=performance.now();
+(function loop(){requestAnimationFrame(loop);const n=performance.now(),d=(n-t)/1000;t=n;
+ for(const m of mixers)m.update(d);r.render(sc,cam);})();
+</script></body></html>
