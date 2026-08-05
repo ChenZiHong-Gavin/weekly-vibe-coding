@@ -21,6 +21,7 @@ import planetSlidesPromptRaw from "@prompts/planet-slides.md?raw";
 import shadowPuppetPromptRaw from "@prompts/shadow-puppet.md?raw";
 import walkTheDogPromptRaw from "@prompts/walk-the-dog.md?raw";
 import paperKitePromptRaw from "@prompts/paper-kite.md?raw";
+import mindHopPromptRaw from "@prompts/mind-hop.md?raw";
 
 export const categories = [
   {
@@ -70,6 +71,15 @@ export const categories = [
         status: "live" as const,
         colorClass: "icon-orange",
         prompt: hairlineTrackerPromptRaw,
+      },
+      {
+        title: "Mind Hop",
+        description: "第三人称附身潜入。能力不是变强而是变成别人：意识跳进13米内任何一个人，你自己的身体却留在街上毫无防备，画中画盯着它还能操舵。340人真实人群力学，无念动力。",
+        icon: "🧠",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/mind-hop/",
+        status: "live" as const,
+        colorClass: "icon-purple",
+        prompt: mindHopPromptRaw,
       },
     ],
   },

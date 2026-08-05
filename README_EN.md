@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-19%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-20%2F100-blue)
 
 [中文](./README.md) | **English**
 
@@ -77,6 +77,12 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
     - Track and record your hairline over time.
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/f31b65ec-d6db-40aa-b0d0-bb3f24053559" />
+
+20. **[Mind Hop](https://chenzihong-gavin.github.io/weekly-vibe-coding/mind-hop/)** (`apps/mind-hop`)
+    - A third-person possession stealth game. Your power isn't getting stronger — it's becoming
+      someone else. Your mind hops into anyone within 13 metres, while your own body stays
+      standing in the street, motionless and defenceless.
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/mind-hop.md)
 
 ### Track 2: Gesture Interaction
 
