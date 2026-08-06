@@ -502,3 +502,33 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # ═══════════════════════════════════════════════════════════════
+      # 构建结果校验 —— 必须放在 Deploy 之后
+      #
+      # 上面每个 Build 步骤都带 continue-on-error（合理：一个 app 挂掉不该
+      # 拖累其余 20 个都发不出去），而 Assemble 里的 cp 又是 `2>/dev/null || true`。
+      # 两道消音器叠在一起的结果是：npm ci 挂了 → dist/<app> 是空的 →
+      # 站点上那个 app 变 404 → 流水线照样报 success，没有任何人收到通知。
+      # pi-matchmaker / air-drum-master / shadow-puppet / vim-chaser / real-to-ai
+      # 五个就是这么 404 了很久没被发现的。
+      #
+      # 所以这一步放在 Deploy 之后：能发的照发（站点不会因为一个 app 挂掉而
+      # 整体停更），但只要有目录是空的就让整个 run 变红。
+      #
+      # 检查项自动跟随 Assemble 的 mkdir —— 遍历 dist 下的目录即可，
+      # 不需要在这里再维护一份 app 清单。
+      - name: Verify every app actually built
+        if: always()
+        run: |
+          missing=""
+          for d in dist/*/; do
+            [ -n "$(ls -A "$d" 2>/dev/null)" ] || missing="$missing $(basename "$d")"
+          done
+          [ -f dist/index.html ] || missing="$missing (站点首页 index.html)"
+
+          if [ -n "$missing" ]; then
+            echo "::error::以下产物为空，线上会是 404 —— 去看它们的 Build 步骤日志（多半是 npm ci 与 package-lock 不同步）:$missing"
+            exit 1
+          fi
+          echo "✓ dist 下所有 app 均非空，站点首页存在"
