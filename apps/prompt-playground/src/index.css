@@ -210,6 +210,10 @@
     @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
   }
 
+  .status-source {
+    @apply bg-sky-500/20 text-sky-400 border border-sky-500/30;
+  }
+
   .status-coming {
     @apply bg-amber-500/20 text-amber-400 border border-amber-500/30;
   }

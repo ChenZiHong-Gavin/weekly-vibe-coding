@@ -138,10 +138,12 @@ export const categories = [
     apps: [
       {
         title: "Spellbook",
-        description: "《哈利波特》魔法咒语练习，通过音素识别验证你的发音。",
+        description: "《哈利波特》魔法咒语练习，通过音素识别验证你的发音。需要后端做音素识别，Pages 托管不了，请克隆源码自行运行。",
         icon: "🪄",
-        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/spellbook/",
-        status: "live" as const,
+        // 它带 backend/，GitHub Pages 只能托管静态站 —— 之前这里写的是 Pages 地址
+        // 且标着「已部署」，实际是 404。README 里指的一直是源码目录，现在两边一致。
+        url: "https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/tree/main/apps/spellbook",
+        status: "source" as const,
         colorClass: "icon-purple",
         prompt: spellbookPromptRaw,
       },

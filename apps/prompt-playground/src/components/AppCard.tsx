@@ -16,7 +16,10 @@ interface AppCardProps {
   description: string;
   icon: string;
   url: string;
-  status: "live" | "coming";
+  // live   = 已部署在 Pages 上，可直接玩
+  // source = 做完了但带后端，Pages 只能托管静态站，所以只提供源码（链接指向仓库）
+  // coming = 还没做完，卡片置灰且不可点
+  status: "live" | "coming" | "source";
   category?: string;
   colorClass?: string;
   prompt?: string;
@@ -33,6 +36,9 @@ const AppCard = ({
   prompt,
 }: AppCardProps) => {
   const isLive = status === "live";
+  // "source" 也是可以点的 —— 它有实实在在的去处（仓库源码），只是不在 Pages 上。
+  // 只有 "coming" 才该置灰且不可点。
+  const isLinked = status !== "coming";
 
   const handleCopyPrompt = () => {
     const textToCopy = prompt || "";
@@ -42,17 +48,17 @@ const AppCard = ({
 
   return (
     <motion.div
-      className={`clay-card block p-6 group relative ${!isLive ? "opacity-60 cursor-not-allowed" : ""}`}
-      whileHover={isLive ? { y: -8, scale: 1.02 } : {}}
+      className={`clay-card block p-6 group relative ${!isLinked ? "opacity-60 cursor-not-allowed" : ""}`}
+      whileHover={isLinked ? { y: -8, scale: 1.02 } : {}}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4 }}
     >
       <a
-        href={isLive ? url : undefined}
-        target={isLive ? "_blank" : undefined}
-        rel={isLive ? "noopener noreferrer" : undefined}
+        href={isLinked ? url : undefined}
+        target={isLinked ? "_blank" : undefined}
+        rel={isLinked ? "noopener noreferrer" : undefined}
         className="absolute inset-0 z-0"
         aria-label={`Visit ${title}`}
       />
@@ -89,13 +95,18 @@ const AppCard = ({
         <div className="flex items-center justify-between">
           <span
             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium pointer-events-none ${
-              isLive ? "status-live" : "status-coming"
+              isLive ? "status-live" : status === "source" ? "status-source" : "status-coming"
             }`}
           >
             {isLive ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 已部署
+              </>
+            ) : status === "source" ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                需自部署 · 看源码
               </>
             ) : (
               <>
