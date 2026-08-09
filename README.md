@@ -85,6 +85,9 @@
     - 一个第三人称附身潜入游戏。你的能力不是变强，而是变成别人 —— 意识跳进 13 米内任何一个人，
       而你自己的身体就那样留在街上，一动不动。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/mind-hop.md)
+   
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/60a8924b-fcaf-4b5e-9235-5299a9e6bc8f" />
+
 
 ### 专题二：手势交互
 
