@@ -116,7 +116,8 @@
     - 水墨风第一人称放风筝：摄像头追踪手部，握拳抓线、上下拉动收放线，牵引真实气动的风筝在黄昏水景里起伏；可自定义骨架、对称笔刷画皮、盖传统纹样图章。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/paper-kite.md)
 
-      <!-- 截图待补：把一张运行截图拖进 GitHub Issue/PR 生成 user-attachments 链接后替换此处 -->
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/4107d99d-e29a-407c-b278-7fce65f872be" />
+
 
 
 
