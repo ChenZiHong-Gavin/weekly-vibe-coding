@@ -22,6 +22,7 @@ import shadowPuppetPromptRaw from "@prompts/shadow-puppet.md?raw";
 import walkTheDogPromptRaw from "@prompts/walk-the-dog.md?raw";
 import paperKitePromptRaw from "@prompts/paper-kite.md?raw";
 import mindHopPromptRaw from "@prompts/mind-hop.md?raw";
+import skyPilotPromptRaw from "@prompts/sky-pilot.md?raw";
 
 export const categories = [
   {
@@ -183,6 +184,15 @@ export const categories = [
         status: "live" as const,
         colorClass: "icon-blue",
         prompt: planetSlidesPromptRaw,
+      },
+      {
+        title: "Sky Pilot",
+        description: "单文件 Three.js 星球飞行模拟器，程序化生成六座风格城市星球，驾驶飞机穿越发光检查点完成计时赛。",
+        icon: "✈️",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/sky-pilot/",
+        status: "live" as const,
+        colorClass: "icon-teal",
+        prompt: skyPilotPromptRaw,
       },
     ],
   },

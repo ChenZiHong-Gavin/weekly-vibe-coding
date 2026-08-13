@@ -458,7 +458,7 @@ jobs:
       # ═══════════════════════════════════════════════════════════════
       - name: Assemble dist
         run: |
-          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop}
+          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop,sky-pilot}
 
           # Built projects — copy dist/
           cp -r apps/dice-verse/dist/*         dist/dice-verse/        2>/dev/null || true
@@ -483,6 +483,7 @@ jobs:
           cp -r apps/planet-slides/*           dist/planet-slides/
           cp -r apps/paper-kite/index.html apps/paper-kite/style.css apps/paper-kite/src dist/paper-kite/
           cp apps/arxiv-to-novel/index.html apps/arxiv-to-novel/style.css apps/arxiv-to-novel/app.js apps/arxiv-to-novel/demo-novel.js dist/arxiv-to-novel/
+          cp apps/sky-pilot/index.html         dist/sky-pilot/
 
           # prompt-playground also serves as site root
           cp -r apps/prompt-playground/dist/*  dist/ 2>/dev/null || true

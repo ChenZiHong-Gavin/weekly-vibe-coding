@@ -142,6 +142,12 @@
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/a3fd4d8d-1ff6-4e37-ae95-0167ef2a21e6" />
 
+21. **[Sky Pilot](https://chenzihong-gavin.github.io/weekly-vibe-coding/sky-pilot/)** (`apps/sky-pilot`)
+    - 单文件 Three.js 星球飞行模拟器。程序化生成六座风格各异的城市星球（霓虹赛博、地中海、雪山、沙漠、热带、现代都市），3D 噪声地形、海水、城市与地标，驾驶小飞机穿越发光检查点环完成环球计时赛，附带屏外导航箭头与最佳成绩记录。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/sky-pilot.md)
+
+      <!-- 截图待补：把一张运行截图拖进 GitHub Issue/PR 生成 user-attachments 链接后替换此处 -->
+
 
 
 ### 专题六：数学小工具

@@ -136,6 +136,12 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/a3fd4d8d-1ff6-4e37-ae95-0167ef2a21e6" />
 
+21. **[Sky Pilot](https://chenzihong-gavin.github.io/weekly-vibe-coding/sky-pilot/)** (`apps/sky-pilot`)
+    - A single-file Three.js flight simulator around a procedurally generated tiny planet. Six themed city worlds (cyberpunk, Mediterranean, alpine, desert, tropical, metropolis) with 3D-noise terrain, oceans, cities, and landmarks. Pilot a plane through glowing checkpoint rings in a time-trial race, with off-screen navigation and best-time tracking.
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/sky-pilot.md)
+
+      <!-- Screenshot TODO: drop a run screenshot into a GitHub Issue/PR to generate a user-attachments URL -->
+
 
 
 ### Track 6: Math Tools
