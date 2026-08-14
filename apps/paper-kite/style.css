@@ -236,3 +236,58 @@ html, body {
   color: #9c3a30; font-size: 22px; line-height: 24px;
   writing-mode: vertical-rl; text-align: center; opacity: 0.82;
 }
+
+/* ============================================================
+ * 移动端 / 窄屏适配：字号缩小、避免顶部与底部元素重叠
+ * ============================================================ */
+@media (max-width: 820px) {
+  /* 顶部左：风况 */
+  #hud { top: 12px; left: 14px; }
+  #windSpeed { font-size: 32px; }
+  .hud-speed .unit { font-size: 14px; }
+  #windArrow { font-size: 20px; margin-left: 4px; }
+  .hud-sub { font-size: 15px; margin-top: 2px; }
+
+  /* 顶部右：按钮 */
+  #controls { top: 14px; right: 14px; gap: 12px; }
+  .ink-btn { font-size: 17px; letter-spacing: 1px; }
+
+  /* 中上：阶段诗字 */
+  #caption { font-size: 28px; letter-spacing: 7px; top: 13%; }
+
+  /* 底部提示：允许换行、居中、不再一行硬撑 */
+  #hint {
+    font-size: 14px; letter-spacing: 0.5px; line-height: 1.6;
+    white-space: normal; width: 92vw; text-align: center; bottom: 14px;
+  }
+  #hint br { display: none; }
+
+  /* 右下题字 + 朱印：缩小，避让提示 */
+  #seal { right: 16px; bottom: 60px; gap: 6px; }
+  #seal .title { font-size: 30px; letter-spacing: 3px; }
+  #seal .stamp { width: 32px; height: 32px; font-size: 13px; line-height: 14px; padding: 3px; }
+
+  /* 设计工具栏 */
+  #designBar { gap: 12px; padding: 10px 14px; bottom: 16px; border-radius: 12px; }
+  .dgroup { gap: 9px; }
+  .dgroup + .dgroup { padding-left: 12px; }
+  .frameBtn, .toolBtn { font-size: 19px; padding: 2px 3px; }
+  .colorBtn { width: 26px; height: 26px; }
+  .ink-btn.small { font-size: 18px; }
+  .ink-btn.primary { font-size: 19px; letter-spacing: 2px; }
+
+  /* 开场入画 */
+  .intro-title { font-size: 58px; letter-spacing: 8px; }
+  .intro-sub { font-size: 16px; letter-spacing: 3px; margin-top: 14px; }
+  .intro-tap { font-size: 15px; margin-top: 40px; }
+  .intro-seal { width: 44px; height: 44px; font-size: 16px; line-height: 18px; right: 22px; bottom: 22px; }
+}
+
+/* 极窄屏再收一档，确保顶部两组不打架 */
+@media (max-width: 400px) {
+  #windSpeed { font-size: 27px; }
+  .hud-sub { font-size: 13px; }
+  .ink-btn { font-size: 15px; letter-spacing: 0; }
+  #controls { gap: 9px; }
+  #seal .title { font-size: 26px; }
+}
