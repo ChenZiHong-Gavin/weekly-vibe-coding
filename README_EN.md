@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-20%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-23%2F100-blue)
 
 [中文](./README.md) | **English**
 
@@ -83,6 +83,12 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
       someone else. Your mind hops into anyone within 13 metres, while your own body stays
       standing in the street, motionless and defenceless.
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/mind-hop.md)
+
+22. **[3D Dino Run](https://chenzihong-gavin.github.io/weekly-vibe-coding/dino-3d/)** (`apps/dino-3d`)
+    - A 3D dinosaur runner — sprint across a Monument Valley-style desert, jump, duck, and dodge cacti, beams, and flying pterosaurs. Collect coins and gems, chain combos, and use shield, magnet, double-jump, and speed-boost power-ups.
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/dino-3d.md)
+
+      <!-- Screenshot TODO: drop a run screenshot into a GitHub Issue/PR to generate a user-attachments URL -->
 
 ### Track 2: Gesture Interaction
 

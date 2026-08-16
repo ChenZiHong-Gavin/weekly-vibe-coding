@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-20%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-23%2F100-blue)
 
 **中文** | [English](./README_EN.md)
 
@@ -87,6 +87,12 @@
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/mind-hop.md)
    
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/60a8924b-fcaf-4b5e-9235-5299a9e6bc8f" />
+
+22. **[3D Dino Run](https://chenzihong-gavin.github.io/weekly-vibe-coding/dino-3d/)** (`apps/dino-3d`)
+    - 3D 恐龙跑酷游戏：在纪念碑谷风格的沙漠中奔跑，跳跃、下蹲、侧移躲避仙人掌、横梁与飞来的翼龙，收集金币与宝石，用护盾、磁铁、二段跳、冲刺冲击更高连击。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/dino-3d.md)
+
+      <!-- 截图待补：把一张运行截图拖进 GitHub Issue/PR 生成 user-attachments 链接后替换此处 -->
 
 
 ### 专题二：手势交互

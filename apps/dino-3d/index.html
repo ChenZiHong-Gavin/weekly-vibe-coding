@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦕 3D Dino Run - 恐龙跑酷</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --text: #e0e0e0;
+    --gold: #ffd700;
+    --accent: #ff6b35;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    overflow: hidden;
+    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  #game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  canvas { display: block; }
+
+  /* ---- HUD ---- */
+  #hud {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    pointer-events: none;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 10;
+  }
+
+  .hud-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .hud-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 600;
+  }
+
+  .hud-value {
+    font-size: 36px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    transition: transform 0.15s ease;
+  }
+
+  .hud-value.pop { transform: scale(1.15); }
+
+  #score-display { color: #fff; }
+  #combo-display { color: #ff6b35; font-size: 28px; }
+  #coin-display { color: #ffd700; }
+
+  /* Combo popup */
+  #combo-popup {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    font-weight: 900;
+    color: #ff6b35;
+    text-shadow: 0 0 30px rgba(255,107,53,0.6), 0 4px 8px rgba(0,0,0,0.5);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 15;
+  }
+  #combo-popup.show {
+    animation: comboIn 0.5s ease-out forwards;
+  }
+  @keyframes comboIn {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+  }
+
+  /* Power-up indicator */
+  #powerup-indicator {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .powerup-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    animation: powerupPulse 1.5s ease-in-out infinite;
+    position: relative;
+  }
+  .powerup-icon .timer-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 14px;
+    border: 3px solid transparent;
+    border-top-color: #ffd700;
+    animation: ringSpin 2s linear infinite;
+  }
+  @keyframes powerupPulse {
+    0%,100% { box-shadow: 0 0 10px rgba(255,215,0,0.3); }
+    50% { box-shadow: 0 0 25px rgba(255,215,0,0.6); }
+  }
+  @keyframes ringSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ---- Overlay Screens ---- */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 20;
+    pointer-events: all;
+    transition: opacity 0.4s;
+    gap: 16px;
+  }
+  .overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .overlay h1 {
+    font-size: 56px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 40px rgba(255,255,255,0.3);
+    letter-spacing: -1px;
+  }
+  .overlay .subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .overlay .final-score {
+    font-size: 72px;
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 0 0 30px rgba(255,215,0,0.4);
+  }
+  .overlay .stats {
+    display: flex;
+    gap: 30px;
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+  .overlay .stats span { color: #fff; font-weight: 700; }
+
+  .btn {
+    padding: 14px 40px;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    outline: none;
+    text-transform: uppercase;
+  }
+  .btn-primary {
+    background: #ff6b35;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(255,107,53,0.4);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(255,107,53,0.6);
+  }
+  .btn-primary:active { transform: scale(0.96); }
+
+  /* Mobile controls hint */
+  #mobile-hint {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    letter-spacing: 2px;
+    pointer-events: none;
+    z-index: 5;
+    transition: opacity 1s;
+  }
+
+  /* ---- Debug Panel ---- */
+  #debug-toggle {
+    position: absolute;
+    top: 12px; right: 12px;
+    z-index: 100;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    pointer-events: all;
+  }
+  #debug-toggle:hover { background: rgba(0,0,0,0.8); border-color: rgba(255,255,255,0.5); }
+  #debug-toggle.open { background: rgba(255,107,53,0.8); }
+
+  #debug-panel {
+    position: absolute;
+    top: 12px; right: 56px;
+    z-index: 99;
+    width: 280px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(10,10,20,0.9);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 16px;
+    pointer-events: all;
+    color: #ccc;
+    font-size: 12px;
+    display: none;
+    backdrop-filter: blur(8px);
+  }
+  #debug-panel.visible { display: block; }
+
+  #debug-panel h3 {
+    font-size: 13px;
+    color: #ff6b35;
+    margin: 0 0 10px 0;
+    letter-spacing: 1px;
+  }
+  #debug-panel .dp-group {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  #debug-panel .dp-group:last-child { border-bottom: none; margin-bottom: 0; }
+  #debug-panel .dp-label {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 3px;
+    color: #aaa;
+  }
+  #debug-panel .dp-val {
+    color: #ffd700;
+    font-weight: 700;
+    font-size: 11px;
+    min-width: 32px;
+    text-align: right;
+  }
+  #debug-panel input[type="range"] {
+    width: 100%;
+    margin: 2px 0 8px 0;
+    accent-color: #ff6b35;
+  }
+  #debug-panel .dp-btn {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    cursor: pointer;
+    font-size: 11px;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+  }
+  #debug-panel .dp-btn:hover { background: rgba(255,107,53,0.3); border-color: #ff6b35; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .hud-value { font-size: 26px; }
+    #combo-display { font-size: 20px; }
+    .overlay h1 { font-size: 36px; }
+    .overlay .final-score { font-size: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-block">
+      <span class="hud-label">🏃 分数</span>
+      <span class="hud-value" id="score-display">0</span>
+    </div>
+    <div class="hud-block" style="align-items:center;">
+      <span class="hud-label">🔥 连击</span>
+      <span class="hud-value" id="combo-display">x1</span>
+    </div>
+    <div class="hud-block" style="align-items:flex-end;">
+      <span class="hud-label">🪙 金币</span>
+      <span class="hud-value" id="coin-display">0</span>
+    </div>
+  </div>
+
+  <!-- Combo popup -->
+  <div id="combo-popup"></div>
+
+  <!-- Power-up indicators -->
+  <div id="powerup-indicator"></div>
+
+  <!-- Mobile hint -->
+  <div id="mobile-hint">点击跳跃 · 左右滑动切换车道</div>
+
+  <!-- Start overlay -->
+  <div class="overlay" id="start-screen">
+    <h1>🦕 恐龙跑酷</h1>
+    <p class="subtitle">3D Dino Run</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:420px;color:rgba(255,255,255,0.5);font-size:13px;line-height:1.8;text-align:center;">
+      <span>SPACE / ↑ 跳跃</span>
+      <span>↓ 蹲下</span>
+      <span>A/D ←→ 左右移动</span>
+      <span>P 暂停</span>
+    </div>
+    <button class="btn btn-primary" id="btn-start">🎮 开始游戏</button>
+    <p style="color:rgba(255,255,255,0.3);font-size:12px;">或按空格键开始</p>
+  </div>
+
+  <!-- Game over overlay -->
+  <div class="overlay hidden" id="gameover-screen">
+    <h1>💥 游戏结束</h1>
+    <p class="final-score" id="final-score">0</p>
+    <p class="subtitle">最终得分</p>
+    <div class="stats">
+      <div>🏃 最高分 <span id="stat-best">0</span></div>
+      <div>🪙 金币 <span id="stat-coins">0</span></div>
+      <div>🔥 最大连击 <span id="stat-combo">x1</span></div>
+    </div>
+    <button class="btn btn-primary" id="btn-restart">🔄 再来一局</button>
+    <p style="color:rgba(255,255,255,0.3);font-size:12px;">或按空格键重新开始</p>
+  </div>
+
+  <!-- Pause overlay -->
+  <div class="overlay hidden" id="pause-screen">
+    <h1>⏸️ 暂停</h1>
+    <button class="btn btn-primary" id="btn-resume">▶️ 继续</button>
+  </div>
+</div>
+
+<!-- Debug Panel -->
+<button id="debug-toggle" title="参数面板">⚙</button>
+<div id="debug-panel">
+  <h3>⚙ 场景参数</h3>
+
+  <div class="dp-group">
+    <div class="dp-label"><span>雾近端</span><span class="dp-val" data-key="fogNear">120</span></div>
+    <input type="range" class="dp-slider" data-key="fogNear" min="20" max="300" value="120" step="5">
+
+    <div class="dp-label"><span>雾远端</span><span class="dp-val" data-key="fogFar">400</span></div>
+    <input type="range" class="dp-slider" data-key="fogFar" min="100" max="800" value="400" step="10">
+  </div>
+
+  <div class="dp-group">
+    <div class="dp-label"><span>相机高度</span><span class="dp-val" data-key="camHeight">8</span></div>
+    <input type="range" class="dp-slider" data-key="camHeight" min="3" max="20" value="8" step="0.5">
+
+    <div class="dp-label"><span>相机距离</span><span class="dp-val" data-key="camDist">14</span></div>
+    <input type="range" class="dp-slider" data-key="camDist" min="5" max="30" value="14" step="0.5">
+
+    <div class="dp-label"><span>视角前探</span><span class="dp-val" data-key="camLookAhead">8</span></div>
+    <input type="range" class="dp-slider" data-key="camLookAhead" min="2" max="30" value="8" step="1">
+  </div>
+
+  <div class="dp-group">
+    <div class="dp-label"><span>地面X偏移</span><span class="dp-val" data-key="groundOffsetX">50</span></div>
+    <input type="range" class="dp-slider" data-key="groundOffsetX" min="-100" max="200" value="50" step="5">
+  </div>
+
+  <div class="dp-group">
+    <div class="dp-label"><span>像素比</span><span class="dp-val" data-key="pixelRatio">1.5</span></div>
+    <input type="range" class="dp-slider" data-key="pixelRatio" min="1" max="3" value="1.5" step="0.25">
+
+    <div class="dp-label"><span>阴影精度</span><span class="dp-val" data-key="shadowSize">1024</span></div>
+    <input type="range" class="dp-slider" data-key="shadowSize" min="512" max="2048" value="1024" step="256">
+
+    <button class="dp-btn" id="dp-toggle-shadows" style="margin-top:6px;">🌑 开启阴影 (重负载)</button>
+  </div>
+
+  <button class="dp-btn" id="dp-rebuild">🔄 应用 & 重建</button>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// ============================================================
+//  CONSTANTS & CONFIG
+// ============================================================
+const VOXEL = 0.2;            // base voxel size
+const GROUND_Y = 0;
+const INITIAL_SPEED = 8;
+const MAX_SPEED = 22;
+const SPEED_INCREMENT = 0.08;
+const DAY_NIGHT_PHASE_SECONDS = 30;  // seconds per day phase / night phase
+const GRAVITY = 35;
+const JUMP_VELOCITY = 13;
+const JUMP_HOLD_BONUS = 18;   // extra velocity if holding jump
+const DINO_X = -2;            // dino stays at this world X
+const DINO_Z_MIN = -2.5;       // left boundary (road edge)
+const DINO_Z_MAX = 2.5;        // right boundary (road edge)
+const LATERAL_SPEED = 9;       // left/right movement speed
+const LATERAL_DAMPING = 8;     // how fast dino stops when key released
+
+// Lane system: 5 lanes at Z = -2, -1, 0, 1, 2
+const LANES = [-2, -1, 0, 1, 2];
+function pickLane(count = 1) {
+  const shuffled = [...LANES].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
+const COLORS = {
+  body:      0x4a4a4a,
+  bodyDark:  0x3a3a3a,
+  bodyLight: 0x5a5a5a,
+  belly:     0x6b6b6b,
+  eye:       0xffffff,
+  pupil:     0x111111,
+  tongue:    0xff4444,
+  ground:    0xe8d5b7,
+  groundDark:0xc4a882,
+  cactus:    0x5b8c3e,
+  cactusDark:0x4a7a2e,
+  rock:      0x8a8a8a,
+  rockDark:  0x6a6a6a,
+  ptera:     0x6b4e3d,
+  coin:      0xffd700,
+  coinEdge:  0xddaa00,
+  gem:       0x44ccff,
+  gemInner:  0xaae8ff,
+  shield:    0x4488ff,
+  magnet:    0xff4444,
+  doubleJump:0x44ff44,
+  speedBoost:0xffaa00,
+  mountain:  0x9b8c7a,
+  cloud:     0xffffff,
+};
+
+const POWERUP_TYPES = {
+  shield:    { emoji: '🛡️', color: COLORS.shield,    duration: 8000,  label: '护盾' },
+  magnet:    { emoji: '🧲', color: COLORS.magnet,    duration: 6000,  label: '磁铁' },
+  doubleJump:{ emoji: '🦘', color: COLORS.doubleJump,duration: 10000, label: '二段跳' },
+  speedBoost:{ emoji: '⚡', color: COLORS.speedBoost, duration: 5000,  label: '冲刺' },
+};
+
+// ---- Debug/tuning params (adjustable via panel) ----
+let panelParams = {
+  fogNear: 120,
+  fogFar: 400,
+  camHeight: 8,
+  camDist: 14,
+  camLookAhead: 8,
+  groundOffsetX: 50,
+  pixelRatio: 1.5,
+  shadowSize: 1024,
+};
+try {
+  const saved = JSON.parse(localStorage.getItem('dino3d_params'));
+  if (saved) Object.assign(panelParams, saved);
+} catch(e) {}
+
+// ============================================================
+//  AUDIO — Web Audio API simple synth
+// ============================================================
+class SoundManager {
+  constructor() {
+    this.ctx = null;
+    this.enabled = true;
+  }
+
+  init() {
+    if (this.ctx) return;
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {
+      this.enabled = false;
+    }
+  }
+
+  play(freq, type, duration, vol=0.08, glideTo=null) {
+    if (!this.enabled || !this.ctx) return;
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    if (glideTo) osc.frequency.linearRampToValueAtTime(glideTo, t + duration);
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + duration);
+  }
+
+  jump()     { this.play(300, 'square', 0.15, 0.06, 600); }
+  duck()     { this.play(200, 'square', 0.1, 0.04, 100); }
+  coin()     { this.play(880, 'sine', 0.12, 0.07); setTimeout(()=>this.play(1100,'sine',0.1,0.05), 60); }
+  gem()      { this.play(1200, 'sine', 0.15, 0.08); setTimeout(()=>this.play(1600,'sine',0.12,0.06), 80); }
+  combo(n)   { this.play(400 + n*80, 'triangle', 0.2, 0.06); }
+  powerup()  {
+    [523,659,784,1047].forEach((f,i) => setTimeout(()=>this.play(f,'sine',0.15,0.06), i*60));
+  }
+  hit()      { this.play(60, 'sawtooth', 0.3, 0.12, 30); }
+  nearMiss() { this.play(150, 'sine', 0.08, 0.04); }
+  milestone() {
+    [523,659,784,1047,784,1047].forEach((f,i) => setTimeout(()=>this.play(f,'triangle',0.2,0.07), i*80));
+  }
+}
+
+const SFX = new SoundManager();
+
+// ============================================================
+//  THREE.JS SETUP
+// ============================================================
+const container = document.getElementById('game-container');
+const canvas = document.getElementById('game-canvas');
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = false;  // off by default, toggle in panel
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.5, 150);
+camera.position.set(-6, 8, 14);
+camera.lookAt(8, 1, -8);
+
+// ---- Lighting ----
+const ambientLight = new THREE.AmbientLight(0x8899cc, 0.6);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xfff5e8, 3.5);
+sunLight.position.set(20, 25, 10);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 1024;
+sunLight.shadow.mapSize.height = 1024;
+sunLight.shadow.camera.near = 0.5;
+sunLight.shadow.camera.far = 100;
+sunLight.shadow.camera.left = -120;
+sunLight.shadow.camera.right = 120;
+sunLight.shadow.camera.top = 80;
+sunLight.shadow.camera.bottom = -40;
+sunLight.shadow.bias = -0.0001;
+scene.add(sunLight);
+
+const fillLight = new THREE.DirectionalLight(0x8899ff, 0.8);
+fillLight.position.set(-5, 3, -3);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xffccaa, 1.5);
+rimLight.position.set(0, 2, -8);
+scene.add(rimLight);
+
+// ---- Ground (PlaneGeometry(width=X, height=Z after rotation)) ----
+const GROUND_DEPTH = 900;   // X direction — running path (extends past fog so the road never visibly ends)
+const GROUND_SPAN  = 220;   // Z direction — lateral width (covers all mesas)
+const groundGeo = new THREE.PlaneGeometry(GROUND_DEPTH, GROUND_SPAN);
+const groundMat = new THREE.MeshLambertMaterial({ color: COLORS.ground });
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.set(50, GROUND_Y - 0.05, 0);  // offset forward so more ground ahead
+ground.receiveShadow = true;
+scene.add(ground);
+
+// Lane guide strips only (road markers removed for perf)
+const laneStrips = [];
+const laneColors = [0x8a6b4a, 0x9a7b55, 0x8e6e50, 0x9a7b55, 0x8a6b4a];
+const LANE_STRIP_LENGTH = 600;  // long enough to always cover the visible road
+LANES.forEach((lz, li) => {
+  // Two strips per lane, offset by one length, so they tile seamlessly as they scroll.
+  for (let i = 0; i < 2; i++) {
+    const laneGeo = new THREE.PlaneGeometry(LANE_STRIP_LENGTH, 0.22);
+    const laneMat = new THREE.MeshBasicMaterial({ color: laneColors[li], transparent: true, opacity: 0.6, depthWrite: false });
+    const laneStrip = new THREE.Mesh(laneGeo, laneMat);
+    laneStrip.rotation.x = -Math.PI / 2;
+    laneStrip.position.set(i * LANE_STRIP_LENGTH, GROUND_Y + 0.01, lz);
+    scene.add(laneStrip);
+    laneStrips.push(laneStrip);
+  }
+});
+
+// ---- Sky (warm desert atmosphere) ----
+const SKY_DAY = new THREE.Color(0x8ecae6);     // warm desert blue
+const SKY_NIGHT = new THREE.Color(0x1a1a3e);
+const FOG_DAY = new THREE.Color(0xd4b896);      // warm sand-tinted fog
+const FOG_NIGHT = new THREE.Color(0x1a1a3e);
+scene.background = new THREE.Color(SKY_DAY);
+
+// Centralized fog setup — night keeps the same far distance so the road stays
+// visible; only the color and near distance change for atmosphere.
+function applyFog(night) {
+  if (night) {
+    scene.fog = new THREE.Fog(FOG_NIGHT, panelParams.fogNear * 0.6, panelParams.fogFar);
+  } else {
+    scene.fog = new THREE.Fog(FOG_DAY, panelParams.fogNear, panelParams.fogFar);
+  }
+}
+applyFog(false);
+
+// ---- Desert Mesas (Monument Valley style) ----
+const MESA_COLORS = [
+  { body: 0xc67b5c, cap: 0x8b5a3c },  // terracotta
+  { body: 0xb8734a, cap: 0x7a4a2c },  // warm brown
+  { body: 0xd4956b, cap: 0x9b6040 },  // lighter sandstone
+  { body: 0xa0623c, cap: 0x6b3a1f },  // deep red-brown
+  { body: 0xc68b5e, cap: 0x8b5030 },  // mesa orange
+];
+
+function createMesa(x, z, bodyH, bodyW) {
+  const group = new THREE.Group();
+  const colors = MESA_COLORS[Math.floor(Math.random() * MESA_COLORS.length)];
+
+  // Main body — wide box
+  const bodyGeo = new THREE.BoxGeometry(bodyW, bodyH, bodyW * 0.8);
+  const bodyMat = new THREE.MeshLambertMaterial({ color: colors.body, roughness: 0.85, flatShading: true });
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.position.y = bodyH / 2;
+  body.castShadow = true;
+  body.receiveShadow = true;
+  group.add(body);
+
+  // Cap rock — wider, thinner, darker
+  const capH = bodyH * 0.12 + 0.3;
+  const capW = bodyW * 1.25;
+  const capGeo = new THREE.BoxGeometry(capW, capH, capW * 0.65);
+  const capMat = new THREE.MeshLambertMaterial({ color: colors.cap, roughness: 0.75, flatShading: true });
+  const cap = new THREE.Mesh(capGeo, capMat);
+  cap.position.y = bodyH + capH / 2;
+  cap.castShadow = true;
+  cap.receiveShadow = true;
+  group.add(cap);
+
+  // Talus / rubble at base
+  for (let j = 0; j < 3; j++) {
+    const rubbleGeo = new THREE.IcosahedronGeometry(0.25 + Math.random() * 0.4, 0);
+    const rubbleMat = new THREE.MeshLambertMaterial({ color: colors.cap, roughness: 0.9, flatShading: true });
+    const rubble = new THREE.Mesh(rubbleGeo, rubbleMat);
+    const angle = Math.random() * Math.PI * 2;
+    const dist = bodyW * 0.35 + Math.random() * bodyW * 0.25;
+    rubble.position.set(Math.cos(angle) * dist, 0.1 + Math.random() * 0.2, Math.sin(angle) * dist * 0.7);
+    rubble.rotation.set(Math.random(), Math.random(), Math.random());
+    rubble.scale.set(0.7 + Math.random() * 0.6, 0.3 + Math.random() * 0.4, 0.7 + Math.random() * 0.6);
+    group.add(rubble);
+  }
+
+  group.position.set(x, GROUND_Y, z);
+  return group;
+}
+
+const mountains = [];
+// Just a few big mesas for depth
+for (let i = 0; i < 3; i++) {
+  const m = createMesa(80 + i * 50, -30 - Math.random() * 40, 6 + Math.random() * 8, 3 + Math.random() * 4);
+  scene.add(m); mountains.push(m);
+}
+for (let i = 0; i < 3; i++) {
+  const m = createMesa(80 + i * 50, 30 + Math.random() * 40, 6 + Math.random() * 8, 3 + Math.random() * 4);
+  scene.add(m); mountains.push(m);
+}
+
+// ---- Desert Clouds (sparse, warm-tinted) ----
+function createCloud(x, y, z) {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshLambertMaterial({
+    color: 0xfff8f0, roughness: 1, metalness: 0,
+    transparent: true, opacity: 0.7,
+  });
+  // Flat, elongated cloud shape
+  const mainGeo = new THREE.SphereGeometry(1, 6, 4);
+  const main = new THREE.Mesh(mainGeo, mat);
+  main.scale.set(2.5, 0.35, 1.2);
+  group.add(main);
+  const sideGeo = new THREE.SphereGeometry(1, 6, 4);
+  const side = new THREE.Mesh(sideGeo, mat);
+  side.scale.set(1.8, 0.3, 1.0);
+  side.position.set(1.5, 0.1, 0.2);
+  group.add(side);
+  const side2 = new THREE.Mesh(sideGeo, mat);
+  side2.scale.set(1.5, 0.25, 0.9);
+  side2.position.set(-1.3, 0.05, -0.2);
+  group.add(side2);
+
+  group.position.set(x, y, z);
+  return group;
+}
+
+const clouds = []; // clouds disabled for perf
+
+// ---- Desert Ground Decorations ----
+function createDesertRock(x, z) {
+  const group = new THREE.Group();
+  const colors = [0xb0a090, 0xc4b5a5, 0xa89880, 0x998877];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  const mat = new THREE.MeshLambertMaterial({ color, roughness: 0.75, flatShading: true });
+  const count = 1 + Math.floor(Math.random() * 3);
+  for (let j = 0; j < count; j++) {
+    const geo = new THREE.IcosahedronGeometry(0.15 + Math.random() * 0.35, 0);
+    const rock = new THREE.Mesh(geo, mat);
+    rock.position.set((Math.random() - 0.5) * 0.5, 0.08 + Math.random() * 0.12, (Math.random() - 0.5) * 0.5);
+    rock.rotation.set(Math.random(), Math.random(), Math.random());
+    rock.scale.set(0.6 + Math.random() * 0.8, 0.3 + Math.random() * 0.5, 0.6 + Math.random() * 0.8);
+    group.add(rock);
+  }
+  group.position.set(x, GROUND_Y, z);
+  return group;
+}
+
+function createDesertShrub(x, z) {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshLambertMaterial({ color: 0xb8a878, roughness: 0.9, flatShading: true });
+  // Dry twiggy shrub
+  for (let j = 0; j < 4; j++) {
+    const geo = new THREE.CylinderGeometry(0.03, 0.06, 0.4 + Math.random() * 0.4, 6);
+    const twig = new THREE.Mesh(geo, mat);
+    twig.position.set((Math.random() - 0.5) * 0.3, 0.2, (Math.random() - 0.5) * 0.3);
+    twig.rotation.x = (Math.random() - 0.5) * 0.6;
+    twig.rotation.z = (Math.random() - 0.5) * 0.6;
+    group.add(twig);
+  }
+  group.position.set(x, GROUND_Y, z);
+  return group;
+}
+
+// Minimal desert rocks for flavor
+const decorations = [];
+for (let i = 0; i < 6; i++) {
+  const rock = createDesertRock(
+    -15 + Math.random() * 200,
+    -20 - Math.random() * 100
+  );
+  scene.add(rock);
+  decorations.push(rock);
+}
+
+// ---- DINO MODEL (voxel-style) ----
+function createDinoModel() {
+  const group = new THREE.Group();
+  const bodyMat = new THREE.MeshLambertMaterial({ color: COLORS.body, roughness: 0.4, metalness: 0.1 });
+  const bodyDarkMat = new THREE.MeshLambertMaterial({ color: COLORS.bodyDark, roughness: 0.4, metalness: 0.1 });
+  const bodyLightMat = new THREE.MeshLambertMaterial({ color: COLORS.bodyLight, roughness: 0.4, metalness: 0.1 });
+  const bellyMat = new THREE.MeshLambertMaterial({ color: COLORS.belly, roughness: 0.5, metalness: 0.05 });
+  const eyeMat = new THREE.MeshLambertMaterial({ color: COLORS.eye, roughness: 0.2, emissive: COLORS.eye, emissiveIntensity: 0.3 });
+  const pupilMat = new THREE.MeshLambertMaterial({ color: COLORS.pupil, roughness: 0.2 });
+
+  function box(x, y, z, w, h, d, mat = bodyMat) {
+    const geo = new THREE.BoxGeometry(w, h, d);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    return mesh;
+  }
+
+  // Torso / Body
+  group.add(box(0, 1.2, 0, 1.6, 0.9, 0.7, bodyMat));
+  // Belly
+  group.add(box(0.1, 0.9, 0, 1.2, 0.35, 0.65, bellyMat));
+
+  // Head main
+  group.add(box(0.7, 1.5, 0, 1.1, 0.7, 0.6, bodyMat));
+  // Snout / Jaw
+  group.add(box(1.15, 1.25, 0, 0.5, 0.4, 0.5, bodyLightMat));
+  // Lower jaw
+  group.add(box(0.95, 1.05, 0, 0.6, 0.2, 0.45, bellyMat));
+
+  // Eye
+  group.add(box(0.95, 1.65, 0.25, 0.22, 0.22, 0.08, eyeMat));
+  // Pupil
+  group.add(box(1.02, 1.65, 0.3, 0.1, 0.1, 0.05, pupilMat));
+
+  // Mouth line
+  group.add(box(1.05, 1.35, 0.26, 0.3, 0.04, 0.04, bodyDarkMat));
+
+  // Head ridge / spikes
+  for (let i = 0; i < 4; i++) {
+    group.add(box(0.3 + i*0.28, 1.9, 0, 0.15, 0.2, 0.15, bodyDarkMat));
+  }
+
+  // Tail
+  group.add(box(-0.8, 1.1, 0, 0.6, 0.55, 0.45, bodyDarkMat));
+  group.add(box(-1.2, 1.0, 0, 0.5, 0.4, 0.35, bodyDarkMat));
+  group.add(box(-1.5, 0.9, 0, 0.35, 0.25, 0.25, bodyDarkMat));
+
+  // Back spikes along body
+  for (let i = 0; i < 3; i++) {
+    group.add(box(-0.5 + i*0.25, 1.7, 0, 0.12, 0.22, 0.12, bodyDarkMat));
+  }
+
+  // Legs — separate groups for animation
+  const backLeg = new THREE.Group();
+  backLeg.add(box(0, 0.15, 0, 0.28, 0.75, 0.28, bodyDarkMat));
+  backLeg.add(box(0, -0.3, 0.05, 0.32, 0.22, 0.35, bodyDarkMat)); // foot
+  backLeg.position.set(-0.3, 0.8, 0);
+  backLeg.userData.pivot = 'back';
+  group.add(backLeg);
+  group.userData.backLeg = backLeg;
+
+  const frontLeg = new THREE.Group();
+  frontLeg.add(box(0, 0.15, 0, 0.28, 0.75, 0.28, bodyDarkMat));
+  frontLeg.add(box(0, -0.3, 0.05, 0.32, 0.22, 0.35, bodyDarkMat)); // foot
+  frontLeg.position.set(0.4, 0.8, 0);
+  frontLeg.userData.pivot = 'front';
+  group.add(frontLeg);
+  group.userData.frontLeg = frontLeg;
+
+  // Arms (tiny)
+  group.add(box(0.5, 1.05, 0.25, 0.12, 0.3, 0.1, bodyLightMat));
+
+  return group;
+}
+
+const dino = createDinoModel();
+dino.position.set(DINO_X, GROUND_Y, 0);
+scene.add(dino);
+
+// Dino shadow disc
+const shadowGeo = new THREE.CircleGeometry(0.6, 32);
+const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3, depthWrite: false });
+const shadowDisc = new THREE.Mesh(shadowGeo, shadowMat);
+shadowDisc.rotation.x = -Math.PI / 2;
+shadowDisc.position.y = GROUND_Y + 0.02;
+shadowDisc.renderOrder = 999;
+shadowDisc.material.depthTest = false;
+scene.add(shadowDisc);
+
+// ---- Power-up visual effects on dino ----
+// Shield bubble
+const shieldBubbleGeo = new THREE.SphereGeometry(1.3, 16, 12);
+const shieldBubbleMat = new THREE.MeshBasicMaterial({
+  color: COLORS.shield, transparent: true, opacity: 0.25, depthWrite: false,
+});
+const shieldBubble = new THREE.Mesh(shieldBubbleGeo, shieldBubbleMat);
+shieldBubble.visible = false;
+shieldBubble.renderOrder = 998;
+shieldBubble.material.depthTest = false;
+scene.add(shieldBubble);  // Scene child so it doesn't inherit dino scale
+
+// Magnet ring
+const magnetRingGroup = new THREE.Group();
+for (let i = 0; i < 6; i++) {
+  const dotGeo = new THREE.SphereGeometry(0.08, 4, 4);
+  const dotMat = new THREE.MeshBasicMaterial({ color: COLORS.magnet, transparent: true, opacity: 0.8, depthWrite: false });
+  const dot = new THREE.Mesh(dotGeo, dotMat);
+  const angle = (i / 6) * Math.PI * 2;
+  dot.position.set(Math.cos(angle) * 1.0, 0.8 + Math.sin(i * 2) * 0.3, Math.sin(angle) * 1.0);
+  magnetRingGroup.add(dot);
+}
+magnetRingGroup.visible = false;
+dino.add(magnetRingGroup);
+
+// Double-jump feet glow
+const djGlowGeo = new THREE.RingGeometry(0.2, 0.4, 16);
+const djGlowMat = new THREE.MeshBasicMaterial({
+  color: COLORS.doubleJump, side: THREE.DoubleSide, transparent: true, opacity: 0.6, depthWrite: false,
+});
+const djGlow = new THREE.Mesh(djGlowGeo, djGlowMat);
+djGlow.rotation.x = -Math.PI / 2;
+djGlow.position.y = 0.05;
+djGlow.visible = false;
+djGlow.renderOrder = 998;
+djGlow.material.depthTest = false;
+dino.add(djGlow);
+
+// Speed boost trail — managed in update loop
+const speedTrailParticles = [];
+
+// ============================================================
+//  GAME STATE
+// ============================================================
+const STATE = {
+  menu: 'menu',
+  playing: 'playing',
+  gameover: 'gameover',
+  paused: 'paused',
+};
+
+let gameState = STATE.menu;
+let score = 0;
+let coins = 0;
+let combo = 0;
+let maxCombo = 0;
+let bestScore = parseInt(localStorage.getItem('dino3d_best') || '0');
+let gameSpeed = INITIAL_SPEED;
+let distanceTraveled = 0;
+let isNight = false;
+let dayNightTimer = 0;
+let shakeAmount = 0;
+let shakeDuration = 0;
+
+// Dino physics
+let dinoY = GROUND_Y;
+let dinoVelocityY = 0;
+let dinoZ = 0;               // lateral position
+let dinoVelocityZ = 0;       // lateral movement velocity
+let isJumping = false;
+let isDucking = false;
+let jumpHeld = false;
+let canDoubleJump = true;
+let hasDoubleJumpPowerup = false;
+
+// Power-up timers
+let powerupTimers = {
+  shield: 0,
+  magnet: 0,
+  doubleJump: 0,
+  speedBoost: 0,
+};
+
+// Track obstacles passed for combo
+let obstaclesPassed = 0;
+let lastMilestone = 0;
+
+// ============================================================
+//  INPUT HANDLING
+// ============================================================
+const keys = {};
+let jumpPressed = false;
+let duckPressed = false;
+
+window.addEventListener('keydown', (e) => {
+  keys[e.code] = true;
+
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+    e.preventDefault();
+    jumpPressed = true;
+    if (!e.repeat) {
+      if (gameState === STATE.menu) startGame();
+      if (gameState === STATE.gameover) restartGame();
+    }
+  }
+  if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+    e.preventDefault();
+    duckPressed = true;
+  }
+  if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+    e.preventDefault();
+  }
+  if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+    e.preventDefault();
+  }
+  if (e.code === 'KeyP' && !e.repeat && gameState !== STATE.menu) {
+    togglePause();
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  keys[e.code] = false;
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+    jumpPressed = false;
+    jumpHeld = false;
+  }
+  if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+    duckPressed = false;
+  }
+});
+
+// Touch / mobile input
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  SFX.init();
+  if (gameState === STATE.menu) startGame();
+  else if (gameState === STATE.gameover) restartGame();
+  else jumpPressed = true;
+});
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  jumpPressed = false;
+  jumpHeld = false;
+});
+
+// Mouse click on canvas — only respond when no overlay is on top
+canvas.addEventListener('mousedown', (e) => {
+  // Don't intercept clicks meant for overlay buttons
+  if (e.target !== canvas) return;
+  SFX.init();
+  if (gameState === STATE.menu) startGame();
+  else if (gameState === STATE.gameover) restartGame();
+  else jumpPressed = true;
+});
+canvas.addEventListener('mouseup', (e) => {
+  if (e.target !== canvas) return;
+  jumpPressed = false;
+  jumpHeld = false;
+});
+
+// ============================================================
+//  OBSTACLE, COLLECTIBLE & POWERUP POOLS
+// ============================================================
+const obstacles = [];
+const collectibles = [];
+const powerups = [];
+const particles = [];
+
+function createCactus(h) {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshLambertMaterial({ color: COLORS.cactus, roughness: 0.7, flatShading: true });
+  const darkMat = new THREE.MeshLambertMaterial({ color: COLORS.cactusDark, roughness: 0.7, flatShading: true });
+
+  // Main trunk
+  const trunkGeo = new THREE.CylinderGeometry(0.15, 0.2, h, 8);
+  const trunk = new THREE.Mesh(trunkGeo, mat);
+  trunk.position.y = h / 2;
+  trunk.castShadow = true;
+  group.add(trunk);
+
+  // Arms
+  if (h > 1.2) {
+    const armGeo = new THREE.CylinderGeometry(0.1, 0.13, 0.5, 8);
+    const arm1 = new THREE.Mesh(armGeo, darkMat);
+    arm1.position.set(0, h * 0.65, 0);
+    arm1.rotation.z = Math.PI / 2.5;
+    group.add(arm1);
+
+    const arm2 = new THREE.Mesh(armGeo.clone(), darkMat);
+    arm2.position.set(0, h * 0.55, 0);
+    arm2.rotation.z = -Math.PI / 2.5;
+    group.add(arm2);
+  }
+
+  // Small top sphere
+  if (h > 0.8) {
+    const topGeo = new THREE.SphereGeometry(0.14, 8, 4);
+    const top = new THREE.Mesh(topGeo, darkMat);
+    top.position.y = h;
+    group.add(top);
+  }
+
+  group.position.y = GROUND_Y;
+  return group;
+}
+
+function createRock() {
+  const group = new THREE.Group();
+  const mat = new THREE.MeshLambertMaterial({ color: COLORS.rock, roughness: 0.6, flatShading: true });
+  const sizes = [
+    [0.35, 0.25, 0.3],
+    [0.3, 0.2, 0.25],
+    [0.4, 0.3, 0.35],
+  ];
+  sizes.forEach(([sx, sy, sz], i) => {
+    const geo = new THREE.IcosahedronGeometry(1, 0);
+    const rock = new THREE.Mesh(geo, mat);
+    rock.scale.set(sx, sy, sz);
+    rock.position.set((i-1)*0.4, sy/2, (Math.random()-0.5)*0.4);
+    rock.rotation.set(Math.random()*0.5, Math.random()*Math.PI, Math.random()*0.5);
+    rock.receiveShadow = true;
+    group.add(rock);
+  });
+  group.position.y = GROUND_Y;
+  return group;
+}
+
+// ---- PTEROSAUR GLB MODEL ----
+// A textured pterosaur mesh loaded once from disk and cloned for every flying
+// obstacle. If the file can't be loaded (e.g. opened via file:// without a
+// local server), the game silently falls back to the procedural pterodactyl
+// below, so gameplay is never blocked by the asset.
+const PTERA_GLB_URL = 'models/pterosaur.glb';
+const PTERA_TARGET_WINGSPAN = 2.2;  // desired wingspan (world units) along Z
+let pteraTemplate = null;           // normalized GLB group, cloned per spawn
+
+function initPterosaurModel() {
+  const loader = new GLTFLoader();
+  loader.load(
+    PTERA_GLB_URL,
+    (gltf) => {
+      // The exported mesh has its head at +Z, wings spread along X and "up"
+      // along Y. Rotate -90° about Y so the body points along X (travel
+      // direction) and the wings spread along Z (lateral, left/right).
+      const model = gltf.scene;
+      model.rotation.y = -Math.PI / 2;
+
+      // Normalize size: scale so the wingspan (now along Z) matches target.
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const scale = PTERA_TARGET_WINGSPAN / Math.max(size.z, 0.001);
+      model.scale.setScalar(scale);
+
+      // Wrap in a clean group so per-spawn transforms (position/scale) aren't
+      // mixed with the baked normalization.
+      const template = new THREE.Group();
+      template.add(model);
+      pteraTemplate = template;
+      console.log('🦇 翼龙模型已加载:', PTERA_GLB_URL, '| 缩放', scale.toFixed(3));
+    },
+    undefined,
+    (err) => {
+      console.warn('⚠️ 翼龙模型加载失败，将使用程序化模型回退:', err);
+    }
+  );
+}
+
+function createPterodactyl() {
+  // Prefer the loaded GLB model; fall back to procedural while loading/failed.
+  if (pteraTemplate) {
+    const group = pteraTemplate.clone();
+    let body = null;
+    group.traverse((o) => { if (!body && o.isMesh) body = o; });
+    // Custom props (not userData, which spawnObstacle overwrites) for animation.
+    group.isGLBPtera = true;
+    group.pteraBody = body || group;
+    return group;
+  }
+  return createProceduralPterodactyl();
+}
+
+function createProceduralPterodactyl() {
+  const group = new THREE.Group();
+  const bodyCol = new THREE.MeshLambertMaterial({ color: 0xdd8855 });
+  const wingCol = new THREE.MeshLambertMaterial({ color: 0x994422, emissive: 0x221100, emissiveIntensity: 0.2 });
+  const beakCol = new THREE.MeshLambertMaterial({ color: 0xffaa33 });
+
+  // Body — rounded sphere, slightly elongated
+  const bodyGeo = new THREE.SphereGeometry(0.35, 8, 6);
+  const body = new THREE.Mesh(bodyGeo, bodyCol);
+  body.scale.set(1.4, 0.7, 0.7);
+  group.add(body);
+
+  // Head — smaller sphere
+  const headGeo = new THREE.SphereGeometry(0.22, 8, 6);
+  const head = new THREE.Mesh(headGeo, bodyCol);
+  head.position.set(0.5, 0.15, 0);
+  group.add(head);
+
+  // Beak — long pointed cone
+  const beakGeo = new THREE.ConeGeometry(0.1, 0.6, 6, 4);
+  const beak = new THREE.Mesh(beakGeo, beakCol);
+  beak.rotation.z = -Math.PI / 2;
+  beak.position.set(0.85, 0.12, 0);
+  group.add(beak);
+
+  // Head crest — small triangle
+  const crestGeo = new THREE.ConeGeometry(0.08, 0.3, 4, 4);
+  const crest = new THREE.Mesh(crestGeo, wingCol);
+  crest.position.set(0.35, 0.35, 0);
+  group.add(crest);
+
+  // Wings — pivot at body, membrane extends outward
+  function makeWing(zSide) {
+    const wingGroup = new THREE.Group();
+    // Offset the pivot to the body attachment point
+    // Main wing membrane — extends outward from body
+    const membraneGeo = new THREE.BoxGeometry(1.2, 0.04, 0.7);
+    const membrane = new THREE.Mesh(membraneGeo, wingCol);
+    membrane.position.set(0.6, 0, zSide * 0.35);  // shifted so base is at group origin
+    wingGroup.add(membrane);
+    // Wing bone
+    const boneGeo = new THREE.BoxGeometry(1.0, 0.05, 0.06);
+    const bone = new THREE.Mesh(boneGeo, beakCol);
+    bone.position.set(0.5, -0.02, zSide * 0.55);
+    wingGroup.add(bone);
+    wingGroup.userData.isWing = true;
+    // Position the wing group at the body attachment point
+    wingGroup.position.set(0, 0.1, zSide * 0.25);
+    return wingGroup;
+  }
+
+  const wingL = makeWing(1);
+  const wingR = makeWing(-1);
+  group.add(wingL);
+  group.add(wingR);
+
+  // Short tail
+  const tailGeo = new THREE.ConeGeometry(0.15, 0.5, 6, 4);
+  const tail = new THREE.Mesh(tailGeo, bodyCol);
+  tail.rotation.z = Math.PI / 2;
+  tail.position.set(-0.7, -0.05, 0);
+  group.add(tail);
+
+  return group;
+}
+
+// Horizontal beam — MUST duck under, spans all lanes
+function createBeam() {
+  const group = new THREE.Group();
+  const woodMat = new THREE.MeshLambertMaterial({ color: 0x8b6b4a, roughness: 0.7, flatShading: true });
+  const darkMat = new THREE.MeshLambertMaterial({ color: 0x6b4b2a, roughness: 0.7 });
+
+  // Main horizontal bar
+  const barGeo = new THREE.BoxGeometry(0.25, 0.2, LANES.length * 1.2);
+  const bar = new THREE.Mesh(barGeo, woodMat);
+  bar.position.y = 1.0;
+  group.add(bar);
+
+  // Support posts on ends
+  [-1, 1].forEach(side => {
+    const postGeo = new THREE.BoxGeometry(0.15, 1.0, 0.15);
+    const post = new THREE.Mesh(postGeo, darkMat);
+    post.position.set(0, 0.5, side * (LANES.length * 0.6 - 0.3));
+    group.add(post);
+  });
+
+  return group;
+}
+
+function spawnObstacle(_z) {
+  // Determine difficulty tier — flying/duck obstacles from the start
+  let availableNarrow = ['cactus_small', 'cactus_tall', 'ptera_low'];
+  let availableWide = ['cactus_wall', 'beam'];
+  if (distanceTraveled > 200) { availableNarrow.push('rock'); availableWide.push('rock_wall'); }
+  if (distanceTraveled > 300) { availableNarrow.push('ptera_high'); }
+  if (distanceTraveled > 500) { availableWide.push('ptera_low_wide', 'ptera_high_wide'); }
+
+  // 40% wide (must jump/duck), 60% narrow (can dodge sideways)
+  const isWide = Math.random() < 0.4;
+  const typeList = isWide ? availableWide : availableNarrow;
+  const type = typeList[Math.floor(Math.random() * typeList.length)];
+
+  let mesh;
+  let hitbox = { w: 0.6, h: 0.8, d: 0.6, y: GROUND_Y + 0.4, z: 0 };
+
+  // Pick lanes for this obstacle
+  const lanes = type.includes('wall') || type.includes('wide') ? LANES : pickLane(1 + Math.floor(Math.random() * 2));
+  const centerZ = lanes.reduce((a,b) => a+b, 0) / lanes.length;
+  const spanZ = (Math.max(...lanes) - Math.min(...lanes)) * 0.55 + 0.5;
+
+  switch(type) {
+    case 'cactus_small':
+      mesh = createCactus(0.7 + Math.random() * 0.6);
+      hitbox = { w: 0.5, h: mesh.children[0]?.geometry?.parameters?.height || 1.0, d: 0.5, y: GROUND_Y + 0.5, z: centerZ };
+      break;
+    case 'cactus_tall':
+      mesh = createCactus(1.5 + Math.random() * 0.8);
+      hitbox = { w: 0.55, h: 2.0, d: 0.5, y: GROUND_Y + 1.0, z: centerZ };
+      break;
+    case 'rock':
+      mesh = createRock();
+      hitbox = { w: 1.0, h: 0.5, d: 0.8, y: GROUND_Y + 0.35, z: centerZ };
+      break;
+    case 'ptera_low':
+      mesh = createPterodactyl();
+      mesh.position.y = 1.5;
+      hitbox = { w: 1.4, h: 0.6, d: 1.0, y: 1.5, z: centerZ, duckable: true };
+      break;
+    case 'ptera_high':
+      mesh = createPterodactyl();
+      mesh.position.y = 2.4;
+      hitbox = { w: 1.4, h: 0.6, d: 1.0, y: 2.4, z: centerZ, duckable: false };
+      break;
+    // Wide / wall variants
+    case 'cactus_wall':
+      mesh = new THREE.Group();
+      for (let li = 0; li < LANES.length; li++) {
+        const c = createCactus(1.0 + Math.random() * 0.8);
+        c.position.z = LANES[li];
+        mesh.add(c);
+      }
+      hitbox = { w: 0.6, h: 1.8, d: 4.5, y: GROUND_Y + 0.9, z: 0 };
+      break;
+    case 'rock_wall':
+      mesh = new THREE.Group();
+      for (let li = 0; li < LANES.length; li++) {
+        const r = createRock();
+        r.position.z = LANES[li];
+        mesh.add(r);
+      }
+      hitbox = { w: 1.2, h: 0.5, d: 4.5, y: GROUND_Y + 0.35, z: 0 };
+      break;
+    case 'beam':
+      mesh = createBeam();
+      hitbox = { w: 0.35, h: 0.35, d: 5.0, y: GROUND_Y + 1.0, z: 0, duckable: true };
+      break;
+    case 'ptera_low_wide':
+      mesh = createPterodactyl();
+      mesh.position.y = 1.5;
+      mesh.scale.z = 2;
+      hitbox = { w: 1.4, h: 0.6, d: 4.5, y: 1.5, z: 0, duckable: true };
+      break;
+    case 'ptera_high_wide':
+      mesh = createPterodactyl();
+      mesh.position.y = 2.4;
+      mesh.scale.z = 2;
+      hitbox = { w: 1.4, h: 0.6, d: 4.5, y: 2.4, z: 0, duckable: false };
+      break;
+  }
+
+  // Only set X & Z — Y was already set per-type (ground=0, ptera=0.8/1.6)
+  mesh.position.x = DINO_X + 20 + Math.random() * 5;
+  mesh.position.z = centerZ;
+  mesh.userData = {
+    type: 'obstacle',
+    subtype: type,
+    hitbox,
+    lanes,
+    isWide,
+    passed: false,
+    speed: gameSpeed,
+  };
+  scene.add(mesh);
+  obstacles.push(mesh);
+  return mesh;
+}
+
+function spawnCoin(_z) {
+  const group = new THREE.Group();
+  const coinMat = new THREE.MeshLambertMaterial({ color: COLORS.coin, roughness: 0.2, metalness: 0.8, emissive: COLORS.coin, emissiveIntensity: 0.3 });
+  const edgeMat = new THREE.MeshLambertMaterial({ color: COLORS.coinEdge, roughness: 0.3, metalness: 0.7 });
+
+  const coinGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.08, 10);
+  const coin = new THREE.Mesh(coinGeo, coinMat);
+  coin.rotation.z = Math.PI / 2;
+  group.add(coin);
+
+  // Edge ring
+  const edgeGeo = new THREE.TorusGeometry(0.35, 0.04, 6, 10);
+  const edge = new THREE.Mesh(edgeGeo, edgeMat);
+  group.add(edge);
+
+  // Arrange coins in patterns, using lanes
+  const pattern = Math.random();
+  const baseX = DINO_X + 18 + Math.random() * 8;
+  const baseY = GROUND_Y + 0.5 + Math.random() * 1.2;
+  const lane = LANES[Math.floor(Math.random() * LANES.length)];
+
+  if (pattern < 0.4) {
+    // Single coin in a random lane
+    group.position.set(baseX, baseY, lane);
+    group.userData = { type: 'coin', value: 1 };
+    scene.add(group);
+    collectibles.push(group);
+  } else if (pattern < 0.7) {
+    // Line of coins across multiple lanes
+    const count = 3 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < count; i++) {
+      const g = group.clone();
+      const lz = LANES[Math.floor(Math.random() * LANES.length)];
+      g.position.set(baseX + i * 0.6, baseY + (i%2)*0.35, lz);
+      g.userData = { type: 'coin', value: 1 };
+      scene.add(g);
+      collectibles.push(g);
+    }
+  } else if (pattern < 0.9) {
+    // Arc of coins across lanes
+    const arcLanes = pickLane(5);
+    const count = 5;
+    for (let i = 0; i < count; i++) {
+      const g = group.clone();
+      const angle = (i / (count-1)) * Math.PI;
+      g.position.set(baseX + i * 0.5, baseY + Math.sin(angle) * 0.8, arcLanes[i]);
+      g.userData = { type: 'coin', value: 1 };
+      scene.add(g);
+      collectibles.push(g);
+    }
+  } else {
+    // Gem (rare) in a random lane
+    const gemGeo = new THREE.OctahedronGeometry(0.35, 0);
+    const gemMat = new THREE.MeshLambertMaterial({ color: COLORS.gem, roughness: 0.1, metalness: 0.3, emissive: COLORS.gem, emissiveIntensity: 0.6 });
+    const gem = new THREE.Mesh(gemGeo, gemMat);
+    const gemGroup = new THREE.Group();
+    gemGroup.add(gem);
+    gemGroup.position.set(baseX, baseY, lane);
+    gemGroup.userData = { type: 'gem', value: 5 };
+    scene.add(gemGroup);
+    collectibles.push(gemGroup);
+  }
+}
+
+function spawnPowerup(_z) {
+  const types = Object.keys(POWERUP_TYPES);
+  const type = types[Math.floor(Math.random() * types.length)];
+  const info = POWERUP_TYPES[type];
+  const lane = LANES[Math.floor(Math.random() * LANES.length)];
+
+  const group = new THREE.Group();
+
+  // Big glowing box
+  const boxGeo = new THREE.BoxGeometry(1.0, 1.0, 1.0);
+  const boxMat = new THREE.MeshLambertMaterial({
+    color: info.color,
+    roughness: 0.15,
+    metalness: 0.2,
+    emissive: info.color,
+    emissiveIntensity: 0.8,
+  });
+  const box = new THREE.Mesh(boxGeo, boxMat);
+  group.add(box);
+
+  // Large glow sphere
+  const glowGeo = new THREE.SphereGeometry(0.7, 8, 8);
+  const glowMat = new THREE.MeshBasicMaterial({ color: info.color, transparent: true, opacity: 0.4 });
+  const glow = new THREE.Mesh(glowGeo, glowMat);
+  group.add(glow);
+
+  // Outer ring for visibility
+  const ringGeo = new THREE.TorusGeometry(0.75, 0.08, 8, 16);
+  const ringMat = new THREE.MeshBasicMaterial({ color: info.color, transparent: true, opacity: 0.6 });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  group.add(ring);
+
+  group.position.set(DINO_X + 18 + Math.random() * 6, GROUND_Y + 1.4, lane);
+  group.userData = {
+    type: 'powerup',
+    subtype: type,
+    info,
+  };
+  scene.add(group);
+  powerups.push(group);
+}
+
+// ============================================================
+//  PARTICLE SYSTEM
+// ============================================================
+function spawnParticles(x, y, z, count, color, spread=0.3, life=0.6) {
+  const geo = new THREE.SphereGeometry(0.06, 3, 2);
+  for (let i = 0; i < count; i++) {
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1, depthWrite: false });
+    const p = new THREE.Mesh(geo, mat);
+    p.position.set(
+      x + (Math.random() - 0.5) * spread,
+      y + (Math.random() - 0.5) * spread,
+      z + (Math.random() - 0.5) * spread
+    );
+    p.userData = {
+      type: 'particle',
+      life,
+      maxLife: life,
+      vy: 1 + Math.random() * 3,
+      vx: (Math.random() - 0.5) * 2,
+      vz: (Math.random() - 0.5) * 2,
+      mat,
+    };
+    scene.add(p);
+    particles.push(p);
+  }
+}
+
+function spawnDustTrail() {
+  if (gameState !== STATE.playing) return;
+  const bx = dino.position.x - 0.8;
+  const by = GROUND_Y + 0.1;
+  const bz = dino.position.z + (Math.random() - 0.5) * 0.5;
+  spawnParticles(bx, by, bz, 1, 0xd4c4a8, 0.15, 0.4);
+}
+
+// ============================================================
+//  CAMERA SHAKE
+// ============================================================
+function addShake(amount, duration) {
+  shakeAmount = Math.max(shakeAmount, amount);
+  shakeDuration = Math.max(shakeDuration, duration);
+}
+
+// ============================================================
+//  UI UPDATES
+// ============================================================
+function updateUI() {
+  document.getElementById('score-display').textContent = Math.floor(score);
+  document.getElementById('combo-display').textContent = 'x' + Math.min(combo + 1, 5);
+  document.getElementById('coin-display').textContent = coins;
+
+  // Combo color
+  const comboEl = document.getElementById('combo-display');
+  if (combo >= 20) comboEl.style.color = '#ff0044';
+  else if (combo >= 10) comboEl.style.color = '#ff4488';
+  else if (combo >= 5) comboEl.style.color = '#ff6b35';
+  else comboEl.style.color = '#ffffff';
+}
+
+function showComboPopup(text) {
+  const popup = document.getElementById('combo-popup');
+  popup.textContent = text;
+  popup.classList.remove('show');
+  void popup.offsetWidth;
+  popup.classList.add('show');
+}
+
+function updatePowerupUI() {
+  const container = document.getElementById('powerup-indicator');
+  let html = '';
+  for (const [type, timer] of Object.entries(powerupTimers)) {
+    if (timer > 0) {
+      html += `<div class="powerup-icon" title="${POWERUP_TYPES[type].label}">
+        <div class="timer-ring"></div>
+        ${POWERUP_TYPES[type].emoji}
+      </div>`;
+    }
+  }
+  container.innerHTML = html;
+}
+
+// ============================================================
+//  GAME FLOW
+// ============================================================
+function startGame() {
+  try {
+    SFX.init();
+    gameState = STATE.playing;
+    score = 0;
+    coins = 0;
+    combo = 0;
+    maxCombo = 0;
+    gameSpeed = INITIAL_SPEED;
+    distanceTraveled = 0;
+    isNight = false;
+    dayNightTimer = 0;
+    shakeAmount = 0;
+    shakeDuration = 0;
+    obstaclesPassed = 0;
+    lastMilestone = 0;
+    dinoY = GROUND_Y;
+    dinoVelocityY = 0;
+    isJumping = false;
+    isDucking = false;
+    jumpHeld = false;
+    canDoubleJump = true;
+    hasDoubleJumpPowerup = false;
+    powerupTimers = { shield: 0, magnet: 0, doubleJump: 0, speedBoost: 0 };
+
+    dino.position.y = GROUND_Y;
+    dino.position.z = 0;
+    dino.rotation.set(0, 0, 0);
+    dino.scale.set(1, 1, 1);
+    dinoZ = 0;
+    dinoVelocityZ = 0;
+
+    clearAllObjects();
+    updateUI();
+    updatePowerupUI();
+
+    // Reset game-over stats so they don't linger from the previous game
+    // (maxCombo etc. are reset above, but these DOM labels only update in gameOver()).
+    document.getElementById('final-score').textContent = '0';
+    document.getElementById('stat-coins').textContent = '0';
+    document.getElementById('stat-combo').textContent = 'x1';
+
+    // Clear any lingering combo / power-up popup text.
+    const popup = document.getElementById('combo-popup');
+    popup.textContent = '';
+    popup.classList.remove('show');
+
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('gameover-screen').classList.add('hidden');
+    document.getElementById('pause-screen').classList.add('hidden');
+    document.getElementById('mobile-hint').style.opacity = '1';
+
+    camera.position.set(-6, 8, 14);
+    camera.lookAt(8, 1, -8);
+
+    // Set day
+    scene.background = new THREE.Color(SKY_DAY);
+    scene.fog = new THREE.Fog(FOG_DAY, panelParams.fogNear, panelParams.fogFar);
+    sunLight.intensity = 3.5;
+    ambientLight.intensity = 0.6;
+    sunLight.color.set(0xfff5e8);
+
+    console.log('✅ Game started! Speed:', gameSpeed);
+  } catch(err) {
+    console.error('❌ startGame error:', err);
+    // Fallback: at least hide the start screen
+    document.getElementById('start-screen').classList.add('hidden');
+    gameState = STATE.playing;
+  }
+}
+
+function gameOver() {
+  gameState = STATE.gameover;
+  addShake(0.8, 0.5);
+
+  if (score > bestScore) {
+    bestScore = Math.floor(score);
+    localStorage.setItem('dino3d_best', bestScore);
+    SFX.milestone();
+  } else {
+    SFX.hit();
+  }
+
+  document.getElementById('final-score').textContent = Math.floor(score);
+  document.getElementById('stat-best').textContent = bestScore;
+  document.getElementById('stat-coins').textContent = coins;
+  document.getElementById('stat-combo').textContent = 'x' + Math.min(maxCombo + 1, 5);
+  document.getElementById('gameover-screen').classList.remove('hidden');
+  document.getElementById('mobile-hint').style.opacity = '0';
+}
+
+function restartGame() {
+  document.getElementById('gameover-screen').classList.add('hidden');
+  clearAllObjects();
+  startGame();
+}
+
+function togglePause() {
+  if (gameState === STATE.playing) {
+    gameState = STATE.paused;
+    document.getElementById('pause-screen').classList.remove('hidden');
+  } else if (gameState === STATE.paused) {
+    gameState = STATE.playing;
+    document.getElementById('pause-screen').classList.add('hidden');
+  }
+}
+
+function clearAllObjects() {
+  [...obstacles, ...collectibles, ...powerups, ...particles].forEach(obj => {
+    scene.remove(obj);
+    if (obj.traverse) {
+      obj.traverse(child => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach(m => m.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      });
+    }
+  });
+  obstacles.length = 0;
+  collectibles.length = 0;
+  powerups.length = 0;
+  particles.length = 0;
+}
+
+// ============================================================
+//  COLLISION DETECTION
+// ============================================================
+function checkCollision(aabb1, aabb2) {
+  return (
+    Math.abs(aabb1.x - aabb2.x) < (aabb1.w + aabb2.w) / 2 &&
+    Math.abs(aabb1.y - aabb2.y) < (aabb1.h + aabb2.h) / 2 &&
+    Math.abs(aabb1.z - aabb2.z) < (aabb1.d + aabb2.d) / 2
+  );
+}
+
+function getDinoHitbox() {
+  const scaleX = dino.scale.x;
+  const scaleY = dino.scale.y;
+  const dz = 0.6; // dino depth in Z
+  if (isDucking) {
+    return {
+      x: dino.position.x,
+      y: dino.position.y + 0.4,
+      z: dino.position.z,
+      w: 1.4 * scaleX,
+      h: 0.55 * scaleY,
+      d: dz,
+    };
+  }
+  return {
+    x: dino.position.x + 0.1,
+    y: dino.position.y + 0.9,
+    z: dino.position.z,
+    w: 1.2 * scaleX,
+    h: 1.3 * scaleY,
+    d: dz,
+  };
+}
+
+// ============================================================
+//  GAME LOOP
+// ============================================================
+const clock = new THREE.Clock();
+let spawnTimer = 0;
+let coinSpawnTimer = 0;
+let powerupSpawnTimer = 0;
+let dustTimer = 0;
+let animTime = 0;
+
+function update(dt) {
+  if (gameState !== STATE.playing) return;
+
+  // Clamp dt to avoid huge jumps
+  const clampedDt = Math.min(dt, 0.1);
+
+  // Update speed
+  gameSpeed = Math.min(gameSpeed + SPEED_INCREMENT * clampedDt, MAX_SPEED);
+  distanceTraveled += gameSpeed * clampedDt;
+
+  // Score (distance-based)
+  score += gameSpeed * clampedDt * 1.5;
+
+  // Day/Night cycle — fixed real-time cadence so it doesn't speed up as the
+  // game (and score) accelerates later on.
+  dayNightTimer += clampedDt;
+  const scoreInt = Math.floor(score);
+  const shouldBeNight = Math.floor(dayNightTimer / DAY_NIGHT_PHASE_SECONDS) % 2 === 1;
+  if (shouldBeNight !== isNight) {
+    isNight = shouldBeNight;
+    if (isNight) {
+      scene.background = new THREE.Color(SKY_NIGHT);
+      applyFog(true);
+      sunLight.intensity = 0.8;
+      ambientLight.intensity = 0.2;
+      sunLight.color.set(0x8899cc);
+      clouds.forEach(c => c.visible = false);
+    } else {
+      scene.background = new THREE.Color(SKY_DAY);
+      applyFog(false);
+      sunLight.intensity = 3.5;
+      ambientLight.intensity = 0.6;
+      sunLight.color.set(0xfff5e8);
+      clouds.forEach(c => c.visible = true);
+    }
+  }
+
+  // Milestone check
+  if (scoreInt > 0 && scoreInt % 100 === 0 && scoreInt !== lastMilestone) {
+    lastMilestone = scoreInt;
+    SFX.milestone();
+  }
+
+  // ---- Dino Physics ----
+  // Ducking
+  isDucking = duckPressed && !isJumping;
+  if (isDucking) {
+    dino.scale.y = THREE.MathUtils.lerp(dino.scale.y, 0.55, 0.2);
+    dino.scale.x = THREE.MathUtils.lerp(dino.scale.x, 1.3, 0.2);
+    dino.position.y = GROUND_Y;
+    if (dinoVelocityY <= 0 && isJumping) {
+      // Fast fall when ducking in air
+      dinoVelocityY -= GRAVITY * 1.5 * clampedDt;
+    }
+  } else {
+    dino.scale.y = THREE.MathUtils.lerp(dino.scale.y, 1, 0.15);
+    dino.scale.x = THREE.MathUtils.lerp(dino.scale.x, 1, 0.15);
+  }
+
+  // Jumping
+  if (jumpPressed && !isJumping && !isDucking) {
+    // Start jump
+    dinoVelocityY = JUMP_VELOCITY;
+    isJumping = true;
+    jumpHeld = true;
+    canDoubleJump = true;
+    SFX.jump();
+  } else if (jumpPressed && isJumping && canDoubleJump && hasDoubleJumpPowerup && dinoVelocityY < 0) {
+    // Double jump
+    dinoVelocityY = JUMP_VELOCITY * 0.85;
+    canDoubleJump = false;
+    SFX.jump();
+    spawnParticles(dino.position.x, dino.position.y, dino.position.z, 5, COLORS.doubleJump, 0.5, 0.5);
+  }
+
+  // Hold jump for higher jump
+  if (jumpHeld && jumpPressed && isJumping && dinoVelocityY > 0) {
+    dinoVelocityY += JUMP_HOLD_BONUS * clampedDt * 0.3;
+  }
+
+  // Apply gravity
+  if (isJumping) {
+    dinoVelocityY -= GRAVITY * clampedDt;
+    dinoY += dinoVelocityY * clampedDt;
+
+    if (dinoY <= GROUND_Y) {
+      dinoY = GROUND_Y;
+      dinoVelocityY = 0;
+      isJumping = false;
+      // Landing dust
+      spawnParticles(dino.position.x, GROUND_Y + 0.05, dino.position.z, 3, COLORS.ground, 0.4, 0.3);
+    }
+  }
+
+  dino.position.y = dinoY;
+
+  // ---- Lateral Movement (Z-axis) ----
+  const moveLeft  = keys['KeyA'] || keys['ArrowLeft'];
+  const moveRight = keys['KeyD'] || keys['ArrowRight'];
+
+  if (moveLeft && !moveRight) {
+    dinoVelocityZ = THREE.MathUtils.lerp(dinoVelocityZ, -LATERAL_SPEED, 0.15);
+  } else if (moveRight && !moveLeft) {
+    dinoVelocityZ = THREE.MathUtils.lerp(dinoVelocityZ, LATERAL_SPEED, 0.15);
+  } else {
+    dinoVelocityZ = THREE.MathUtils.lerp(dinoVelocityZ, 0, 0.12);
+  }
+
+  dinoZ += dinoVelocityZ * clampedDt;
+  dinoZ = THREE.MathUtils.clamp(dinoZ, DINO_Z_MIN, DINO_Z_MAX);
+  if (dinoZ <= DINO_Z_MIN || dinoZ >= DINO_Z_MAX) dinoVelocityZ *= -0.3; // bounce off walls
+
+  dino.position.z = dinoZ;
+
+  // Visual tilt when moving sideways
+  const tiltTarget = dinoVelocityZ / LATERAL_SPEED * 0.25;
+  dino.rotation.z = THREE.MathUtils.lerp(dino.rotation.z, tiltTarget, 0.12);
+  // Slight Y rotation for turning feel
+  const yawTarget = dinoVelocityZ / LATERAL_SPEED * 0.2;
+  dino.rotation.y = THREE.MathUtils.lerp(dino.rotation.y, yawTarget, 0.1);
+
+  // Shadow follows dino
+  shadowDisc.position.x = dino.position.x;
+  shadowDisc.position.z = dino.position.z;
+  const shadowScale = 1 - Math.max(0, (dinoY - GROUND_Y) / 3) * 0.6;
+  shadowDisc.scale.setScalar(shadowScale);
+  shadowDisc.material.opacity = 0.3 * shadowScale;
+
+  // Shield bubble follows dino (but not its scale)
+  shieldBubble.position.copy(dino.position);
+  shieldBubble.position.y += 1.0;
+
+  // ---- Animation ----
+  animTime += clampedDt;
+  const runCycle = gameSpeed * 4;
+
+  // Leg animation
+  if (!isJumping && gameState === STATE.playing) {
+    const legAngle = Math.sin(animTime * runCycle) * 0.5;
+    dino.userData.backLeg.rotation.x = legAngle;
+    dino.userData.frontLeg.rotation.x = -legAngle;
+  } else if (isJumping) {
+    dino.userData.backLeg.rotation.x = THREE.MathUtils.lerp(dino.userData.backLeg.rotation.x, -0.3, 0.1);
+    dino.userData.frontLeg.rotation.x = THREE.MathUtils.lerp(dino.userData.frontLeg.rotation.x, 0.3, 0.1);
+  }
+
+  // Body bob
+  if (!isJumping) {
+    const bob = Math.abs(Math.sin(animTime * runCycle)) * 0.08;
+    dino.position.y += bob;
+  }
+
+  // ---- Spawn obstacles ----
+  const spawnInterval = Math.max(0.6, 1.8 - gameSpeed * 0.06);
+  spawnTimer += clampedDt;
+  if (spawnTimer >= spawnInterval + Math.random() * 0.6) {
+    spawnTimer = 0;
+    spawnObstacle();
+  }
+
+  // ---- Spawn coins ----
+  coinSpawnTimer += clampedDt;
+  if (coinSpawnTimer >= 1.0 + Math.random() * 1.5) {
+    coinSpawnTimer = 0;
+    spawnCoin();
+  }
+
+  // ---- Spawn power-ups ----
+  powerupSpawnTimer += clampedDt;
+  if (powerupSpawnTimer >= 5 + Math.random() * 5) {
+    powerupSpawnTimer = 0;
+    spawnPowerup();
+  }
+
+  // ---- Dust particles ----
+  dustTimer += clampedDt;
+  if (dustTimer >= 0.15) {
+    dustTimer = 0;
+    spawnDustTrail();
+  }
+
+  // ---- Update power-up timers ----
+  let hasShield = false;
+  let hasMagnet = false;
+  hasDoubleJumpPowerup = false;
+  let hasSpeedBoost = false;
+
+  for (const [type, timer] of Object.entries(powerupTimers)) {
+    if (timer > 0) {
+      powerupTimers[type] -= clampedDt * 1000;
+      if (powerupTimers[type] < 0) powerupTimers[type] = 0;
+      if (powerupTimers[type] > 0) {
+        if (type === 'shield') hasShield = true;
+        if (type === 'magnet') hasMagnet = true;
+        if (type === 'doubleJump') hasDoubleJumpPowerup = true;
+        if (type === 'speedBoost') hasSpeedBoost = true;
+      }
+    }
+  }
+
+  // ---- Update dino power-up visuals ----
+  shieldBubble.visible = hasShield;
+  magnetRingGroup.visible = hasMagnet;
+  djGlow.visible = hasDoubleJumpPowerup;
+
+  // Shield pulse
+  if (hasShield) {
+    const pulse = 1 + Math.sin(animTime * 4) * 0.1;
+    shieldBubble.scale.setScalar(pulse);
+    shieldBubbleMat.opacity = 0.2 + Math.sin(animTime * 3) * 0.08;
+  }
+
+  // Magnet ring rotation
+  if (hasMagnet) {
+    magnetRingGroup.rotation.y += clampedDt * 4;
+    magnetRingGroup.children.forEach((dot, i) => {
+      dot.position.y = 0.8 + Math.sin(animTime * 6 + i) * 0.4;
+    });
+  }
+
+  // Double-jump glow pulse
+  if (hasDoubleJumpPowerup) {
+    djGlow.scale.setScalar(1 + Math.sin(animTime * 6) * 0.2);
+  }
+
+  // Speed trail
+  if (hasSpeedBoost && gameState === STATE.playing) {
+    if (Math.random() < 0.5) {
+      spawnParticles(dino.position.x - 0.5, dino.position.y + 0.5, dino.position.z, 1, COLORS.speedBoost, 0.3, 0.2);
+    }
+  }
+
+  // Speed boost effect
+  const effectiveSpeed = hasSpeedBoost ? gameSpeed * 1.5 : gameSpeed;
+
+  // ---- Move obstacles ----
+  const dinoHB = getDinoHitbox();
+
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    const obs = obstacles[i];
+    obs.position.x -= effectiveSpeed * clampedDt;
+
+    // Wing flap for pterodactyls
+    if (obs.userData.subtype?.startsWith('ptera')) {
+      if (obs.isGLBPtera) {
+        // GLB model is a single mesh — flap by rolling about the travel axis,
+        // bank gently, and add a small hover bob on the body.
+        obs.rotation.x = Math.sin(animTime * 6) * 0.35;
+        obs.rotation.z = Math.cos(animTime * 5) * 0.15;
+        obs.pteraBody.position.y = Math.sin(animTime * 8) * 0.1;
+      } else {
+        obs.children.forEach(child => {
+          if (child.userData?.isWing) {
+            // Natural flapping: wings go up and down
+            child.rotation.z = Math.sin(animTime * 8) * 0.6;
+          }
+        });
+      }
+    }
+
+    // Check if passed
+    if (!obs.userData.passed && obs.position.x < dino.position.x - 1) {
+      obs.userData.passed = true;
+      obstaclesPassed++;
+      combo = Math.min(combo + 1, 49);
+      if (combo > maxCombo) maxCombo = combo;
+      score += (combo + 1) * 10;
+      if (combo > 0 && combo % 5 === 0) {
+        SFX.combo(Math.min(combo / 5, 5));
+        showComboPopup(combo >= 20 ? `🔥 ${combo+1}x 超级连击!` : `${combo+1}x 连击!`);
+      }
+    }
+
+    // Near miss detection
+    if (!obs.userData.nearMiss && Math.abs(obs.position.x - dino.position.x) < 0.7) {
+      const obHB = {
+        x: obs.position.x,
+        y: obs.userData.hitbox.y,
+        z: obs.userData.hitbox.z ?? obs.position.z,
+        w: obs.userData.hitbox.w,
+        h: obs.userData.hitbox.h,
+        d: obs.userData.hitbox.d || 0.6,
+      };
+      const yGap = Math.abs(dinoHB.y - obHB.y) / ((dinoHB.h + obHB.h) / 2);
+      const zGap = Math.abs(dinoHB.z - obHB.z) / ((dinoHB.d + obHB.d) / 2);
+      if (yGap < 0.9 && zGap < 1.2) {
+        obs.userData.nearMiss = true;
+        score += 15;
+        SFX.nearMiss();
+      }
+    }
+
+    // Collision check
+    const obHB = {
+      x: obs.position.x,
+      y: obs.userData.hitbox.y,
+      z: obs.userData.hitbox.z ?? obs.position.z,
+      w: obs.userData.hitbox.w,
+      h: obs.userData.hitbox.h,
+      d: obs.userData.hitbox.d || 0.6,
+    };
+
+    // Ptera low can be ducked under
+    if (obs.userData.hitbox.duckable && isDucking) {
+      // Skip collision — ducked under
+    } else if (checkCollision(dinoHB, obHB)) {
+      if (hasShield) {
+        // Shield absorbs hit
+        powerupTimers.shield = 0;
+        addShake(0.3, 0.2);
+        spawnParticles(obs.position.x, obs.position.y, obs.position.z, 8, COLORS.shield, 1.0, 0.8);
+        scene.remove(obs);
+        obstacles.splice(i, 1);
+        SFX.powerup();
+        continue;
+      }
+      // Game over
+      spawnParticles(dino.position.x, dino.position.y, dino.position.z, 12, 0xff4444, 1.5, 1.0);
+      gameOver();
+      return;
+    }
+
+    // Remove off-screen obstacles
+    if (obs.position.x < DINO_X - 15) {
+      scene.remove(obs);
+      obstacles.splice(i, 1);
+    }
+  }
+
+  // ---- Move collectibles (with magnet) ----
+  for (let i = collectibles.length - 1; i >= 0; i--) {
+    const col = collectibles[i];
+    col.position.x -= effectiveSpeed * clampedDt;
+
+    // Magnet attraction
+    if (hasMagnet && Math.abs(col.position.x - dino.position.x) < 8) {
+      const dx = dino.position.x - col.position.x;
+      const dy = dino.position.y + 0.5 - col.position.y;
+      const dz = dino.position.z - col.position.z;
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) || 1;
+      const pullSpeed = 12;
+      col.position.x += (dx / dist) * pullSpeed * clampedDt;
+      col.position.y += (dy / dist) * pullSpeed * clampedDt;
+      col.position.z += (dz / dist) * pullSpeed * clampedDt;
+    }
+
+    // Collect check
+    const colDist = Math.abs(col.position.x - dino.position.x) + Math.abs(col.position.y - dino.position.y) + Math.abs(col.position.z - dino.position.z);
+    if (colDist < 1.8) {
+      const value = col.userData.value || 1;
+      coins += value;
+      score += value * 10 * (combo + 1);
+      if (col.userData.type === 'gem') {
+        SFX.gem();
+        spawnParticles(col.position.x, col.position.y, col.position.z, 6, COLORS.gem, 0.6, 0.7);
+      } else {
+        SFX.coin();
+        spawnParticles(col.position.x, col.position.y, col.position.z, 3, COLORS.coin, 0.3, 0.4);
+      }
+      scene.remove(col);
+      collectibles.splice(i, 1);
+    } else if (col.position.x < DINO_X - 15) {
+      scene.remove(col);
+      collectibles.splice(i, 1);
+    }
+  }
+
+  // ---- Move power-ups ----
+  for (let i = powerups.length - 1; i >= 0; i--) {
+    const pu = powerups[i];
+    pu.position.x -= effectiveSpeed * clampedDt;
+
+    // Float & rotate animation
+    pu.children[0].rotation.y += clampedDt * 3;
+    pu.children[0].rotation.x += clampedDt * 2;
+    if (pu.children[2]) pu.children[2].rotation.z += clampedDt * 2; // ring
+    pu.position.y = GROUND_Y + 1.4 + Math.sin(animTime * 4 + i) * 0.3;
+
+    // Collect check
+    const puDist = Math.abs(pu.position.x - dino.position.x) + Math.abs(pu.position.y - dino.position.y) + Math.abs(pu.position.z - dino.position.z);
+    if (puDist < 2.2) {
+      const subtype = pu.userData.subtype;
+      powerupTimers[subtype] = pu.userData.info.duration;
+      SFX.powerup();
+      spawnParticles(pu.position.x, pu.position.y, pu.position.z, 10, pu.userData.info.color, 1.0, 1.0);
+      updatePowerupUI();
+      scene.remove(pu);
+      powerups.splice(i, 1);
+
+      // Show notification
+      showComboPopup(`${pu.userData.info.emoji} ${pu.userData.info.label}!`);
+    } else if (pu.position.x < DINO_X - 15) {
+      scene.remove(pu);
+      powerups.splice(i, 1);
+    }
+  }
+
+  // ---- Update particles ----
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.userData.life -= clampedDt;
+    if (p.userData.life <= 0) {
+      scene.remove(p);
+      p.userData.mat.dispose();
+      p.geometry.dispose();
+      particles.splice(i, 1);
+    } else {
+      const t = p.userData.life / p.userData.maxLife;
+      p.userData.mat.opacity = t;
+      p.position.y += p.userData.vy * clampedDt;
+      p.position.x += p.userData.vx * clampedDt;
+      p.position.z += p.userData.vz * clampedDt;
+      p.scale.setScalar(t);
+    }
+  }
+
+  // ---- Animate collectible rotation ----
+  for (const col of collectibles) {
+    col.children[0].rotation.y += clampedDt * 4;
+  }
+
+  // ---- Move ground decorations ----
+  for (const deco of decorations) {
+    deco.position.x -= effectiveSpeed * clampedDt * 0.3; // parallax
+    if (deco.position.x < -30) deco.position.x += 300;
+  }
+
+  // ---- Move lane strips (seamless infinite scroll) ----
+  for (const s of laneStrips) {
+    s.position.x -= effectiveSpeed * clampedDt;
+    if (s.position.x < -LANE_STRIP_LENGTH) s.position.x += LANE_STRIP_LENGTH * 2;
+  }
+
+  // ---- Move mountains (slow parallax) ----
+  for (const m of mountains) {
+    m.position.x -= effectiveSpeed * clampedDt * 0.1;
+    if (m.position.x < -40) m.position.x += 240;
+  }
+
+  // ---- Update camera (follows dino Z with slight lag, uses panel params) ----
+  const targetCamX = dino.position.x - panelParams.camDist * 0.43;
+  const targetCamY = panelParams.camHeight;
+  const targetCamZ = dino.position.z * 0.5 + panelParams.camDist;
+  camera.position.x += (targetCamX - camera.position.x) * 0.05;
+  camera.position.y += (targetCamY - camera.position.y) * 0.03;
+  camera.position.z += (targetCamZ - camera.position.z) * 0.04;
+
+  const lookAhead = panelParams.camLookAhead;
+  const lookTarget = new THREE.Vector3(dino.position.x + lookAhead, 1.5, dino.position.z * 0.4 - lookAhead);
+  camera.lookAt(lookTarget);
+
+  // ---- Screen shake ----
+  if (shakeDuration > 0) {
+    shakeDuration -= clampedDt;
+    const s = shakeAmount * (shakeDuration / 0.5);
+    camera.position.x += (Math.random() - 0.5) * s;
+    camera.position.y += (Math.random() - 0.5) * s;
+    if (shakeDuration <= 0) shakeAmount = 0;
+  }
+
+  // ---- Reset combo if no recent obstacle passed ----
+  // (combo resets on death, but persists during play)
+
+  // ---- Update UI ----
+  updateUI();
+
+  // ---- Update powerup UI periodically ----
+  if (Math.floor(animTime * 4) !== Math.floor((animTime - clampedDt) * 4)) {
+    updatePowerupUI();
+  }
+
+  // ---- Fade mobile hint ----
+  const hint = document.getElementById('mobile-hint');
+  if (hint.style.opacity > 0.1 && score > 100) {
+    hint.style.opacity = Math.max(0, parseFloat(hint.style.opacity) - clampedDt * 0.5);
+  }
+}
+
+function render() {
+  renderer.render(scene, camera);
+}
+
+function gameLoop(timestamp) {
+  requestAnimationFrame(gameLoop);
+
+  const dt = Math.min(clock.getDelta(), 0.1);
+  update(dt);
+  render();
+}
+
+// ============================================================
+//  EVENT LISTENERS FOR BUTTONS
+// ============================================================
+// Use pointerdown for more reliable click handling (works with both mouse & touch)
+document.getElementById('btn-start').addEventListener('pointerdown', (e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  console.log('🟢 Start button clicked');
+  startGame();
+});
+
+document.getElementById('btn-restart').addEventListener('pointerdown', (e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  restartGame();
+});
+
+document.getElementById('btn-resume').addEventListener('pointerdown', (e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  togglePause();
+});
+
+// ============================================================
+//  RESIZE HANDLER
+// ============================================================
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ============================================================
+//  INITIAL SETUP
+// ============================================================
+// Initialize best score display
+document.getElementById('stat-best').textContent = bestScore;
+
+// Position dino initially
+dino.position.set(DINO_X, GROUND_Y, 0);
+
+// Kick off pterosaur model loading (async; procedural fallback until ready)
+initPterosaurModel();
+
+// Start game loop
+gameLoop();
+
+console.log('🦕 3D Dino Run ready!');
+console.log('  SPACE/↑   Jump (hold for higher)');
+console.log('  ↓         Duck/Crouch');
+console.log('  A/D ←→   Move left/right (5 lanes)');
+console.log('  P         Pause');
+console.log('  🪙 Collect coins  💎 Collect gems');
+console.log('  🛡️ Shield  🧲 Magnet  🦘 Double Jump  ⚡ Speed Boost');
+console.log('  Best Score:', bestScore);
+
+// ============================================================
+//  DEBUG PANEL
+// ============================================================
+function applyParams() {
+  // Fog
+  applyFog(isNight);
+  // Camera
+  camera.position.set(-panelParams.camDist * 0.43, panelParams.camHeight, panelParams.camDist);
+  // Renderer
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, panelParams.pixelRatio));
+  // Shadow
+  sunLight.shadow.mapSize.width = panelParams.shadowSize;
+  sunLight.shadow.mapSize.height = panelParams.shadowSize;
+  sunLight.shadow.map?.dispose();
+  sunLight.shadow.map = null; // force rebuild
+  // Ground
+  ground.position.x = panelParams.groundOffsetX;
+  // Save
+  localStorage.setItem('dino3d_params', JSON.stringify(panelParams));
+}
+
+function updatePanelDisplay() {
+  document.querySelectorAll('.dp-val').forEach(el => {
+    const key = el.dataset.key;
+    if (panelParams[key] !== undefined) el.textContent = panelParams[key];
+  });
+}
+
+// Panel toggle
+const debugToggle = document.getElementById('debug-toggle');
+const debugPanel = document.getElementById('debug-panel');
+debugToggle.addEventListener('click', () => {
+  const open = debugPanel.classList.toggle('visible');
+  debugToggle.classList.toggle('open', open);
+  debugToggle.textContent = open ? '✕' : '⚙';
+});
+
+// Apply on load
+applyParams();
+updatePanelDisplay();
+
+document.querySelectorAll('.dp-slider').forEach(slider => {
+  const key = slider.dataset.key;
+  // Set initial value from loaded params
+  slider.value = panelParams[key];
+  slider.addEventListener('input', () => {
+    const val = parseFloat(slider.value);
+    panelParams[key] = val;
+    applyParams();
+    updatePanelDisplay();
+  });
+});
+
+let shadowsOn = false;
+const shadowToggleBtn = document.getElementById('dp-toggle-shadows');
+shadowToggleBtn.addEventListener('click', () => {
+  shadowsOn = !shadowsOn;
+  renderer.shadowMap.enabled = shadowsOn;
+  shadowToggleBtn.textContent = shadowsOn ? '🌑 关闭阴影' : '🌑 开启阴影 (重负载)';
+});
+
+document.getElementById('dp-rebuild').addEventListener('click', () => {
+  applyParams();
+  updatePanelDisplay();
+});
+</script>
+</body>
+</html>

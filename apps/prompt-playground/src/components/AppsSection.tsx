@@ -23,6 +23,7 @@ import walkTheDogPromptRaw from "@prompts/walk-the-dog.md?raw";
 import paperKitePromptRaw from "@prompts/paper-kite.md?raw";
 import mindHopPromptRaw from "@prompts/mind-hop.md?raw";
 import skyPilotPromptRaw from "@prompts/sky-pilot.md?raw";
+import dino3dPromptRaw from "@prompts/dino-3d.md?raw";
 
 export const categories = [
   {
@@ -81,6 +82,15 @@ export const categories = [
         status: "live" as const,
         colorClass: "icon-purple",
         prompt: mindHopPromptRaw,
+      },
+      {
+        title: "3D Dino Run",
+        description: "3D 恐龙跑酷游戏，沙漠中跳跃、下蹲、侧移躲避仙人掌与翼龙，收集金币触发连击与道具。",
+        icon: "🦕",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/dino-3d/",
+        status: "live" as const,
+        colorClass: "icon-green",
+        prompt: dino3dPromptRaw,
       },
     ],
   },
