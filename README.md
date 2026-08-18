@@ -1,3 +1,5 @@
+
+
 # weekly-vibe-coding
 
 ![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-23%2F100-blue)
@@ -13,7 +15,7 @@
   - [关于项目](#关于项目)
     - [近期文章](#近期文章)
   - [已实现的应用](#已实现的应用)
-    - [专题零：创意原点](#专题零创意原点)
+    - [专题零：Prompt Playground](#专题零prompt-playground)
     - [专题一：想做点什么就做点什么](#专题一想做点什么就做点什么)
     - [专题二：手势交互](#专题二手势交互)
     - [专题三：语音交互](#专题三语音交互)
@@ -110,7 +112,7 @@
 16. **[Marionette](https://chenzihong-gavin.github.io/weekly-vibe-coding/marionette/)** (`apps/marionette`)
     - 手势操控提线木偶，通过 MediaPipe 实时追踪五根手指，用物理模拟的提线控制一个手绘风格的布偶。
    
-      <img width="400" alt="image" src="https://github.com/user-attachments/assets/1df66120-8de1-4b0c-b1ed-f65a83576eba" />
+      <img width="400" alt="image" src="https://github.com/user-attachments/assets/1df66120-8de1-400c-b1ed-f65a83576eba" />
 
 
 18. **[Shadow Puppet](https://chenzihong-gavin.github.io/weekly-vibe-coding/shadow-puppet/)** (`apps/shadow-puppet`)
@@ -123,7 +125,6 @@
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/paper-kite.md)
 
       <img width="400" alt="image" src="https://github.com/user-attachments/assets/4107d99d-e29a-407c-b278-7fce65f872be" />
-
 
 
 
