@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-23%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-24%2F100-blue)
 
 [中文](./README.md) | **English**
 
@@ -89,6 +89,10 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/dino-3d.md)
 
       <!-- Screenshot TODO: drop a run screenshot into a GitHub Issue/PR to generate a user-attachments URL -->
+
+23. **[Wake Up Call](https://chenzihong-gavin.github.io/weekly-vibe-coding/wake-up-call/)** (`apps/wake-up-call`)
+    - A hand-drawn browser alarm with six characters, each with its own ringing schedule and dismissal task. Set a real alarm, try a character instantly, or preview an accelerated night. Keep the page in the foreground and the screen unlocked.
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/wake-up-call.md)
 
 ### Track 2: Gesture Interaction
 

@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f1e7">
+<meta name="description" content="选一个有脾气的闹钟。六位叫醒专员，六种不讲道理的早晨。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23f6f1e7'/%3E%3Cg fill='none' stroke='%23bb4934' stroke-width='4' stroke-linecap='round'%3E%3Ccircle cx='32' cy='34' r='18'/%3E%3Cpath d='M12 17l8-7m24 0 8 7M21 51l-4 6m26-6 4 6M32 22v13l8 4'/%3E%3C/g%3E%3C/svg%3E">
+<title>叫醒服务 · 一个会按性格叫你的闹钟</title>
+<style>
+:root{
+  --paper:#f0e7d8; --paper2:#e6dbc8; --ink:#2f2a24; --ink2:#7a6f60; --ink3:#a99d8c;
+  --red:#c1503a; --night:#141117; --chalk:#e2d6c2;
+  --wob1:255px 14px 225px 14px/14px 225px 14px 255px;
+  --wob2:14px 225px 14px 255px/255px 14px 225px 14px;
+  --wob3:200px 22px 180px 26px/26px 180px 22px 200px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;background:#0e0c10;overflow:hidden;overscroll-behavior:none}
+body{color:var(--ink);
+  font:400 15px/1.6 "Bradley Hand","Chalkboard SE","Comic Sans MS","HanziPen SC","Hanzipen SC",
+       "LXGW WenKai","方正舰体","PingFang SC","Microsoft YaHei",sans-serif}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+*::-webkit-scrollbar{width:0;height:0;display:none}
+*{scrollbar-width:none}
+
+#app{position:fixed;inset:0;display:flex;justify-content:center;background:#0e0c10}
+#phone{position:relative;width:100%;max-width:430px;height:100%;overflow:hidden;background:var(--paper);
+  container-type:size;container-name:ph}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E")}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--paper);
+  opacity:0;transform:translateY(9px);transition:opacity .3s ease,transform .34s cubic-bezier(.2,.9,.3,1)}
+.screen.on{display:flex}
+.screen.vis{opacity:1;transform:none}
+
+/* ---------------- 共用的排版件 ---------------- */
+.lbl{font-size:10px;letter-spacing:.3em;color:var(--ink3);margin:0 0 7px}
+.hr{height:6px;margin:18px 0;opacity:.55;background-repeat:repeat-x;background-position:0 50%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='6'%3E%3Cpath d='M0 3.2 Q7.5 0.9 15 3.2 T30 3.2 T45 3.2 T60 3.2' fill='none' stroke='%23a99d8c' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E")}
+
+/* ---------------- 设置 ---------------- */
+#s-setup{padding:calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 16px);
+  overflow:hidden;display:none}
+#s-setup.on{display:flex}
+#s-setup>*{flex:none}
+.grow{flex:.16 1 0!important;min-height:0}
+.hdr{display:flex;align-items:baseline;gap:10px}
+.hdr h1{font-size:25px;font-weight:400;letter-spacing:.02em;margin:0}
+.hdr .en{font-size:9.5px;letter-spacing:.26em;color:var(--ink3)}
+.hdr .sp{flex:1}
+#nowclk{font-size:15px;color:var(--ink2);letter-spacing:.04em;white-space:nowrap}
+#nowclk b{font-size:9.5px;letter-spacing:.24em;color:var(--ink3);font-weight:400;margin-right:5px}
+.rule{display:block;width:118px;height:10px;margin:1px 0 0 1px}
+
+/* 立绘：不加框，靠一条地平线把角色钉在纸上 */
+#picker{position:relative;margin:12px -4px 0;flex:1 1 0!important;min-height:150px}
+#pcv{display:block;width:100%;height:100%;touch-action:pan-y}
+.arrow{position:absolute;top:50%;margin-top:-19px;width:38px;height:38px;font-size:23px;line-height:34px;
+  text-align:center;color:var(--ink2);border:1.5px solid var(--ink3);
+  border-radius:58% 42% 55% 45%;background:transparent;opacity:.75}
+.arrow:active{background:var(--red);color:var(--paper);border-color:var(--red);opacity:1}
+#prev{left:2px} #next{right:2px}
+#pname{font-size:26px;text-align:center;margin:4px 0 0;letter-spacing:.04em}
+#phow{font-size:13px;color:var(--ink2);text-align:center;margin:5px 8px 0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pdots{display:flex;gap:11px;justify-content:center;margin-top:13px}
+#pdots canvas{width:16px;height:16px}
+
+/* 起床时间：大字在左，步进器在右，一行解决 */
+#timerow{display:flex;align-items:center;gap:14px}
+#tcv{display:block;flex:1;min-width:0;height:76px}
+#steps{display:flex;gap:11px;flex:none}
+.stp{display:flex;flex-direction:column;align-items:center;gap:4px}
+.stp button{width:36px;height:27px;font-size:15px;line-height:25px;text-align:center;
+  color:var(--ink2);border:1.5px solid var(--ink3);border-radius:58% 42% 55% 45%;opacity:.75}
+.stp button:active{background:var(--red);color:var(--paper);border-color:var(--red);opacity:1}
+.stp i{font-style:normal;font-size:11px;color:var(--ink3)}
+#tsub{font-size:12.5px;color:var(--ink2);margin:1px 0 0 3px}
+
+/* 今晚的响铃时间轴 —— 这一张图就是整个产品要说的话 */
+#tlcv{display:block;width:100%;height:50px;margin-top:1px}
+
+#arm{width:100%;margin-top:24px;border:2.5px solid var(--red);border-radius:var(--wob1);
+  padding:15px 0;text-align:center;font-size:19px;color:var(--red);background:#f8e6dd}
+#arm:active{background:var(--red);color:var(--paper)}
+#demo{width:100%;margin-top:11px;padding:9px 0;text-align:center;font-size:13.5px;
+  color:var(--ink2);text-decoration:underline;text-decoration-color:var(--ink3);
+  text-underline-offset:4px}
+#demo:active{color:var(--red)}
+.warn{font-size:10.5px;line-height:1.75;color:var(--ink3);margin:18px 2px 0}
+
+/* 矮屏（SE 一类）收紧一档，保证「设定闹钟」不掉到屏幕外 */
+@container ph (max-height:730px){
+  #s-setup{padding-top:calc(env(safe-area-inset-top) + 12px)}
+  .hdr h1{font-size:22px}
+  #picker{margin-top:6px;min-height:110px}
+  .arrow{width:34px;height:34px;margin-top:-17px;font-size:20px;line-height:30px}
+  #pname{font-size:22px}
+  #phow{font-size:12px}
+  #pdots{margin-top:8px}
+  .hr{margin:10px 0}
+  #tcv{height:54px}
+  #tlcv{height:46px}
+  #arm{margin-top:12px;padding:12px 0;font-size:18px}
+  #demo{margin-top:7px;padding:7px 0}
+  .warn{margin-top:10px;line-height:1.6}
+}
+/* 极矮（桌面窄窗/横屏）：宁可让它滚，也不要把主按钮切掉；滚动条已全局隐藏 */
+@container ph (max-height:640px){ #s-setup{overflow-y:auto;-webkit-overflow-scrolling:touch} }
+
+/* ---------------- 待机（夜色床头钟） ---------------- */
+#s-standby{background:var(--night)}
+#clock{flex:1;display:block;width:100%;min-height:0}
+#sbfoot{flex:none;padding:0 20px calc(env(safe-area-inset-bottom) + 18px);text-align:center;
+  color:#8d8375}
+#sbfoot .lbl{color:#5f584e;margin-bottom:4px}
+#sbnext{font-size:30px;color:#d8c8ae;letter-spacing:.05em;line-height:1.15}
+#sbhow{font-size:12.5px;margin:5px 0 0;color:#7d7466}
+#sblock{font-size:10.5px;margin:14px 0 12px;color:#524b43}
+#sbrate{font-size:11px;color:#7a6a52;letter-spacing:.16em;margin:8px 0 0;height:15px}
+#cancel{border:1.5px solid #3d3730;border-radius:var(--wob2);padding:8px 22px;font-size:12.5px;
+  color:#8d8375;opacity:.9}
+#cancel:active{background:#221e26}
+#cancel:active{background:#221e26}
+
+/* ---------------- 响铃 ---------------- */
+#s-ring{background:#f7ece0;
+  padding:calc(env(safe-area-inset-top) + 16px) 24px calc(env(safe-area-inset-bottom) + 16px)}
+#rtop{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;
+  letter-spacing:.26em;color:var(--ink3);flex:none}
+#rnow{font-size:13px;letter-spacing:.06em;color:var(--ink2)}
+#rcv{display:block;width:100%;height:120px;flex:none;margin-top:4px}
+#rtitle{font-size:27px;text-align:center;margin:2px 0 5px;color:var(--red);letter-spacing:.03em}
+#rmsg{font-size:13px;line-height:1.6;color:var(--ink2);text-align:center;margin:0 6px}
+#rmid{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  min-height:0;width:100%}
+#rstage{display:flex;flex-direction:column;justify-content:center;align-items:center;
+  position:relative;width:100%;max-width:322px}
+#rstage.tall{height:min(252px,36vh)}                /* 拍蚊子要有活动空间 */
+#rfoot{font-size:12.5px;color:var(--ink2);text-align:center;min-height:20px;margin-top:16px}
+#rgiveup{margin-top:10px;font-size:11.5px;color:var(--ink3);text-align:center;
+  text-decoration:underline;text-underline-offset:3px}
+.bar{width:100%;height:22px;border:2px solid var(--ink);border-radius:var(--wob2);overflow:hidden;
+  background:#fff8ec}
+.bar i{display:block;height:100%;background:var(--red);width:0%}
+.pad{margin-top:20px;width:100%;padding:26px 0;text-align:center;font-size:17px;color:var(--ink);
+  border:2px dashed var(--ink);border-radius:var(--wob1);background:#fff8ec}
+.pad.act{background:var(--red);color:var(--paper);border-style:solid}
+.rhy{position:relative;width:100%;height:56px;border:2px solid var(--ink);border-radius:var(--wob2);
+  background:#fff8ec;overflow:hidden}
+.rhy .zone{position:absolute;top:0;bottom:0;background:#f2d8cc}
+.rhy .mk{position:absolute;top:0;bottom:0;width:4px;background:var(--ink)}
+.dots{display:flex;gap:9px;margin-top:14px;justify-content:center}
+.dots i{width:13px;height:13px;border:2px solid var(--ink);border-radius:60% 40% 55% 45%}
+.dots i.on{background:var(--red);border-color:var(--red)}
+#swat{position:absolute;inset:0}
+.bug{position:absolute;width:60px;height:60px;margin:-30px 0 0 -30px}
+.slide{position:relative;width:88px;height:200px;border:2px solid var(--ink);
+  border-radius:var(--wob3);background:#fff8ec}
+.slide .knob{position:absolute;left:6px;right:6px;height:46px;top:6px;background:var(--red);
+  border-radius:var(--wob2)}
+.slide .goal{position:absolute;left:0;right:0;bottom:0;height:30px;background:#f2d8cc;
+  border-top:2px dashed var(--ink3)}
+.slide.bad .knob{background:#7a3326}
+
+/* ---------------- 结束 ---------------- */
+#s-done{justify-content:center;align-items:center;padding:0 34px;text-align:center}
+#dcv{width:112px;height:112px;margin-bottom:18px}
+#dtitle{font-size:30px;margin-bottom:12px;letter-spacing:.06em}
+#dtxt{font-size:14px;line-height:1.9;color:var(--ink2)}
+#dagain{margin-top:32px;border:2.5px solid var(--red);border-radius:var(--wob1);padding:13px 32px;
+  font-size:17px;color:var(--red);background:#f8e6dd}
+#flash{position:fixed;inset:0;background:#fffaf0;opacity:0;pointer-events:none;z-index:20}
+</style>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<div id="app"><div id="phone">
+
+  <section class="screen on vis" id="s-setup">
+    <header class="hdr"><div class="brand"><span class="brand-mark" aria-hidden="true">↗</span><h1>叫醒服务<span class="en">WAKE UP CALL</span></h1></div>
+      <div class="header-tools"><span id="nowclk"><b>现在</b><i style="font-style:normal"></i></span><button id="sound-toggle" aria-label="关闭试听声音" aria-pressed="false">声音 开</button></div></header>
+    <div class="setup-body">
+    <div class="character-panel">
+    <div class="eyebrow">A LITTLE RUDE. A LOT AWAKE.</div>
+    <h2 class="headline">明早，<br>谁来<span>叫醒你？<canvas class="rule" id="rule" aria-hidden="true"></canvas></span></h2>
+    <div class="character-meta"><span>01 / 选择叫醒专员</span><span id="role-number">02 — 06</span></div>
+    <div id="picker">
+      <div class="character-halo" aria-hidden="true"></div>
+      <span id="role-quote" class="role-quote"></span>
+      <canvas id="pcv" role="img" aria-label="手绘叫醒角色"></canvas>
+      <button id="prev" class="arrow" aria-label="上一个角色">←</button>
+      <button id="next" class="arrow" aria-label="下一个角色">→</button>
+    </div>
+    <div class="role-heading"><h3 id="pname"></h3><span id="role-tag"></span></div>
+    <div id="phow"></div>
+    <div id="pdots" role="group" aria-label="选择叫醒角色"></div>
+    <button id="preview"><span aria-hidden="true">▷</span> 先试着叫醒我</button>
+    </div>
+    <div class="alarm-panel">
+    <div class="alarm-content">
+    <div class="character-meta">02 / 安排一个早晨</div>
+    <h2 class="alarm-heading">你负责睡。<br>剩下的，<span>交给它。</span></h2>
+    <div class="time-label"><label for="wake-time">起床时间</label><span>轻点时间可修改</span></div>
+    <div id="timerow">
+      <div class="time-control"><canvas id="tcv" aria-hidden="true"></canvas><input id="wake-time" type="time" value="07:00" aria-label="起床时间"></div>
+      <div id="steps">
+        <div class="stp"><button data-d="60" aria-label="增加一小时">+</button><i>时</i><button data-d="-60" aria-label="减少一小时">−</button></div>
+        <div class="stp"><button data-d="1" aria-label="增加一分钟">+</button><i>分</i><button data-d="-1" aria-label="减少一分钟">−</button></div>
+      </div>
+    </div>
+    <div id="tsub"></div>
+    <div class="hr"></div>
+    <div class="plan-heading"><div id="tllbl">今晚</div><span id="plan-caption">每一声，都有它的理由</span></div>
+    <canvas id="tlcv" role="img" aria-label="今晚响铃时间轴"></canvas>
+    <div class="personality"><span>叫醒方式</span><span id="role-action"></span></div>
+    <button id="arm">就让它叫醒我 <span aria-hidden="true">↗</span></button>
+    <button id="demo"><span>体验一整夜</span><span class="demo-note">快进到天亮 →</span></button>
+    <p class="warn" id="warn"></p>
+    </div>
+    </div>
+    </div>
+    <footer class="setup-footer"><span>不是每个闹钟，都听你的。</span><span class="footer-hint">6 位专员 · 没有贪睡键</span></footer>
+  </section>
+
+  <section class="screen" id="s-standby">
+    <div class="night-header"><span id="night-mode">夜间值守中</span><span>WAKE UP CALL</span></div>
+    <div class="night-intro"><span class="night-star" aria-hidden="true">✳</span><h2 id="night-title">晚安。它已经上班了。</h2><p id="night-subtitle"></p></div>
+    <canvas id="clock"></canvas>
+    <div id="sbfoot">
+      <div id="night-progress" aria-label="今晚响铃进度"></div>
+      <div class="lbl">下一次</div>
+      <div id="sbnext"></div>
+      <p id="sbhow"></p>
+      <div id="sbrate"></div>
+      <div id="sblock"></div>
+      <button id="cancel">← 返回，换个叫醒专员</button>
+    </div>
+  </section>
+
+  <section class="screen" id="s-ring">
+    <div id="rtop"><span id="rcount"></span><span id="rnow"></span></div>
+    <canvas id="rcv"></canvas>
+    <div id="rtitle"></div>
+    <div id="rmsg"></div>
+    <div class="hr" style="margin:16px 8px 0;opacity:.4"></div>
+    <div id="rmid">
+      <div id="rstage"></div>
+      <div id="rfoot"></div>
+    </div>
+    <button id="rgiveup">取消今晚剩下的闹钟</button>
+  </section>
+
+  <section class="screen" id="s-done">
+    <div class="eyebrow">YOUR MORNING RECEIPT</div>
+    <canvas id="dcv"></canvas>
+    <div id="dtitle"></div>
+    <div id="dtxt"></div>
+    <div id="done-quote"></div>
+    <button id="dagain">换个人，再来一晚 ↗</button>
+  </section>
+
+  <div class="grain"></div>
+</div></div>
+<div id="flash"></div>
+<script>
+/* ==========================================================
+   叫醒服务 · Wake Up Call
+   一个真实的闹钟：每个角色用它自己的性格叫你。
+   画风：手绘 —— 所有线条都是带抖动的两遍描边，纸/夜两个色板。
+   ========================================================== */
+const $=s=>document.querySelector(s);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
+const rnd=n=>Math.random()*n, ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+const ROLE_DETAILS={
+  baby:{tag:'整夜营业',quote:'睡什么，起来喝奶。',action:'长按喂奶，再轻轻放下',ending:'你醒了。宝宝终于睡了。',color:'#eee0ce'},
+  cat:{tag:'不接受贪睡',quote:'你的闹钟？我才是。',action:'踩准节奏，开 4 个罐头',ending:'你可以不起床。罐头必须起。',color:'#ece2ce'},
+  mosq:{tag:'隐形刺客',quote:'声音不大，伤害很大。',action:'看准时机，拍到它',ending:'它很小。你的黑眼圈很大。',color:'#e2e5d7'},
+  rooster:{tag:'无法协商',quote:'天亮了，我说的。',action:'没有关闭键，只能等它叫完',ending:'它只是通知你，并没有征求意见。',color:'#ecddcc'},
+  dog:{tag:'准点上班',quote:'走嘛，走嘛，走嘛。',action:'按住牵引绳，陪它遛一圈',ending:'新的一天，从一起出门开始。',color:'#e7e1ce'},
+  oncall:{tag:'打工人限定',quote:'你睡了，服务也睡了。',action:'踩准节奏，处理 4 条告警',ending:'服务恢复了。你还没有。',color:'#dfe4df'}
+};
+let saved={};
+try{saved=JSON.parse(localStorage.getItem('wake-up-call:settings')||'{}')||{};}catch(e){}
+function saveSettings(){try{localStorage.setItem('wake-up-call:settings',JSON.stringify({role:role.id,hour:tH,minute:tM,muted:A.muted}));}catch(e){}}
+
+function fit(cv){
+  const r=cv.getBoundingClientRect(), d=Math.min(window.devicePixelRatio||1,2.5);
+  cv.width=Math.max(1,Math.round(r.width*d)); cv.height=Math.max(1,Math.round(r.height*d));
+  const c=cv.getContext('2d'); c.setTransform(d,0,0,d,0,0);
+  cv._w=r.width; cv._h=r.height; return c;
+}
+/* ---------- 合成音频：蚊子、告警，以及录音不可用时的兜底 ---------- */
+const A={ctx:null,mas:null,noise:null,live:[],muted:saved.muted===true,previewTimer:null,previewId:0};
+A.node=function(method){const n=A.ctx[method]();A.live.push(n);n.addEventListener('ended',()=>{A.live=A.live.filter(x=>x!==n);},{once:true});return n;};
+A.init=function(){                      // 拿不到音频也不能把界面带崩
+  if(A.ctx||A.dead)return;
+  try{
+    const C=window.AudioContext||window.webkitAudioContext;
+    if(!C){A.dead=true;return;}
+    A.ctx=new C();
+    A.mas=A.ctx.createGain(); A.mas.gain.value=A.muted?0:.62; A.mas.connect(A.ctx.destination);
+    const n=A.ctx.sampleRate*2, b=A.ctx.createBuffer(1,n,A.ctx.sampleRate), d=b.getChannelData(0);
+    let last=0; for(let i=0;i<n;i++){const w=Math.random()*2-1; last=(last+.02*w)/1.02; d[i]=last*3.2;}
+    A.noise=b;
+  }catch(e){ A.ctx=null; A.dead=true; }
+};
+A.now=()=>A.ctx.currentTime;
+A.env=function(g,t,a,hold,rel,peak){
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(peak,t+a);
+  g.gain.setValueAtTime(peak*.92,t+a+hold); g.gain.linearRampToValueAtTime(0,t+a+hold+rel);
+};
+A.room=function(){
+  if(!A.ctx)return ;
+  const s=A.node('createBufferSource'); s.buffer=A.noise; s.loop=true;
+  const f=A.ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=380;
+  const g=A.ctx.createGain(); g.gain.value=.055;
+  const lfo=A.node('createOscillator'); lfo.frequency.value=.22;
+  const lg=A.ctx.createGain(); lg.gain.value=.028; lfo.connect(lg).connect(g.gain);
+  s.connect(f).connect(g).connect(A.mas); s.start(); lfo.start(); A.live.push(s,lfo);
+};
+A.cry=function(){
+  if(!A.ctx)return ;
+  const t0=A.now();
+  for(let i=0;i<3;i++){
+    const st=t0+i*1.42, o=A.node('createOscillator'); o.type='sawtooth';
+    o.frequency.setValueAtTime(330,st);
+    o.frequency.linearRampToValueAtTime(575,st+.2);
+    o.frequency.linearRampToValueAtTime(420,st+.95);
+    const v=A.node('createOscillator'); v.frequency.value=5.5;
+    const vg=A.ctx.createGain(); vg.gain.value=30; v.connect(vg).connect(o.frequency);
+    const bp=A.ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=980; bp.Q.value=1.1;
+    const g=A.ctx.createGain(); A.env(g,st,.11,.62,.42,.30);
+    o.connect(bp).connect(g).connect(A.mas); o.start(st); o.stop(st+1.35); v.start(st); v.stop(st+1.35);
+  }
+};
+A.meow=function(){
+  if(!A.ctx)return ;
+  const st=A.now(), o=A.node('createOscillator'); o.type='triangle';
+  o.frequency.setValueAtTime(360,st);
+  o.frequency.linearRampToValueAtTime(730,st+.22);
+  o.frequency.linearRampToValueAtTime(500,st+.72);
+  const bp=A.ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1250; bp.Q.value=2.4;
+  const g=A.ctx.createGain(); A.env(g,st,.08,.34,.34,.26);
+  o.connect(bp).connect(g).connect(A.mas); o.start(st); o.stop(st+1);
+};
+A.thud=function(){
+  if(!A.ctx)return ;
+  const st=A.now(), s=A.node('createBufferSource'); s.buffer=A.noise;
+  const f=A.ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=220;
+  const g=A.ctx.createGain(); A.env(g,st,.004,.03,.22,.5);
+  s.connect(f).connect(g).connect(A.mas); s.start(st); s.stop(st+.45);
+};
+A.mosq=function(){
+  if(!A.ctx)return {stop(){}};
+  const o=A.node('createOscillator'); o.type='sawtooth'; o.frequency.value=610;
+  const bp=A.ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1900; bp.Q.value=7;
+  const p=A.ctx.createStereoPanner?A.ctx.createStereoPanner():null;
+  const g=A.ctx.createGain(); g.gain.value=0;
+  const lfo=A.node('createOscillator'); lfo.frequency.value=6.5;
+  const lg=A.ctx.createGain(); lg.gain.value=42; lfo.connect(lg).connect(o.frequency);
+  o.connect(bp); if(p){bp.connect(p); p.connect(g);} else bp.connect(g);
+  g.connect(A.mas); o.start(); lfo.start();
+  const iv=setInterval(()=>{
+    const near=Math.random()<.45, t=A.now();
+    g.gain.cancelScheduledValues(t);
+    g.gain.linearRampToValueAtTime(near?.16:.012,t+.4+rnd(.5));
+    if(p) p.pan.linearRampToValueAtTime(Math.random()*2-1,t+.8);
+    o.frequency.value=560+rnd(130);
+  },900);
+  return {stop(){clearInterval(iv);try{const t=A.now();g.gain.cancelScheduledValues(t);
+    g.gain.linearRampToValueAtTime(0,t+.2);o.stop(t+.35);lfo.stop(t+.35);}catch(e){}}};
+};
+A.crow=function(){
+  if(!A.ctx)return ;
+  let t=A.now();
+  [[520,.16],[760,.2],[620,.26],[430,.5]].forEach(([f,d])=>{
+    const o=A.node('createOscillator'); o.type='sawtooth';
+    o.frequency.setValueAtTime(f,t); o.frequency.linearRampToValueAtTime(f*.86,t+d);
+    const bp=A.ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1500; bp.Q.value=2;
+    const g=A.ctx.createGain(); A.env(g,t,.02,d*.6,d*.4,.30);
+    o.connect(bp).connect(g).connect(A.mas); o.start(t); o.stop(t+d+.15); t+=d*.92;
+  });
+};
+A.whine=function(){
+  if(!A.ctx)return ;
+  const st=A.now(), o=A.node('createOscillator'); o.type='triangle';
+  o.frequency.setValueAtTime(300,st); o.frequency.linearRampToValueAtTime(520,st+.5);
+  o.frequency.linearRampToValueAtTime(340,st+1.1);
+  const g=A.ctx.createGain(); A.env(g,st,.15,.6,.5,.20);
+  const tr=A.node('createOscillator'); tr.frequency.value=11;
+  const tg=A.ctx.createGain(); tg.gain.value=.06; tr.connect(tg).connect(g.gain);
+  o.connect(g).connect(A.mas); o.start(st); o.stop(st+1.6); tr.start(st); tr.stop(st+1.6);
+};
+A.pager=function(){
+  if(!A.ctx)return ;
+  const t0=A.now();
+  for(let i=0;i<3;i++){
+    const st=t0+i*.19, o=A.node('createOscillator'); o.type='square'; o.frequency.value=980;
+    const g=A.ctx.createGain(); A.env(g,st,.003,.07,.03,.14);
+    o.connect(g).connect(A.mas); o.start(st); o.stop(st+.16);
+  }
+};
+A.blip=function(f,v){
+  if(!A.ctx)return; const st=A.now(), o=A.node('createOscillator'); o.type='square';
+  o.frequency.value=f||660;
+  const g=A.ctx.createGain(); A.env(g,st,.002,.02,.04,v||.06);
+  o.connect(g).connect(A.mas); o.start(st); o.stop(st+.12);
+};
+A.stopAll=function(){A.live.forEach(n=>{try{n.stop()}catch(e){}}); A.live=[];};
+
+/* ---------- 真实录音（Commons 的 CC 素材，见 CREDITS.md） ----------
+   合成音全部保留：录音加载失败时自动退回合成，闹钟不会变哑。          */
+const CLIP={baby:'assets/baby.m4a',cat:'assets/cat.m4a',
+            rooster:'assets/rooster.m4a',dog:'assets/dog.m4a'};
+const EL={};
+A.loadClips=function(){
+  for(const k in CLIP){
+    try{
+      const a=new Audio(CLIP[k]); a.preload='auto'; a.volume=0;
+      a.addEventListener('error',()=>{EL[k]=null;});   // 加载不到就当没有，退回合成
+      EL[k]=a;
+    }catch(e){ EL[k]=null; }
+  }
+};
+A.unlocked=false;
+A.unlock=function(){                                   // 必须在用户手势里跑一次
+  A.init(); A.unlocked=true;
+  if(A.ctx&&A.ctx.state==='suspended')A.ctx.resume().catch(()=>{});
+};
+A.oneShot=function(k,ms,fallback){                     // 一次只播一个角色，旧计时器不能停掉新声音
+  if(A.muted)return true;
+  const a=EL[k]; if(!a)return false;
+  const id=++A.previewId;clearTimeout(A.previewTimer);
+  try{ a.loop=false; a.currentTime=0; a.volume=.65;
+    const pr=a.play(); if(pr&&pr.catch) pr.catch(()=>{if(id===A.previewId&&fallback)fallback();});
+    if(ms) A.previewTimer=setTimeout(()=>{if(id!==A.previewId)return;try{a.pause();a.currentTime=0;}catch(e){}},ms);
+    return true;
+  }catch(e){ return false; }
+};
+A.clipLoop=function(k,fallback){                       // 播放被拒绝时也切换到合成音
+  const a=EL[k]; if(!a)return null;
+  try{
+    let active=true;
+    a.loop=true; a.currentTime=0; a.volume=A.muted?0:.30;
+    const t0=Date.now();
+    const iv=setInterval(()=>{a.volume=A.muted?0:Math.min(.95,.30+(Date.now()-t0)/26000*.65);},400);
+    const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{if(!active)return;clearInterval(iv);if(fallback)fallback();});
+    return {stop(){active=false;clearInterval(iv);
+      try{a.pause();a.currentTime=0;a.loop=false;a.volume=0;}catch(e){}}};
+  }catch(e){ return null; }
+};
+A.stopPreview=function(){
+  ++A.previewId;clearTimeout(A.previewTimer);A.stopAll();
+  if(A.previewMosq){A.previewMosq.stop();A.previewMosq=null;}
+  Object.values(EL).forEach(a=>{if(a){a.pause();a.currentTime=0;a.loop=false;}});
+};
+function previewSound(){
+  A.stopPreview(); A.unlock(); if(A.muted)return;
+  const selected=role;
+  const fallback=()=>{if(selected!==role)return;if(role.snd==='mosq'){A.previewMosq=A.mosq();A.previewTimer=setTimeout(()=>A.stopPreview(),1800);}else(SND[role.snd]||A.blip)();};
+  if(!role.clip||!A.oneShot(role.clip,2200,fallback))fallback();
+}
+function updateSoundButton(){
+  $('#sound-toggle').textContent='声音 '+(A.muted?'关':'开');
+  $('#sound-toggle').setAttribute('aria-pressed',String(A.muted));
+  $('#sound-toggle').setAttribute('aria-label',A.muted?'开启声音':'关闭声音');
+}
+
+/* ==========================================================
+   手绘引擎 —— 一切线条都是「带抖动、描两遍」
+   ========================================================== */
+let BOIL=0;                                  // 沸腾帧：响铃时变化，让线条像逐帧动画一样抖
+function nz(i){const x=Math.sin(i*127.1+BOIL*311.7)*43758.5453; return (x-Math.floor(x))*2-1;}
+function rough(c,pts,o){
+  o=o||{};
+  const parentAlpha=c.globalAlpha;
+  const amp=o.amp==null?1.7:o.amp, seed=o.seed||0, close=o.close;
+  const P=close?pts.concat([pts[0]]):pts;
+  c.lineCap='round'; c.lineJoin='round';
+  c.lineWidth=o.w==null?2.2:o.w;
+  c.strokeStyle=o.color||'#2f2a24';
+  for(let p=0;p<2;p++){
+    c.beginPath();
+    for(let i=0;i<P.length;i++){
+      const k=seed+i*7.3+p*53.1;
+      const x=P[i][0]+nz(k)*amp, y=P[i][1]+nz(k+31.4)*amp;
+      i?c.lineTo(x,y):c.moveTo(x,y);
+    }
+    c.globalAlpha=parentAlpha*(o.alpha==null?1:o.alpha)*(p?.5:1);
+    c.stroke();
+  }
+  c.globalAlpha=parentAlpha;
+}
+function circlePts(cx,cy,r,n){
+  n=n||24; const P=[];
+  for(let i=0;i<n;i++){const a=i/n*6.2832; P.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}
+  P.push(P[0]); return P;
+}
+function map(sh,x,y,s){return sh.map(p=>[x+p[0]*s,y+p[1]*s]);}
+function doodle(c,shape,x,y,s,o){
+  shape.forEach((st,i)=>rough(c,map(st,x,y,s),Object.assign({},o,{seed:(o&&o.seed||0)+i*17.3})));
+}
+function fillRough(c,pts,color,o){          // 手绘的「涂」：斜向排线
+  o=o||{}; let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;
+  pts.forEach(p=>{mnx=Math.min(mnx,p[0]);mny=Math.min(mny,p[1]);mxx=Math.max(mxx,p[0]);mxy=Math.max(mxy,p[1]);});
+  c.save(); c.beginPath();
+  pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));
+  c.closePath(); c.clip();
+  c.strokeStyle=color; c.lineWidth=o.w||2; c.lineCap='round';
+  const gap=o.gap||6;
+  for(let d=mnx-(mxy-mny);d<mxx+2;d+=gap){
+    const j=nz(d*1.7)*1.4;
+    c.globalAlpha=o.alpha==null?.55:o.alpha;
+    c.beginPath(); c.moveTo(d+j,mny-2); c.lineTo(d+(mxy-mny)+j,mxy+2); c.stroke();
+  }
+  c.globalAlpha=1; c.restore();
+}
+
+/* ---------- 手写数字（笔画，不是字体） ---------- */
+const DIG={
+'0':[[[.5,.03],[.78,.13],[.9,.4],[.88,.68],[.68,.93],[.42,.97],[.18,.82],[.09,.55],[.16,.24],[.36,.06],[.5,.03]]],
+'1':[[[.2,.22],[.45,.04],[.48,.97]],[[.22,.97],[.76,.94]]],
+'2':[[[.12,.24],[.26,.06],[.55,.03],[.8,.15],[.82,.38],[.6,.58],[.2,.9],[.88,.89]]],
+'3':[[[.14,.12],[.42,.02],[.74,.1],[.76,.32],[.5,.45]],[[.44,.44],[.78,.52],[.82,.76],[.6,.95],[.3,.94],[.14,.84]]],
+'4':[[[.7,.97],[.68,.04],[.1,.7],[.94,.68]]],
+'5':[[[.82,.06],[.28,.05],[.22,.42],[.5,.36],[.78,.46],[.82,.74],[.6,.94],[.28,.95],[.13,.86]]],
+'6':[[[.78,.07],[.46,.05],[.22,.28],[.13,.6],[.2,.85],[.46,.97],[.72,.9],[.82,.68],[.68,.5],[.4,.48],[.2,.62]]],
+'7':[[[.1,.06],[.88,.05],[.52,.55],[.42,.97]]],
+'8':[[[.5,.03],[.74,.11],[.76,.3],[.5,.45],[.24,.32],[.26,.12],[.5,.03]],
+     [[.5,.45],[.8,.58],[.82,.82],[.52,.97],[.22,.86],[.2,.6],[.5,.45]]],
+'9':[[[.82,.42],[.74,.16],[.5,.04],[.24,.1],[.14,.32],[.28,.5],[.58,.52],[.8,.38]],
+     [[.82,.42],[.78,.72],[.6,.92],[.32,.96]]]};
+function drawTime(c,txt,cx,cy,h,o){           // cy = 垂直中心
+  o=o||{}; const dw=h*.6, gap=h*.17, cw=h*.24;
+  let W=0; for(const ch of txt) W+=(ch===':'?cw:dw)+gap; W-=gap;
+  let x=cx-W/2; const y=cy-h/2;
+  for(const ch of txt){
+    if(ch===':'){
+      const r=h*.055;
+      if(o.noColon){x+=cw+gap;continue;}
+      rough(c,circlePts(x+cw/2,y+h*.34,r,9),Object.assign({},o,{seed:11,close:true}));
+      rough(c,circlePts(x+cw/2,y+h*.7,r,9),Object.assign({},o,{seed:29,close:true}));
+      x+=cw+gap;
+    } else {
+      (DIG[ch]||[]).forEach((st,i)=>rough(c,st.map(q=>[x+q[0]*dw,y+q[1]*h]),
+        Object.assign({},o,{seed:(ch.charCodeAt(0)*13+i*29)%97})));
+      x+=dw+gap;
+    }
+  }
+  return W;
+}
+
+/* ---------- 六个角色的涂鸦（手绘笔画，0..1 坐标） ---------- */
+const DOODLE={
+baby:[
+ [[.50,.09],[.62,.12],[.71,.20],[.75,.32],[.73,.44],[.65,.54],[.54,.60],[.46,.60],[.35,.54],
+  [.27,.44],[.25,.32],[.29,.20],[.38,.12],[.50,.09]],
+ [[.43,.12],[.39,.02]],[[.50,.09],[.50,-.02]],[[.57,.12],[.62,.03]],
+ [[.35,.34],[.41,.29],[.47,.34]],
+ [[.53,.34],[.59,.29],[.65,.34]],
+ [[.50,.41],[.57,.44],[.56,.52],[.50,.56],[.44,.52],[.43,.44],[.50,.41]],
+ [[.37,.59],[.31,.65],[.28,.74],[.30,.85],[.38,.93],[.50,.95],[.62,.93],[.70,.85],[.72,.74],
+  [.69,.65],[.63,.59]],
+ [[.34,.67],[.19,.58],[.12,.47]],
+ [[.66,.67],[.81,.58],[.88,.47]],
+ [[.43,.94],[.41,.99]],
+ [[.57,.94],[.59,.99]]],
+cat:[
+ [[.5,.19],[.76,.28],[.85,.54],[.72,.79],[.5,.86],[.28,.79],[.15,.54],[.24,.28],[.5,.19]],
+ [[.25,.31],[.18,.05],[.43,.21]],
+ [[.75,.31],[.82,.05],[.57,.21]],
+ [[.37,.47],[.37,.56]],[[.63,.47],[.63,.56]],
+ [[.44,.65],[.5,.6],[.56,.65]],
+ [[.1,.57],[.31,.62]],[[.69,.62],[.9,.57]]],
+mosq:[
+ [[.24,.585],[.315,.63],[.28,.735],[.185,.70],[.20,.615],[.24,.585]],
+ [[.235,.735],[.07,.90]],
+ [[.30,.70],[.52,.60],[.76,.52],[.86,.56],[.62,.66],[.36,.77],[.30,.70]],
+ [[.48,.60],[.46,.16],[.70,.28],[.60,.57]],
+ [[.62,.56],[.80,.24],[.96,.40],[.74,.57]],
+ [[.42,.73],[.36,.95]],[[.60,.65],[.66,.93]]],
+rooster:[
+ [[.38,.22],[.43,.09],[.5,.19],[.57,.07],[.63,.19]],
+ [[.5,.17],[.63,.23],[.63,.37],[.5,.43],[.38,.37],[.38,.23],[.5,.17]],
+ [[.63,.29],[.79,.33],[.63,.36]],
+ [[.5,.43],[.53,.52],[.46,.52],[.5,.43]],
+ [[.5,.45],[.67,.53],[.71,.71],[.56,.85],[.37,.83],[.27,.66],[.34,.5],[.5,.45]],
+ [[.3,.57],[.1,.4],[.19,.28]],[[.3,.64],[.08,.58]],
+ [[.45,.85],[.45,.96]],[[.58,.85],[.58,.96]]],
+dog:[
+ [[.5,.23],[.7,.31],[.74,.57],[.6,.77],[.4,.77],[.26,.57],[.3,.31],[.5,.23]],
+ [[.31,.29],[.15,.35],[.17,.6],[.29,.57]],
+ [[.69,.29],[.85,.35],[.83,.6],[.71,.57]],
+ [[.41,.47],[.41,.54]],[[.59,.47],[.59,.54]],
+ [[.45,.6],[.55,.6],[.55,.66],[.45,.66],[.45,.6]],
+ [[.5,.66],[.5,.72]],[[.42,.72],[.5,.78],[.58,.72]]],
+phone:[
+ [[.2,.32],[.29,.22],[.41,.31],[.34,.42],[.57,.63],[.67,.56],[.78,.67],[.69,.76],[.5,.77],
+  [.29,.6],[.18,.43],[.2,.32]],
+ [[.58,.28],[.68,.19],[.8,.15]],
+ [[.53,.36],[.68,.3],[.86,.27]]]};
+
+/* ---------- 闹钟本体（待机页的主图） ---------- */
+function drawAlarmClock(c,cx,cy,R,txt,ink,accent,ringing,opt){
+  const o={color:ink,w:R*.055,amp:R*.022};
+  const bo={color:ink,w:R*.05,amp:R*.02};
+  const tilt=ringing?Math.sin(BOIL*2.1)*.055:0;
+  c.save(); c.translate(cx,cy); c.rotate(tilt); c.translate(-cx,-cy);
+  rough(c,circlePts(cx-R*.80,cy-R*.74,R*.30),Object.assign({seed:3,close:true},bo));   // 左铃
+  rough(c,circlePts(cx+R*.80,cy-R*.74,R*.30),Object.assign({seed:7,close:true},bo));   // 右铃
+  rough(c,[[cx-R*.30,cy-R*1.0],[cx,cy-R*1.14],[cx+R*.30,cy-R*1.0]],Object.assign({seed:13},bo)); // 锤把
+  rough(c,[[cx-R*.62,cy+R*.86],[cx-R*.86,cy+R*1.14]],Object.assign({seed:17},bo));     // 左脚
+  rough(c,[[cx+R*.62,cy+R*.86],[cx+R*.86,cy+R*1.14]],Object.assign({seed:19},bo));     // 右脚
+  rough(c,circlePts(cx,cy,R,34),Object.assign({seed:23,close:true},o));                // 表壳
+  rough(c,circlePts(cx,cy,R*.84,30),Object.assign({seed:31,close:true,w:R*.035,alpha:.6},o)); // 表盘
+  drawTime(c,txt,cx,cy,R*.44,{color:ink,w:R*.05,amp:R*.015,noColon:opt&&opt.noColon});
+  if(ringing){                                                                          // 响铃的声波线
+    for(let s=0;s<3;s++){
+      const rr=R*(1.32+s*.20), a=.55-s*.15;
+      [-1,1].forEach(dir=>{
+        const P=[];
+        for(let i=0;i<7;i++){const ang=(-.55+i/6*1.1)*dir+(dir<0?Math.PI:0);
+          P.push([cx+Math.cos(ang)*rr,cy+Math.sin(ang)*rr]);}
+        rough(c,P,{color:accent,w:R*.05,amp:R*.03,alpha:a,seed:s*41+dir*7});
+      });
+    }
+  }
+  c.restore();
+}
+
+/* ==========================================================
+   角色 —— 每个角色的「响铃计划」就是它的性格
+   plan(now,target) 返回一串真实时间戳
+   ========================================================== */
+const MIN=60000;
+const ROLES=[
+{id:'baby',art:'baby',clip:'baby',name:'新生儿',
+ how:'每 2-3 小时一次，一整夜',
+ brief:'从现在起每 2 小时多一点叫一次，直到你设的时间',
+ title:'宝宝饿了',msg:'哭声从婴儿床传来。他不会自己停。',snd:'cry',loop:4.6,ix:'baby',
+ plan(now,T){const L=[T];let t=T-(125+ri(0,35))*MIN;
+   while(t>now+4*MIN&&L.length<6){L.push(t);t-=(125+ri(0,35))*MIN;}return L;}},
+
+{id:'cat',art:'cat',clip:'cat',name:'家猫',
+ how:'提前一小时开始，关掉还会回来',
+ brief:'提前约 1 小时开始，之后每隔几分钟来一次',
+ title:'猫在叫罐头',msg:'它认为该吃饭了。它没说错 —— 它每天都这个点吃饭。',
+ snd:'meow',loop:2.6,ix:'rhythm',
+ plan(now,T){const L=[];let t=T-(60+ri(0,25))*MIN;
+   while(t<T-2*MIN&&L.length<8){if(t>now+MIN)L.push(t);t+=(8+ri(0,8))*MIN;}
+   L.push(T);return L;}},
+
+{id:'mosq',art:'mosq',name:'蚊子',
+ how:'整夜随机几次，每次都很短',
+ brief:'整夜随机 2-4 次，加上你设的时间',
+ title:'耳边有嗡嗡声',msg:'它就在你右耳上方。你一动，它就消失。',snd:'mosq',loop:0,ix:'swat',
+ plan(now,T){const L=[T],n=ri(2,4),span=T-now-10*MIN;
+   for(let i=0;i<n&&span>20*MIN;i++)L.push(now+10*MIN+rnd(span));return L;}},
+
+{id:'rooster',art:'rooster',clip:'rooster',name:'公鸡',
+ how:'提前 40 分钟，而且关不掉',
+ brief:'提前 40 分钟一次（关不掉），然后准点一次',
+ title:'公鸡打鸣',msg:'邻居家的鸡。准得像军表，而且不接受协商。',snd:'crow',loop:7,ix:'endure',
+ plan(now,T){const L=[T],e=T-40*MIN;if(e>now+MIN)L.push(e);return L;}},
+
+{id:'dog',art:'dog',clip:'dog',name:'大型犬',
+ how:'极准时，只叫一次',
+ brief:'只在你设的时间叫一次',
+ title:'狗要出门',msg:'它坐在床边盯着你，尾巴一下一下敲地板。这个不能拖。',
+ snd:'whine',loop:5,ix:'hold',
+ plan(now,T){return [T];}},
+
+{id:'oncall',art:'phone',name:'On-call 值班',
+ how:'半夜随机呼你 1-3 次',
+ brief:'半夜随机 1-3 次，加上你设的时间',
+ title:'P1 告警',msg:'api-gateway 5xx 率 12%。它不会自己好。',snd:'pager',loop:2.2,ix:'rhythm',
+ plan(now,T){const L=[T],n=ri(1,3),span=T-now-30*MIN;
+   for(let i=0;i<n&&span>40*MIN;i++)L.push(now+20*MIN+rnd(span));return L;}}
+];
+
+/* ---------- 状态 ---------- */
+const INK='#2f2a24', RED='#c1503a', CHALK='#ded2be', CHALK2='#8a7d6a';
+let role=null, tH=Number.isInteger(saved.hour)&&saved.hour>=0&&saved.hour<24?saved.hour:7,
+  tM=Number.isInteger(saved.minute)&&saved.minute>=0&&saved.minute<60?saved.minute:0;
+const S={armed:false,plan:[],idx:0,rang:0,ring:null,lock:null,demo:false,mosqH:null,
+  sndIv:null,clipH:null,warp:0,flow:false};
+const nowMs=()=>Date.now()+S.warp;                     // 虚拟「现在」
+/* 体验模式：时间流速不均匀 —— 离下一次闹钟越远走得越快，越近越慢，
+   最后 FLOW_K 秒回到实时。gap 以时间常数 FLOW_K 指数衰减，所以减速是可见的。 */
+const FLOW_K=1.2, FLOW_MAX=21600, FLOW_P=1.5;        // 空白时间压缩，最后 1.2 秒回到实速
+/* 「×5400」对人没有意义，换成读得懂的说法：1 秒 ≈ 多久 */
+function rateLabel(r){
+  if(r<1.6) return '实速';
+  if(r>=3600) return '1 秒 ≈ '+(r/3600).toFixed(1)+' 小时';
+  if(r>=60)   return '1 秒 ≈ '+Math.round(r/60)+' 分钟';
+  return '1 秒 ≈ '+Math.round(r)+' 秒';
+}
+function flowRate(){
+  if(!S.flow||!S.armed||S.ring) return 1;              // 真实模式、或正在响，都走实时
+  const nxt=S.plan[S.idx]; if(nxt==null) return 1;
+  return clamp(Math.pow(Math.max(0,nxt-nowMs())/1000/FLOW_K,FLOW_P),1,FLOW_MAX);
+}
+const two=n=>String(n).padStart(2,'0');
+function targetDate(){
+  const n=new Date(nowMs()), d=new Date(n); d.setHours(tH,tM,0,0);
+  if(d.getTime()<=n.getTime()+30000) d.setDate(d.getDate()+1);
+  return d;
+}
+function until(ms){
+  const m=Math.max(0,Math.round(ms/MIN));
+  return m<60?m+' 分钟后':Math.floor(m/60)+' 小时 '+two(m%60)+' 分后';
+}
+const clockTxt=d=>two(d.getHours())+':'+two(d.getMinutes());
+function show(id){
+  document.documentElement.dataset.screen=id;
+  const night=id==='s-standby';
+  document.querySelector('meta[name="theme-color"]').content=night?'#202723':'#f6f1e7';
+  document.querySelectorAll('.screen').forEach(sc=>{
+    if(sc.id===id){ sc.classList.add('on'); requestAnimationFrame(()=>sc.classList.add('vis')); }
+    else sc.classList.remove('on','vis');
+  });
+}
+function flash(v){
+  if(reducedMotion.matches)return;
+  const f=$('#flash'); f.style.transition='none'; f.style.opacity=v;
+  requestAnimationFrame(()=>{f.style.transition='opacity 1.15s ease-out'; f.style.opacity=0;});
+}
+
+/* ---------- 设置页 ---------- */
+function paintRule(){
+  const cv=$('#rule'), c=fit(cv);
+  c.clearRect(0,0,cv._w,cv._h);
+  rough(c,[[2,6],[cv._w*.30,3.5],[cv._w*.68,8],[cv._w-3,4]],{color:RED,w:2,amp:.7,seed:5});
+}
+function timeWidth(txt,h){
+  const dw=h*.6, gap=h*.17, cw=h*.24; let w=0;
+  for(const ch of txt) w+=(ch===':'?cw:dw)+gap; return w-gap;
+}
+function paintTime(){
+  const cv=$('#tcv'), c=fit(cv), W=cv._w, H=cv._h;
+  c.clearRect(0,0,W,H); BOIL=0;
+  const txt=two(tH)+':'+two(tM);
+  $('#wake-time').value=txt;
+  let h=Math.min(H*.82,64);
+  while(timeWidth(txt,h)>W-6&&h>20) h-=2;              // 窄屏也不会撑出去
+  drawTime(c,txt,2+timeWidth(txt,h)/2,H*.5,h,{color:INK,w:h*.075,amp:h*.028});
+}
+/* 今晚的响铃时间轴：一眼看出这个角色会怎么折磨你 */
+function paintTimeline(plan,now,tgt){
+  const cv=$('#tlcv'), c=fit(cv), W=cv._w, H=cv._h;
+  c.clearRect(0,0,W,H); BOIL=3;
+  const L=21, R=W-24, y=26;
+  rough(c,[[L,y],[(L+R)/2,y],[R,y]],{color:'#a99d8c',w:1.6,amp:1.1,seed:9});
+  c.font='10px "Bradley Hand","HanziPen SC","PingFang SC",sans-serif';
+  c.textAlign='center'; c.textBaseline='top';
+  const span=Math.max(1,tgt-now);
+  const X=t=>L+(R-L)*Math.min(1,Math.max(0,(t-now)/span));
+  rough(c,[[L,y-5],[L,y+5]],{color:'#a99d8c',w:1.5,amp:.8,seed:21});   // 「现在」端
+  c.fillStyle='#a99d8c'; c.fillText('现在',L,y+9);
+  const clampX=(x,wd)=>Math.min(Math.max(x,L+wd/2),W-2-wd/2);
+  // 起床那一刻的标签优先占位，其余谁挡着它谁让路
+  const li=plan.length-1;
+  const wakeLab=li>=0?clockTxt(new Date(plan[li])):'';
+  const wakeW=c.measureText(wakeLab).width;
+  const wakeX=li>=0?clampX(X(plan[li]),wakeW):0;
+  let lastR=L+16;
+  plan.forEach((t,i)=>{
+    const x=X(t), last=i===li;
+    const col=last?RED:INK, hh=last?11:7;
+    rough(c,[[x,y-hh],[x,y+hh*.6]],{color:col,w:last?2.4:1.8,amp:.9,seed:30+i*7});
+    if(last) rough(c,circlePts(x,y-hh-5,3.2,9),{color:RED,w:1.8,amp:.7,seed:77});
+    const lab=clockTxt(new Date(t)), wd=c.measureText(lab).width, lx=clampX(x,wd);
+    const clearLeft=lx-wd/2>lastR+5;
+    const clearWake=last||lx+wd/2<wakeX-wakeW/2-6;     // 不许压到起床时间
+    if(clearLeft&&clearWake){
+      c.fillStyle=last?RED:'#7a6f60'; c.fillText(lab,lx,y+9);
+      lastR=Math.max(lastR,lx+wd/2);
+    }
+  });
+}
+/* ==========================================================
+   角色动效 —— 每个角色一套待机动作，笔触逐帧「沸腾」
+   ========================================================== */
+function part(c,shape,idx,x,y,s,o,tf){        // 只画某几笔，并给它们单独的变换
+  c.save();
+  if(tf){
+    const px=x+(tf.px==null?.5:tf.px)*s, py=y+(tf.py==null?.5:tf.py)*s;
+    c.translate(px+(tf.ox||0),py+(tf.oy||0));
+    if(tf.rot)c.rotate(tf.rot);
+    if(tf.sx!=null||tf.sy!=null)c.scale(tf.sx==null?1:tf.sx,tf.sy==null?1:tf.sy);
+    c.translate(-px,-py);
+  }
+  idx.forEach(i=>{const st=shape[i]; if(st)
+    rough(c,map(st,x,y,s),Object.assign({},o,{seed:(o.seed||0)+i*17.3}));});
+  c.restore();
+}
+const wave=(x,y,w,amp,ph,n)=>{const P=[];for(let i=0;i<=n;i++){const u=i/n;
+  P.push([x+w*u,y+Math.sin(ph+u*6.0)*amp]);}return P;};
+
+const ANIM={
+/* 小婴儿：哭到一抽一抽，手脚乱蹬，嘴一张一合，掉眼泪 */
+baby(c,t,x,y,s,o){
+  const B=DOODLE.baby;
+  const wail=.5+.5*Math.sin(t*2.2);
+  const bo=-Math.abs(Math.sin(t*2.2))*s*.016;          // 哭的抽动
+  part(c,B,[7],x,y,s,o,{oy:bo});
+  part(c,B,[8],x,y,s,o,{oy:bo,rot:Math.sin(t*4.6)*.36,px:.34,py:.67});
+  part(c,B,[9],x,y,s,o,{oy:bo,rot:-Math.sin(t*4.6+.7)*.36,px:.66,py:.67});
+  part(c,B,[10],x,y,s,o,{oy:bo,rot:Math.sin(t*5.3)*.30,px:.43,py:.94});
+  part(c,B,[11],x,y,s,o,{oy:bo,rot:-Math.sin(t*5.3+.5)*.30,px:.57,py:.94});
+  c.save();                                            // 以下都在「头」的坐标系里
+  const px=x+s*.5, py=y+s*.60;
+  c.translate(px,py+bo); c.rotate(Math.sin(t*2.2)*.06); c.translate(-px,-py);
+  [0,1,2,3,4,5].forEach(i=>rough(c,map(B[i],x,y,s),Object.assign({},o,{seed:i*17.3})));
+  part(c,B,[6],x,y,s,o,{sy:.5+.95*wail,px:.5,py:.44}); // 嘴张开的幅度跟着哭声
+  for(let i=0;i<2;i++){                                // 眼泪
+    const k=(t*.85+i*.5)%1;
+    const ex=x+s*(i?.63:.37), ey=y+s*(.37+k*.33);
+    rough(c,[[ex,ey],[ex-s*.012,ey+s*.055]],
+      Object.assign({},o,{seed:130+i*9,alpha:Math.max(0,1-k)}));
+  }
+  c.restore();
+},
+/* 猫：头轻晃、耳朵抽动、会眨眼、尾巴甩 */
+cat(c,t,x,y,s,o){
+  const bob=Math.sin(t*1.9)*s*.013;
+  const P=[];                                   // 尾巴
+  for(let i=0;i<=7;i++){const u=i/7;
+    P.push([x+s*(.80+u*.34), y+s*(.72-u*u*.30)+Math.sin(t*2.7+u*3.2)*s*.11*u]);}
+  rough(c,P,Object.assign({},o,{seed:81}));
+  const tw=(t%4.1)<.22?Math.sin((t%4.1)/.22*12.6)*.30:0;
+  part(c,DOODLE.cat,[0],x,y,s,o,{oy:bob});
+  part(c,DOODLE.cat,[1],x,y,s,o,{oy:bob,rot:tw,px:.30,py:.32});
+  part(c,DOODLE.cat,[2],x,y,s,o,{oy:bob,rot:-tw*.7,px:.70,py:.32});
+  if((t%3.6)<.15){                              // 眨眼
+    [[.32,.52],[.58,.52]].forEach((e,i)=>rough(c,
+      [[x+s*e[0],y+s*e[1]+bob],[x+s*(e[0]+.10),y+s*e[1]+bob]],
+      Object.assign({},o,{seed:90+i*7})));
+  } else part(c,DOODLE.cat,[3,4],x,y,s,o,{oy:bob});
+  part(c,DOODLE.cat,[5,6,7],x,y,s,o,{oy:bob});
+},
+/* 蚊子：绕着飞，翅膀高频扇动 */
+mosq(c,t,x,y,s,o){
+  const ox=Math.sin(t*1.05)*s*.085, oy=Math.cos(t*1.62)*s*.06;
+  const rot=Math.sin(t*1.05+1.1)*.13;
+  const tf={ox,oy,rot,px:.5,py:.6};
+  part(c,DOODLE.mosq,[0,1,2,5,6],x,y,s,o,tf);
+  const flap=.30+.70*Math.abs(Math.sin(t*23));
+  part(c,DOODLE.mosq,[3],x,y,s,o,Object.assign({},tf,{sy:flap,py:.58,px:.50}));
+  part(c,DOODLE.mosq,[4],x,y,s,o,Object.assign({},tf,{sy:flap,py:.56,px:.64}));
+},
+/* 公鸡：周期性引颈打鸣，尾羽摇 */
+rooster(c,t,x,y,s,o){
+  const cyc=t%2.9, cr=cyc<.55?Math.sin(cyc/.55*3.1416):0;
+  part(c,DOODLE.rooster,[4,7,8],x,y,s,o,null);
+  part(c,DOODLE.rooster,[5,6],x,y,s,o,{rot:Math.sin(t*3.0)*.11,px:.34,py:.58});
+  part(c,DOODLE.rooster,[0,1,2,3],x,y,s,o,
+    {rot:-cr*.30,ox:cr*s*.09,oy:-cr*s*.06,px:.48,py:.46});
+  if(cr>.25){                                   // 打鸣的声线
+    for(let i=0;i<2;i++){const r=s*(.30+i*.09);
+      const P=[];for(let k=0;k<6;k++){const a=-.6+k/5*1.2;
+        P.push([x+s*.80+Math.cos(a)*r,y+s*.30+Math.sin(a)*r]);}
+      rough(c,P,Object.assign({},o,{seed:100+i*11,alpha:(cr-.25)*1.2,w:(o.w||2)*.85}));}
+  }
+},
+/* 狗：歪头、耳朵甩、伸舌头喘 */
+dog(c,t,x,y,s,o){
+  const tilt=Math.sin(t*1.35)*.10;
+  const tf={rot:tilt,px:.5,py:.80};
+  part(c,DOODLE.dog,[0,3,4,5],x,y,s,o,tf);
+  part(c,DOODLE.dog,[1],x,y,s,o,{rot:tilt+Math.sin(t*1.35-.7)*.15,px:.31,py:.30});
+  part(c,DOODLE.dog,[2],x,y,s,o,{rot:tilt+Math.sin(t*1.35-.7)*.15,px:.69,py:.30});
+  const pant=.5+.5*Math.sin(t*5.4);
+  c.save();
+  const px=x+.5*s, py=y+.80*s;
+  c.translate(px,py); c.rotate(tilt); c.translate(-px,-py);
+  rough(c,[[x+s*.50,y+s*.66],[x+s*.50,y+s*(.72+pant*.10)]],Object.assign({},o,{seed:110}));
+  rough(c,[[x+s*.44,y+s*(.72+pant*.10)],[x+s*.50,y+s*(.79+pant*.10)],
+           [x+s*.56,y+s*(.72+pant*.10)]],Object.assign({},o,{seed:117}));
+  c.restore();
+},
+/* 电话：一阵一阵地震，声波往外推 */
+phone(c,t,x,y,s,o){
+  const burst=(t%1.9)<.75, ph=(t%1.9)/.75;
+  const sh=burst?Math.sin(t*34)*.035:0;
+  part(c,DOODLE.phone,[0],x,y,s,o,{rot:sh,ox:sh*s*.4,px:.48,py:.5});
+  for(let i=0;i<3;i++){
+    const k=burst?(ph*1.3-i*.22):-1;
+    if(k<0||k>1)continue;
+    c.save();
+    const px=x+s*.62, py=y+s*.28;
+    c.translate(px,py); c.scale(1+k*.55,1+k*.55); c.translate(-px,-py);
+    rough(c,map(DOODLE.phone[1+(i%2)],x,y,s),
+      Object.assign({},o,{seed:120+i*9,alpha:1-k}));
+    c.restore();
+  }
+}};
+function drawRole(c,r,t,x,y,s,o){ (ANIM[r.art]||function(){})(c,t,x,y,s,o); }
+
+/* ==========================================================
+   选人台 —— 一次一个，左右切换，各自演各自的
+   ========================================================== */
+let pi=0, pOut=-1, pDir=1, pProg=1, pRaf=0, pBoil=0, pBoilN=0;
+function paintDots(){
+  const box=$('#pdots'); box.innerHTML='';
+  ROLES.forEach((r,i)=>{
+    const button=document.createElement('button');button.className='role-dot';
+    button.setAttribute('aria-label',r.name);button.setAttribute('aria-pressed',String(i===pi));button.title=r.name;
+    button.onclick=()=>pick(i,i<pi?-1:1);
+    const cv=document.createElement('canvas'), d=Math.min(window.devicePixelRatio||1,2.5);
+    cv.width=30*d; cv.height=30*d;cv.setAttribute('aria-hidden','true');
+    const c=cv.getContext('2d'); c.setTransform(d,0,0,d,0,0);
+    BOIL=i*3;
+    doodle(c,DOODLE[r.art],3,3,24,{color:i===pi?RED:'#8c8375',w:1.4,amp:.35,seed:i*5});
+    button.appendChild(cv);box.appendChild(button);
+  });
+}
+function pickerFrame(){
+  pRaf=requestAnimationFrame(pickerFrame);
+  if(!$('#s-setup').classList.contains('on'))return;
+  const nw=performance.now(), t=reducedMotion.matches?1:nw/1000;
+  if(nw-pBoil>110){pBoil=nw; pBoilN=(pBoilN+1)%997;}
+  const cv=$('#pcv'), c=cv.getContext('2d'), W=cv._w, H=cv._h;
+  if(!W)return;
+  c.clearRect(0,0,W,H);
+  pProg=reducedMotion.matches?1:Math.min(1,(nw-pStarted)/340);
+  const e=1-Math.pow(1-pProg,3);
+  const gy=H-11;                                       // 地平线
+  const S0=Math.min(W*.60,gy*.94), cy=gy-S0;           // 角色站在线上，不再悬在半空
+  BOIL=41;                                             // 地平线是静的，不跟着沸腾
+  rough(c,[[W*.24,gy-2],[W*.5,gy-4],[W*.76,gy-1]],{color:'#a99d8c',w:1.6,amp:1.2,seed:5,alpha:.8});
+  BOIL=reducedMotion.matches?0:pBoilN;
+  if(pOut>=0&&pProg<1){                          // 上一个滑出去
+    c.save(); c.globalAlpha=1-e;
+    drawRole(c,ROLES[pOut],t,W/2-S0/2-pDir*e*W*.62,cy,S0,{color:INK,w:3,amp:2});
+    c.restore();
+  }
+  c.save(); c.globalAlpha=e;
+  drawRole(c,ROLES[pi],t,W/2-S0/2+pDir*(1-e)*W*.62,cy,S0,{color:INK,w:3,amp:2});
+  c.restore();
+}
+let pStarted=0;
+function updateRole(){
+  const detail=ROLE_DETAILS[role.id];
+  $('#pname').textContent=role.name;$('#phow').textContent=role.how;
+  $('#role-quote').textContent=detail.quote;$('#role-tag').textContent=detail.tag;
+  $('#role-action').textContent=detail.action;$('#role-number').textContent=two(pi+1)+' — 06';
+  $('#pcv').setAttribute('aria-label',role.name+'：'+role.how);
+  $('.character-halo').style.background=detail.color;
+  paintDots();paintPlan();
+}
+function pick(i,dir){
+  const n=ROLES.length; const ni=((i%n)+n)%n;
+  if(ni===pi&&pProg>=1)return;
+  pOut=pi; pi=ni; pDir=dir||1; pProg=0;pStarted=performance.now();
+  role=ROLES[pi];
+  updateRole();saveSettings();previewSound();
+}
+function initPicker(){
+  fit($('#pcv'));
+  pi=Math.max(0,ROLES.findIndex(r=>r.id===(saved.role||'cat')));role=ROLES[pi];pOut=-1;pProg=1;
+  updateRole();updateSoundButton();
+  $('#prev').onclick=()=>pick(pi-1,-1);
+  $('#next').onclick=()=>pick(pi+1,1);
+  let sx=null;                                   // 也能滑
+  const cv=$('#pcv');
+  cv.addEventListener('pointerdown',e=>{sx=e.clientX;cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener('pointercancel',()=>{sx=null;});
+  cv.addEventListener('pointerup',e=>{
+    if(sx==null)return; const dx=e.clientX-sx; sx=null;
+    if(Math.abs(dx)>36) pick(pi+(dx<0?1:-1), dx<0?1:-1);
+  });
+  cancelAnimationFrame(pRaf); pickerFrame();
+  // 手写体是异步加载的：字体到位后布局重排，画布尺寸必须跟着重算，
+  // 否则旧位图被非等比拉伸 —— 角色就「被压扁」了
+  const refit=()=>{ fit($('#pcv')); paintTime(); paintPlan(); };
+  if(window.ResizeObserver){
+    const ro=new ResizeObserver(refit); ro.observe($('#picker')); ro.observe($('#tcv'));
+  }
+  if(document.fonts&&document.fonts.ready)
+    document.fonts.ready.then(()=>{ refit(); paintRule(); });
+}
+function paintPlan(){
+  if(S.armed||S.ring)return;
+  const T=targetDate(), now=nowMs();
+  const nc=$('#nowclk'); if(nc) nc.querySelector('i').textContent=clockTxt(new Date(now));
+  $('#tsub').textContent=until(T.getTime()-now);
+  if(!role)return;
+  const key=role.id+':'+T.getTime();
+  if(S.previewKey!==key){S.previewKey=key;S.preview=role.plan(now,T.getTime()).sort((a,b)=>a-b);}
+  const p=S.preview.filter(t=>t>now+2000);S.preview=p;
+  $('#tllbl').textContent='今晚会响 '+p.length+' 次';
+  $('#tlcv').setAttribute('aria-label','今晚会响 '+p.length+' 次：'+p.map(t=>clockTxt(new Date(t))).join('、'));
+  paintTimeline(p,now,T.getTime());
+}
+function holdRepeat(btn,fn){
+  let t=null,iv=null;
+  const stop=()=>{clearTimeout(t);clearInterval(iv);};
+  btn.addEventListener('pointerdown',e=>{e.preventDefault();fn();
+    t=setTimeout(()=>{iv=setInterval(fn,90);},420);});
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev,stop));
+  btn.addEventListener('click',e=>{if(e.detail===0)fn();});
+  addEventListener('blur',stop);
+}
+function initSetup(){
+  initPicker(); paintRule(); paintTime(); paintPlan();
+  document.querySelectorAll('.stp button').forEach(b=>holdRepeat(b,()=>{
+    const d=+b.dataset.d, m=(tH*60+tM+d+1440)%1440;
+    tH=Math.floor(m/60); tM=m%60; A.blip(560,.03); paintTime(); paintPlan();saveSettings();
+  }));
+  $('#wake-time').addEventListener('change',e=>{const match=/^(\d{2}):(\d{2})$/.exec(e.target.value);if(!match)return;tH=+match[1];tM=+match[2];paintTime();paintPlan();saveSettings();});
+  $('#warn').textContent='真实闹钟需保持页面在前台、屏幕常亮。体验模式会加速时间。';
+  if(!(window.AudioContext||window.webkitAudioContext))
+    $('#warn').textContent='这个浏览器不支持网页音频 —— 闹钟会是哑的。请换一个浏览器。';
+}
+
+/* ---------- 待机 ---------- */
+let sbTimer=0, sbLast='', sbColon=null;
+function paintStandby(force){
+  const cv=$('#clock'), c=cv.getContext('2d'), W=cv._w, H=cv._h;
+  if(!W)return;
+  const d=new Date(nowMs()), txt=clockTxt(d), on=d.getSeconds()%2===0;
+  if(!force&&txt===sbLast&&on===sbColon)return;     // 一夜要亮着，别每帧重画
+  sbLast=txt; sbColon=on; BOIL=0;                   // 床头钟的线是静止的
+  c.clearRect(0,0,W,H);
+  [[.16,.23],[.82,.18],[.88,.68],[.13,.73]].forEach(([x,y],i)=>{
+    const sx=W*x,sy=H*y,r=i%2?3:5;
+    rough(c,[[sx-r,sy],[sx+r,sy]],{color:CHALK2,w:1,amp:.4,seed:43+i});
+    rough(c,[[sx,sy-r],[sx,sy+r]],{color:CHALK2,w:1,amp:.4,seed:47+i});
+  });
+  drawAlarmClock(c,W/2,H*.47,Math.min(W*.335,H*.30),txt,CHALK,RED,false);
+}
+function standbyLoop(){
+  clearInterval(sbTimer); paintStandby(true);
+  sbTimer=setInterval(()=>paintStandby(false),1000);
+}
+function standbyStop(){clearInterval(sbTimer); sbTimer=0;}
+function sbInfo(){                                   // 床头钟该说的是「下一次几点」
+  const nxt=S.plan[S.idx];
+  $('#sbnext').textContent=clockTxt(new Date(nxt!=null?nxt:S.target.getTime()));
+  const left=Math.max(0,S.plan.length-S.idx);
+  $('#sbhow').textContent=role.name+' · 今晚还剩 '+left+' 次'+
+    (S.rang?'（已叫过 '+S.rang+' 次）':'');
+  $('#night-progress').innerHTML=S.plan.map((_,i)=>'<i class="'+(i<S.idx?'passed':i===S.idx?'current':'')+'"></i>').join('');
+  $('#night-progress').setAttribute('aria-label','已响 '+S.rang+' 次，共 '+S.plan.length+' 次');
+  $('#night-subtitle').textContent=role.name+'已就位 · '+ROLE_DETAILS[role.id].quote;
+}
+async function lockScreen(){
+  if(!S.armed||S.flow||S.lock||S.lockPending)return;
+  if(!('wakeLock' in navigator)){
+    $('#sblock').textContent='这台设备不支持屏幕常亮 —— 锁屏后可能不会响。'; return;
+  }
+  S.lockPending=true;
+  try{ const lock=await navigator.wakeLock.request('screen');
+    if(!S.armed||S.flow){await lock.release();return;}
+    S.lock=lock;
+    lock.addEventListener('release',()=>{if(S.lock===lock)S.lock=null;if(S.armed&&!S.flow)$('#sblock').textContent='屏幕常亮已中断，请保持前台；锁屏后可能不会响。';});
+    $('#sblock').textContent='屏幕已设为常亮。让这一页停在前台。';
+  }catch(e){ $('#sblock').textContent='没能阻止息屏 —— 锁屏后可能不会响。'; }
+  finally{S.lockPending=false;}
+}
+function arm(flow){
+  stopSound();A.stopPreview();cleanupIX();A.unlock();
+  S.warp=0; S.flow=!!flow; S.ring=null; IXs=null;    // 重新设定就把响铃状态清干净
+  const T=targetDate(), now=nowMs();
+  paintPlan();S.plan=[...S.preview];
+  S.idx=0; S.rang=0; S.armed=true; S.target=T;
+  S.started=Date.now();S.planned=S.plan.length;
+  // Prime the selected recording in this click, while preserving a later ring.
+  const clip=role.clip&&EL[role.clip],primeId=A.previewId;
+  if(clip){clip.volume=0;const p=clip.play();if(p)p.then(()=>{if(primeId===A.previewId&&!S.clipH){clip.pause();clip.currentTime=0;}}).catch(()=>{});}
+  $('#night-mode').textContent=S.flow?'体验模式 · 时间快进中':'真实闹钟 · 夜间值守中';
+  $('#night-title').textContent='晚安。它已经上班了。';
+  $('#cancel').textContent=S.flow?'← 退出体验，重新选人':'取消闹钟，返回设置';
+  show('s-standby');
+  requestAnimationFrame(()=>{ fit($('#clock')); standbyStop(); standbyLoop(); });
+  sbInfo();
+  $('#sbrate').textContent=S.flow?rateLabel(1):'';
+  if(S.flow) $('#sblock').textContent='体验模式 · 时间被压缩，临近响铃会回到实速';
+  else lockScreen();
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&S.armed&&!S.flow&&!S.lock) lockScreen();
+});
+
+/* ---------- 响铃 ---------- */
+const SND={cry:()=>A.cry(),meow:()=>A.meow(),crow:()=>A.crow(),whine:()=>A.whine(),pager:()=>A.pager()};
+function startSound(){
+  stopSound();
+  if(role.clip){ S.clipH=A.clipLoop(role.clip,()=>{if(S.ring)startSynthSound();}); if(S.clipH) return; }
+  startSynthSound();
+}
+function startSynthSound(){
+  A.init();
+  if(A.ctx&&A.ctx.state==='suspended') A.ctx.resume().catch(()=>{});
+  if(role.snd==='mosq'){ S.mosqH=A.mosq(); }
+  else { const f=SND[role.snd]||A.blip; f(); S.sndIv=setInterval(f,role.loop*1000); }
+  if(A.mas){                                     // 真实闹钟：音量渐强
+    const t=A.now(); A.mas.gain.cancelScheduledValues(t);
+    A.mas.gain.setValueAtTime(A.muted?0:.28,t); A.mas.gain.linearRampToValueAtTime(A.muted?0:.95,t+26);
+  }
+}
+function stopSound(){
+  if(S.clipH){S.clipH.stop();S.clipH=null;}
+  if(S.sndIv){clearInterval(S.sndIv);S.sndIv=null;}
+  if(S.mosqH){S.mosqH.stop();S.mosqH=null;}
+  A.stopAll();
+  if(A.mas){const t=A.now();A.mas.gain.cancelScheduledValues(t);A.mas.gain.setValueAtTime(A.muted?0:.62,t);}
+}
+let ringRaf=0, boilT=0;
+function paintRing(){
+  ringRaf=requestAnimationFrame(paintRing);
+  const now=performance.now();
+  if(now-boilT>110){ boilT=now; BOIL=(BOIL+1)%997;    // 逐帧「沸腾」的手绘线
+    $('#rnow').textContent=clockTxt(new Date(nowMs())); }
+  const cv=$('#rcv'), c=cv.getContext('2d'), W=cv._w, H=cv._h;
+  if(!W)return;
+  c.clearRect(0,0,W,H);
+  const s=Math.min(H*.90,165);
+  if(reducedMotion.matches)BOIL=0;
+  drawRole(c,role,reducedMotion.matches?1:now/1000,W/2-s/2,H*.5-s/2,s,{color:RED,w:3.2,amp:2.1});
+}
+function ringNow(demo){
+  standbyStop();A.stopPreview();cleanupIX();
+  S.ring={demo:!!demo,t0:Date.now()}; if(!demo) S.rang++;
+  show('s-ring'); flash(.72);
+  $('#rtitle').textContent=role.title;
+  $('#rmsg').textContent=role.msg;
+  $('#rcount').textContent=demo?'叫醒试玩':((S.flow?'体验 · ':'')+'今晚第 '+S.rang+' / '+S.plan.length+' 次');
+  $('#rnow').textContent=clockTxt(new Date(nowMs()));
+  $('#rgiveup').style.display='block';
+  $('#rgiveup').textContent=demo?'← 返回选人':S.flow?'结束这一晚':'取消今晚剩下的闹钟';
+  requestAnimationFrame(()=>{ fit($('#rcv')); cancelAnimationFrame(ringRaf); paintRing(); });
+  startSound(); buildIX();
+}
+function dismiss(){
+  if(!S.ring)return;
+  stopSound(); cancelAnimationFrame(ringRaf); BOIL=0;cleanupIX(); IXs=null;
+  const demo=S.ring&&S.ring.demo; S.ring=null;
+  if(demo){ show('s-setup');paintPlan();return; }
+  if(S.idx<S.plan.length){ show('s-standby'); sbInfo();
+    requestAnimationFrame(()=>{fit($('#clock'));standbyStop();standbyLoop();});
+  } else finish();
+}
+function finish(cancelled=false){
+  S.armed=false; if(S.lock){try{S.lock.release()}catch(e){} S.lock=null;}
+  standbyStop();
+  show('s-done');
+  const cv=$('#dcv'), d=Math.min(window.devicePixelRatio||1,2.5);
+  cv.width=120*d; cv.height=120*d; const c=cv.getContext('2d'); c.setTransform(d,0,0,d,0,0);
+  doodle(c,DOODLE[role.art],10,10,100,{color:INK,w:2.6,amp:1.6,seed:3});
+  $('#dtitle').textContent=cancelled?'好吧，放过你了。':'早安，幸存者。';
+  $('#dtxt').innerHTML=(S.flow?'这一晚的体验':'这一晚')+' · '+role.name+'<br>叫醒你 <strong>'+S.rang+'</strong> 次'+
+    (cancelled?'<br>本次提前结束，剩余闹钟已取消。':'<br>今晚的叫醒任务，全部完成。');
+  $('#done-quote').textContent='“'+ROLE_DETAILS[role.id].ending+'”';
+  S.warp=0;S.flow=false;S.previewKey=null;
+}
+
+/* ---------- 五种关掉闹钟的方式 ---------- */
+let IXs=null;
+let ixController=null;
+function cleanupIX(){if(ixController)ixController.abort();ixController=null;}
+function listenIX(target,event,fn){target.addEventListener(event,fn,{signal:ixController.signal});}
+const stage=()=>$('#rstage'), rfoot=t=>$('#rfoot').textContent=t;
+function buildIX(){
+  cleanupIX();ixController=new AbortController();
+  const T=role.ix;
+  IXs={type:T,phase:0,v:0,hold:false,hits:0,att:0,mk:0,dir:1,zone:.5,next:.5,dot:null,
+       tricky:T==='swat'&&Math.random()<.3,life:0,y:6,wake:0};
+  stage().classList.remove('tall');
+  render();
+  function render(){
+    const s=IXs;
+    if(T==='baby'&&s.phase===1){
+      $('#rtitle').textContent='轻轻放下';
+      $('#rmsg').textContent='慢慢往下推。放太快，他会立刻惊醒。';
+      stage().innerHTML='<div class="slide" tabindex="0" role="slider" aria-label="轻轻放下宝宝，向下拖动或按住下方向键" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="goal"></div><div class="knob"></div></div>';
+      wireSlide();
+    } else if(T==='baby'||T==='hold'){
+      stage().innerHTML='<div class="bar"><i></i></div><button class="pad">'+(T==='baby'?'按住，给宝宝喂奶':'按住，陪它遛一圈')+'</button>';
+      wireHold();
+    } else if(T==='rhythm'){
+      stage().innerHTML='<div class="rhy"><div class="zone"></div><div class="mk"></div></div>'+
+        '<div class="dots"><i></i><i></i><i></i><i></i></div>'+
+        '<button class="pad" style="margin-top:14px">'+(role.id==='cat'?'踩准红色区域，开罐头':'踩准红色区域，处理告警')+'</button>';
+      wireTap();
+    } else if(T==='swat'){
+      stage().classList.add('tall');
+      stage().innerHTML='<div id="swat"></div>';
+      rfoot('它随时会出现。');
+    } else if(T==='endure'){
+      stage().innerHTML='<div class="bar"><i></i></div>'+
+        '<div class="pad" style="opacity:.6;border-style:dotted">它没有安装关闭按钮。</div>';
+    }
+  }
+  IXs.render=render;
+}
+function wireHold(){
+  const p=stage().querySelector('.pad');
+  const s=IXs;
+  const on=e=>{if(IXs!==s)return;e.preventDefault();s.hold=true;p.classList.add('act');};
+  const off=()=>{s.hold=false;p.classList.remove('act');};
+  listenIX(p,'pointerdown',e=>{p.setPointerCapture(e.pointerId);on(e);});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>listenIX(p,ev,off));
+  listenIX(p,'keydown',e=>{if(e.key===' '||e.key==='Enter')on(e);});
+  listenIX(p,'keyup',e=>{if(e.key===' '||e.key==='Enter')off();});
+  listenIX(window,'blur',off);
+  listenIX(document,'visibilitychange',off);
+}
+function wireTap(){
+  listenIX(stage().querySelector('.pad'),'click',e=>{
+    e.preventDefault(); const s=IXs; if(!s)return;
+    if(Math.abs(s.mk-s.zone)<.12){s.hits++;s.zone=.16+rnd(.68);A.blip(1180,.08);}
+    else {s.feedback='差一点，再试一次';s.feedbackUntil=performance.now()+650;A.blip(150,.09);}
+    stage().querySelectorAll('.dots i').forEach((d,i)=>d.classList.toggle('on',i<s.hits));
+    if(s.hits>=4) dismiss();
+  });
+}
+function wireSlide(){
+  const w=stage().querySelector('.slide'), k=w.querySelector('.knob'), s=IXs;
+  s.wrap=w; s.knob=k; s.y=6; s.lastY=null; s.hold2=0;
+  const KH=()=>k.getBoundingClientRect().height, HH=()=>w.getBoundingClientRect().height;
+  const move=e=>{
+    if(IXs!==s||!s.drag)return; e.preventDefault();
+    const r=w.getBoundingClientRect(), ny=clamp(e.clientY-r.top-KH()/2,6,HH()-KH()-6);
+    const eventTime=performance.now();
+    if(Math.abs(ny-s.y)/Math.max(.016,(eventTime-s.lastMove)/1000)>340){
+      if(!A.oneShot('baby',1400)) A.cry(); w.classList.add('bad'); s.y=Math.min(s.y,HH()*.3); s.wake++;
+      setTimeout(()=>{if(IXs===s)w.classList.remove('bad');},400);
+      rfoot('他醒了。重来。（惊醒 '+s.wake+' 次）');
+      s.drag=false;s.lastY=null;k.style.top=s.y+'px';s.lastMove=eventTime;return;
+    }
+    s.lastY=ny;s.lastMove=eventTime;s.y=ny;k.style.top=ny+'px';w.setAttribute('aria-valuenow',String(Math.round((ny-6)/(HH()-KH()-12)*100)));
+  };
+  listenIX(w,'pointerdown',e=>{if(e.target!==k)return;e.preventDefault();w.setPointerCapture(e.pointerId);s.drag=true;s.lastY=s.y;s.lastMove=performance.now();});
+  listenIX(w,'pointermove',move);
+  const off=()=>{s.drag=false;s.keyDown=false;s.lastY=null;};
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>listenIX(w,ev,off));
+  listenIX(w,'keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();s.keyDown=true;s.drag=true;}});
+  listenIX(w,'keyup',e=>{if(e.key==='ArrowDown')off();});
+  listenIX(w,'blur',off);listenIX(window,'blur',off);listenIX(document,'visibilitychange',off);
+}
+function stepIX(dt){
+  const s=IXs; if(!s)return; s.dt=dt;
+  const bar=stage().querySelector('.bar i');
+  if(s.type==='baby'&&s.phase===1){
+    const HH=s.wrap.getBoundingClientRect().height, KH=s.knob.getBoundingClientRect().height;
+    if(s.keyDown){s.y=Math.min(HH-KH-6,s.y+dt*60);s.knob.style.top=s.y+'px';s.wrap.setAttribute('aria-valuenow',String(Math.round((s.y-6)/(HH-KH-12)*100)));}
+    if(s.drag&&s.y>=HH-KH-10){ s.hold2+=dt; rfoot('别松手… '+Math.max(0,(.9-s.hold2)).toFixed(1)+'s');
+      if(s.hold2>.9) dismiss(); }
+    else { s.hold2=0; if(!s.wake) rfoot('慢。再慢一点。'); }
+    return;
+  }
+  if(s.type==='baby'||s.type==='hold'){
+    const rate=s.type==='hold'?20:25;
+    s.v=clamp(s.v+(s.hold?rate:-12)*dt,0,100);
+    if(bar)bar.style.width=s.v+'%';
+    rfoot(s.hold?(s.type==='hold'?'尾巴摇起来了':'快喝饱了')+' · '+Math.ceil((100-s.v)/rate)+' 秒':s.v>0?'松手啦，再坚持一会儿。':s.type==='hold'?'牵好它，大约 5 秒就到家。':'先喂饱，再轻轻放回床上。');
+    if(s.v>=100){ if(s.type==='baby'){s.phase=1;s.v=0;stopSound();A.blip(880,.07);s.render();rfoot('');}
+                  else dismiss(); }
+    return;
+  }
+  if(s.type==='rhythm'){
+    s.mk+=s.dir*(.58+s.hits*.06)*dt;
+    if(s.mk>1){s.mk=1;s.dir=-1;} if(s.mk<0){s.mk=0;s.dir=1;}
+    const z=stage().querySelector('.zone'), m=stage().querySelector('.mk');
+    if(z){z.style.left=((s.zone-.12)*100)+'%';z.style.width='24%';}
+    if(m)m.style.left=(s.mk*100)+'%';
+    rfoot(s.feedbackUntil>performance.now()?s.feedback:'还需 '+(4-s.hits)+(role.id==='cat'?' 个罐头':' 条告警'));
+    return;
+  }
+  if(s.type==='swat'){
+    const area=stage().querySelector('#swat'); if(!area)return;
+    s.next-=dt;
+    if(s.next<=0&&!s.dot&&!s.over){
+      const r=area.getBoundingClientRect();
+      const d=document.createElement('button');d.className='bug';d.setAttribute('aria-label','拍蚊子');
+      d.style.left=(34+rnd(Math.max(10,r.width-68)))+'px';
+      d.style.top=(34+rnd(Math.max(10,r.height-68)))+'px';
+      const cv=document.createElement('canvas'), dpr=Math.min(window.devicePixelRatio||1,2.5);
+      cv.width=60*dpr; cv.height=60*dpr; cv.style.width=cv.style.height='60px';
+      const cc=cv.getContext('2d'); cc.setTransform(dpr,0,0,dpr,0,0);
+      doodle(cc,DOODLE.mosq,4,4,52,{color:INK,w:2.4,amp:1.4,seed:(Math.random()*90)|0});
+      d.appendChild(cv);
+      d.addEventListener('click',e=>{
+        e.preventDefault();
+        if(s.tricky&&s.att<3){A.blip(120,.1);rfoot('拍空了。它刚才就在那儿。');}
+        else dismiss();
+      });
+      area.appendChild(d); s.dot=d; s.life=s.tricky?.7:1.05; s.att++;
+    }
+    if(s.dot){ s.life-=dt;
+      if(s.life<=0){ s.dot.remove(); s.dot=null; s.next=.35+rnd(.7);
+        rfoot('不见了。第 '+s.att+' / 4 次。');
+        if(s.att>=4){ rfoot('没拍到。它暂时飞走了。'); s.over=true;setTimeout(()=>{if(IXs===s)dismiss();},900); } }
+    }
+    return;
+  }
+  if(s.type==='endure'){
+    s.v=clamp(s.v+dt*13,0,100); if(bar)bar.style.width=s.v+'%';
+    rfoot('等它叫完。'+Math.ceil((100-s.v)/13)+'s');
+    if(s.v>=100) dismiss();
+  }
+}
+
+/* ---------- 主循环：真实时钟 + 交互 ---------- */
+let lastT=performance.now();
+function loop(){
+  requestAnimationFrame(loop);
+  const now=performance.now(), dt=Math.min(.05,(now-lastT)/1000); lastT=now;
+  if(S.ring) stepIX(dt);
+  if(S.flow&&S.armed&&!S.ring){                        // 把时间往前「推」
+    const r=flowRate();
+    if(r>1) S.warp+=(r-1)*dt*1000;
+    if($('#s-standby').classList.contains('on')){
+      paintStandby(false);                             // 内部去重，只在分钟变了才真画
+      const el=$('#sbrate'), t=rateLabel(r);
+      if(el&&el.textContent!==t) el.textContent=t;
+    }
+  }
+}
+requestAnimationFrame(loop);
+
+setInterval(()=>{
+  if(!S.armed||S.ring)return;
+  const now=nowMs(); let hit=false;
+  while(S.idx<S.plan.length&&S.plan[S.idx]<=now){S.idx++;hit=true;}  // 补触发，但只响一次
+  if(hit) ringNow(false);
+},250);
+
+/* ---------- 入口 ---------- */
+$('#arm').onclick=()=>{if(role)arm(false);};
+$('#demo').onclick=()=>arm(true);
+$('#preview').onclick=()=>{A.stopPreview();A.unlock();ringNow(true);};
+$('#sound-toggle').onclick=()=>{A.muted=!A.muted;A.stopPreview();if(A.mas)A.mas.gain.value=A.muted?0:.62;updateSoundButton();saveSettings();if(!A.muted)previewSound();};
+
+$('#cancel').onclick=()=>{ S.armed=false; S.warp=0; S.flow=false; stopSound(); standbyStop();
+  if(S.lock){try{S.lock.release()}catch(e){} S.lock=null;} show('s-setup'); paintPlan(); };
+$('#rgiveup').onclick=()=>{if(S.ring&&S.ring.demo){dismiss();return;}stopSound();cancelAnimationFrame(ringRaf);cleanupIX();S.ring=null;IXs=null;finish(true);};
+$('#dagain').onclick=()=>{show('s-setup');paintPlan();};
+addEventListener('keydown',e=>{if(!$('#s-setup').classList.contains('on')||e.target.matches('input,button'))return;if(e.key==='ArrowLeft'){e.preventDefault();pick(pi-1,-1);}if(e.key==='ArrowRight'){e.preventDefault();pick(pi+1,1);}});
+addEventListener('resize',()=>setTimeout(()=>{
+  paintRule(); paintTime(); fit($('#pcv')); paintPlan();
+  if($('#s-standby').classList.contains('on')){fit($('#clock'));paintStandby(true);}
+  if($('#s-ring').classList.contains('on')) fit($('#rcv'));
+},80));
+setInterval(paintPlan,20000);
+setInterval(()=>{                                      // 头部的钟每秒走，但只在变了才动 DOM
+  const nc=$('#nowclk');
+  if(!nc||!$('#s-setup').classList.contains('on'))return;
+  const el=nc.querySelector('i'), t=clockTxt(new Date(nowMs()));
+  if(el.textContent!==t) el.textContent=t;
+},1000);
+A.loadClips();
+initSetup();
+</script>
+</body>
+</html>

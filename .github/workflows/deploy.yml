@@ -272,7 +272,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: apps/prompt-playground/dist
-          key: prompt-playground-dist-${{ hashFiles('apps/prompt-playground/src/**', 'apps/prompt-playground/public/**', 'apps/prompt-playground/index.html', 'apps/prompt-playground/vite.config.*', 'apps/prompt-playground/tsconfig*.json', 'apps/prompt-playground/package-lock.json') }}
+          key: prompt-playground-dist-${{ hashFiles('apps/prompt-playground/src/**', 'apps/prompt-playground/public/**', 'apps/prompt-playground/index.html', 'apps/prompt-playground/vite.config.*', 'apps/prompt-playground/tsconfig*.json', 'apps/prompt-playground/package-lock.json', 'prompts/**') }}
 
       - name: Build prompt-playground
         if: steps.dist-prompt-playground.outputs.cache-hit != 'true'
@@ -458,7 +458,7 @@ jobs:
       # ═══════════════════════════════════════════════════════════════
       - name: Assemble dist
         run: |
-          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop,sky-pilot,dino-3d}
+          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop,sky-pilot,dino-3d,wake-up-call}
 
           # Built projects — copy dist/
           cp -r apps/dice-verse/dist/*         dist/dice-verse/        2>/dev/null || true
@@ -485,6 +485,7 @@ jobs:
           cp apps/arxiv-to-novel/index.html apps/arxiv-to-novel/style.css apps/arxiv-to-novel/app.js apps/arxiv-to-novel/demo-novel.js dist/arxiv-to-novel/
           cp apps/sky-pilot/index.html         dist/sky-pilot/
           cp apps/dino-3d/index.html dist/dino-3d/ && cp -r apps/dino-3d/models dist/dino-3d/
+          cp -r apps/wake-up-call/index.html apps/wake-up-call/theme.css apps/wake-up-call/assets apps/wake-up-call/CREDITS.md dist/wake-up-call/
 
           # prompt-playground also serves as site root
           cp -r apps/prompt-playground/dist/*  dist/ 2>/dev/null || true

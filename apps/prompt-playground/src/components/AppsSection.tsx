@@ -24,6 +24,7 @@ import paperKitePromptRaw from "@prompts/paper-kite.md?raw";
 import mindHopPromptRaw from "@prompts/mind-hop.md?raw";
 import skyPilotPromptRaw from "@prompts/sky-pilot.md?raw";
 import dino3dPromptRaw from "@prompts/dino-3d.md?raw";
+import wakeUpCallPromptRaw from "@prompts/wake-up-call.md?raw";
 
 export const categories = [
   {
@@ -91,6 +92,15 @@ export const categories = [
         status: "live" as const,
         colorClass: "icon-green",
         prompt: dino3dPromptRaw,
+      },
+      {
+        title: "Wake Up Call · 叫醒服务",
+        description: "手绘网页闹钟，六位叫醒专员各有响铃排程与关闭任务。支持真实闹钟、即时试玩和加速整夜体验；需保持页面前台、屏幕不锁定。",
+        icon: "⏰",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/wake-up-call/",
+        status: "live" as const,
+        colorClass: "icon-orange",
+        prompt: wakeUpCallPromptRaw,
       },
     ],
   },

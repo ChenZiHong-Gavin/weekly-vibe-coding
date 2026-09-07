@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-23%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-24%2F100-blue)
 
 **中文** | [English](./README_EN.md)
 
@@ -94,6 +94,10 @@
 
       <!-- 截图待补：把一张运行截图拖进 GitHub Issue/PR 生成 user-attachments 链接后替换此处 -->
 
+
+23. **[Wake Up Call · 叫醒服务](https://chenzihong-gavin.github.io/weekly-vibe-coding/wake-up-call/)** (`apps/wake-up-call`)
+    - 手绘风格的网页闹钟：六位叫醒专员各有响铃排程与关闭方式，支持真实闹钟、即时试玩和加速整夜体验。页面需保持前台、屏幕不锁定。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/wake-up-call.md)
 
 ### 专题二：手势交互
 
