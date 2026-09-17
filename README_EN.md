@@ -84,15 +84,19 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
       standing in the street, motionless and defenceless.
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/mind-hop.md)
 
+      <img width="400" alt="Mind Hop gameplay" src="https://github.com/user-attachments/assets/60a8924b-fcaf-4b5e-9235-5299a9e6bc8f" />
+
 22. **[3D Dino Run](https://chenzihong-gavin.github.io/weekly-vibe-coding/dino-3d/)** (`apps/dino-3d`)
     - A 3D dinosaur runner — sprint across a Monument Valley-style desert, jump, duck, and dodge cacti, beams, and flying pterosaurs. Collect coins and gems, chain combos, and use shield, magnet, double-jump, and speed-boost power-ups.
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/dino-3d.md)
 
-      <!-- Screenshot TODO: drop a run screenshot into a GitHub Issue/PR to generate a user-attachments URL -->
+      <img width="400" alt="3D Dino Run gameplay" src="./docs/screenshots/dino-3d.png" />
 
 23. **[Wake Up Call](https://chenzihong-gavin.github.io/weekly-vibe-coding/wake-up-call/)** (`apps/wake-up-call`)
     - A hand-drawn browser alarm with six characters, each with its own ringing schedule and dismissal task. Set a real alarm, try a character instantly, or preview an accelerated night. Keep the page in the foreground and the screen unlocked.
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/wake-up-call.md)
+
+      <img width="400" alt="Wake Up Call character and alarm setup" src="./docs/screenshots/wake-up-call.png" />
 
 ### Track 2: Gesture Interaction
 
@@ -121,7 +125,7 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
     - First-person ink-wash kite flying. The camera tracks your hand — make a fist to grab the line, pull to reel in / feed to let out, guiding a truly aerodynamic kite through a dusk waterscape. Design your own kite: frames, symmetric brush painting, and traditional pattern stamps.
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/paper-kite.md)
 
-      <!-- screenshot TBD: drop an image into a GitHub Issue/PR to get a user-attachments URL, then replace here -->
+      <img width="400" alt="Paper Kite gameplay" src="https://github.com/user-attachments/assets/4107d99d-e29a-407c-b278-7fce65f872be" />
 
 
 
@@ -150,7 +154,7 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
     - A single-file Three.js flight simulator around a procedurally generated tiny planet. Six themed city worlds (cyberpunk, Mediterranean, alpine, desert, tropical, metropolis) with 3D-noise terrain, oceans, cities, and landmarks. Pilot a plane through glowing checkpoint rings in a time-trial race, with off-screen navigation and best-time tracking.
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/sky-pilot.md)
 
-      <!-- Screenshot TODO: drop a run screenshot into a GitHub Issue/PR to generate a user-attachments URL -->
+      <img width="400" alt="Sky Pilot gameplay" src="./docs/screenshots/sky-pilot.png" />
 
 
 

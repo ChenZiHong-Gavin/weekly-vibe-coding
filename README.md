@@ -92,12 +92,14 @@
     - 3D 恐龙跑酷游戏：在纪念碑谷风格的沙漠中奔跑，跳跃、下蹲、侧移躲避仙人掌、横梁与飞来的翼龙，收集金币与宝石，用护盾、磁铁、二段跳、冲刺冲击更高连击。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/dino-3d.md)
 
-      <!-- 截图待补：把一张运行截图拖进 GitHub Issue/PR 生成 user-attachments 链接后替换此处 -->
+      <img width="400" alt="3D Dino Run gameplay" src="./docs/screenshots/dino-3d.png" />
 
 
 23. **[Wake Up Call · 叫醒服务](https://chenzihong-gavin.github.io/weekly-vibe-coding/wake-up-call/)** (`apps/wake-up-call`)
     - 手绘风格的网页闹钟：六位叫醒专员各有响铃排程与关闭方式，支持真实闹钟、即时试玩和加速整夜体验。页面需保持前台、屏幕不锁定。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/wake-up-call.md)
+
+      <img width="400" alt="Wake Up Call character and alarm setup" src="./docs/screenshots/wake-up-call.png" />
 
 ### 专题二：手势交互
 
@@ -156,7 +158,7 @@
     - 单文件 Three.js 星球飞行模拟器。程序化生成六座风格各异的城市星球（霓虹赛博、地中海、雪山、沙漠、热带、现代都市），3D 噪声地形、海水、城市与地标，驾驶小飞机穿越发光检查点环完成环球计时赛，附带屏外导航箭头与最佳成绩记录。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/sky-pilot.md)
 
-      <!-- 截图待补：把一张运行截图拖进 GitHub Issue/PR 生成 user-attachments 链接后替换此处 -->
+      <img width="400" alt="Sky Pilot gameplay" src="./docs/screenshots/sky-pilot.png" />
 
 
 
