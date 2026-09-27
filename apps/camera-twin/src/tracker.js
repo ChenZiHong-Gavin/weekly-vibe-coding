@@ -42,8 +42,19 @@ export function createTracker({ stage, els, onStatus }) {
   let prevQ = null;
   const deflip = q => { if (!prevQ) return q; const alt = q.clone().multiply(yaw180); return prevQ.angleTo(alt) + 0.3 < prevQ.angleTo(q) ? alt : q; };
   // Dead-band + exponential smoothing: ignore jitter under ~2°, follow big moves quickly, small moves slowly.
-  const smoothPose = (q, p, rate) => { if (prevQ && prevQ.angleTo(q) < 0.035 && root().position.distanceTo(p) < 0.15) return; root().quaternion.slerp(q, rate); root().position.lerp(p, rate); prevQ = root().quaternion.clone(); };
+  const smoothPose = (q, p, rate, deadAngle = 0.035, deadDist = 0.15) => { if (prevQ && prevQ.angleTo(q) < deadAngle && root().position.distanceTo(p) < deadDist) return; root().quaternion.slerp(q, rate); root().position.lerp(p, rate); prevQ = root().quaternion.clone(); };
   let agree = 0;
+  // Rolling average of the last N orientations (nlerp with sign fix) and positions: the markerless box is noisy frame to frame.
+  const win = { q: [], p: [], n: 8 };
+  function windowed(q, p) {
+    if (win.q.length && win.q[win.q.length - 1].dot(q) < 0) q = q.clone().set(-q.x, -q.y, -q.z, -q.w);
+    win.q.push(q.clone()); win.p.push(p.clone()); if (win.q.length > win.n) { win.q.shift(); win.p.shift(); }
+    const acc = new THREE.Vector4(); for (const k of win.q) acc.add(new THREE.Vector4(k.x, k.y, k.z, k.w)); acc.normalize();
+    const pm = win.p.reduce((a, v) => a.add(v), new THREE.Vector3()).multiplyScalar(1 / win.p.length);
+    return { q: new THREE.Quaternion(acc.x, acc.y, acc.z, acc.w), p: pm };
+  }
+  // Hand-held cameras mostly yaw and pitch; roll from the detector is almost all noise, so drop it.
+  const dropRoll = q => { const e = new THREE.Euler().setFromQuaternion(q, 'YXZ'); e.z = 0; return new THREE.Quaternion().setFromEuler(e); };
   const base = { q: new THREE.Quaternion(), p: new THREE.Vector3() };
   const status = (text, ok) => onStatus?.(text, ok);
 
@@ -64,7 +75,7 @@ export function createTracker({ stage, els, onStatus }) {
   function stop() {
     state.running = false; cancelAnimationFrame(state.raf);
     state.stream?.getTracks().forEach(t => t.stop()); state.stream = null; state.video = null;
-    if (root()) { root().quaternion.copy(base.q); root().position.copy(base.p); } state.offsetQ = null; state.zRef = null; state.lastPose = null; prevQ = null; agree = 0;
+    if (root()) { root().quaternion.copy(base.q); root().position.copy(base.p); } state.offsetQ = null; state.zRef = null; state.lastPose = null; prevQ = null; agree = 0; win.q = []; win.p = [];
     status('同步已停止', false);
   }
   function setMarkerSize(mm) { state.markerMm = mm; if (state.posit) state.posit = new window.POS.Posit(mm, canvas.width); }
@@ -128,10 +139,11 @@ export function createTracker({ stage, els, onStatus }) {
     state.lastPose = { q, p: center };
     status(`无标记识别 · 盒 ${size.map(x => (x * 100).toFixed(0)).join('×')} · ${state.fps} fps${state.offsetQ ? ' · 已微调' : ''}`, true);
     if (agree < 1) return;
-    target.q.copy(q); if (state.offsetQ) target.q.multiply(state.offsetQ);
-    target.p.set(center.x * 20, center.y * 20, 0).clampLength(0, 14);
+    const avg = windowed(dropRoll(q), new THREE.Vector3(center.x * 10, center.y * 10, 0));
+    target.q.copy(avg.q); if (state.offsetQ) target.q.multiply(state.offsetQ);
+    target.p.copy(avg.p).clampLength(0, 10);
     mirrorPose(target.q, target.p);
-    smoothPose(target.q, target.p, 0.12);
+    smoothPose(target.q, target.p, 0.1, 0.09, 0.4);
   }
   function toggleFlip() { state.flipYaw = !state.flipYaw; prevQ = null; status(state.flipYaw ? '已翻转前后朝向' : '已恢复前后朝向', true); }
   function toggleMirror() { state.mirror = !state.mirror; prevQ = null; status(state.mirror ? '按你的视角同步（左右已反转）' : '按摄像头视角（镜像）', true); }
