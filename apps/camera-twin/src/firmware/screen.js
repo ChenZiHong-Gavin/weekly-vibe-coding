@@ -1,5 +1,5 @@
 // Draws the rear LCD / EVF picture for a firmware state onto a 2D canvas (3:2). Pure canvas, no Three.js.
-import { fmtEc } from './state.js';
+import { fmtEc, OPTION_DESC } from './state.js';
 
 export const SCREEN_W = 960, SCREEN_H = 640;
 
@@ -104,14 +104,14 @@ export function createScreenRenderer(canvas, fw) {
     const start = Math.max(0, Math.min(index - 3, options.length - visible));
     const current = fw.get(label);
     options.slice(start, start + visible).forEach((o, k) => { const i = start + k, y = y0 + 60 + k * rowH; if (i === index) { ctx.fillStyle = '#3a3a3d'; ctx.fillRect(68, y, W - 136, rowH - 4); } ctx.fillStyle = o === current ? '#4fa3ff' : '#fff'; ctx.font = font(26, i === index ? 700 : 500); ctx.fillText(o, 90, y + rowH / 2 - 2); if (o === current) { ctx.textAlign = 'right'; ctx.fillText('●', W - 90, y + rowH / 2 - 2); ctx.textAlign = 'left'; } });
-    ctx.fillStyle = '#8a8a8e'; ctx.font = font(18, 500); ctx.fillText('速控转盘1 / 主拨盘 选择 · SET 确定 · MENU 取消', 80, y0 + h - 16);
+    const desc = OPTION_DESC[label]?.[options[index]]; ctx.fillStyle = '#c9c9cc'; ctx.font = font(18, 500); ctx.fillText(desc ? desc.slice(0, 40) : '速控转盘1 / 主拨盘 选择 · SET 确定 · MENU 取消', 80, y0 + h - 16);
   }
   function drawDialog(dlg) {
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(0, 0, W, H);
-    const w = 640, h = 240, x = (W - w) / 2, y = (H - h) / 2;
+    const w = 720, h = dlg.text && dlg.text.length > 60 ? 340 : 240, x = (W - w) / 2, y = (H - h) / 2;
     ctx.fillStyle = '#1c1c1e'; ctx.fillRect(x, y, w, h); ctx.strokeStyle = '#555'; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
     ctx.fillStyle = '#fff'; ctx.font = font(28, 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(dlg.title, W / 2, y + 44);
-    if (dlg.text) { ctx.font = font(22, 500); ctx.fillStyle = '#d9d9dc'; wrapText(dlg.text, W / 2, y + 96, w - 60, 28); }
+    if (dlg.text) { ctx.font = font(21, 500); ctx.fillStyle = '#d9d9dc'; wrapText(dlg.text, W / 2, y + 90, w - 60, 28); }
     const bw = 200, gap = 24, total = dlg.options.length * bw + (dlg.options.length - 1) * gap; let bx = W / 2 - total / 2;
     dlg.options.forEach((o, i) => { ctx.fillStyle = i === dlg.index ? '#c8412b' : '#3a3a3d'; ctx.fillRect(bx, y + h - 72, bw, 48); ctx.fillStyle = '#fff'; ctx.font = font(24, 600); ctx.fillText(o, bx + bw / 2, y + h - 48); bx += bw + gap; });
   }
@@ -124,12 +124,31 @@ export function createScreenRenderer(canvas, fw) {
     items.forEach((it, i) => {
       const cx = 20 + (i % cols) * cellW, cy = 70 + Math.floor(i / cols) * cellH;
       if (it.selected) { ctx.fillStyle = it.editing ? '#c8412b' : '#3d5a80'; ctx.fillRect(cx + 4, cy, cellW - 8, cellH - 10); }
+      drawQuickIcon(i, cx + cellW - 44, cy + 14, it.selected ? '#fff' : '#9fa3ad');
       ctx.fillStyle = it.selected ? '#fff' : '#cfcfd2'; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = font(18, 500); ctx.fillText(it.short, cx + 14, cy + 10);
       ctx.fillStyle = '#fff'; ctx.font = font(it.value.length > 6 ? 18 : 26, 700); ctx.fillText(it.value, cx + 14, cy + 44);
     });
     const sel = items.find(i => i.selected);
     ctx.fillStyle = '#fff'; ctx.font = font(20, 500); ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
     ctx.fillText(sel.editing ? `${sel.short}：主拨盘 / 速控转盘1 修改 · SET 完成` : '速控屏幕：速控转盘1 选择 · 主拨盘直接修改 · SET 进入 · Q 退出', 24, H - 100);
+  }
+  // Small line icons for the quick control items, in the order of QUICK_ITEMS.
+  function drawQuickIcon(i, x, y, color) {
+    ctx.save(); ctx.translate(x, y); ctx.strokeStyle = ctx.fillStyle = color; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = font(13, 700);
+    const rect = (a, b, w, h) => ctx.strokeRect(a, b, w, h);
+    switch (i) {
+      case 0: ctx.fillText('AF', 14, 14); break;                                            // AF operation
+      case 1: rect(2, 4, 24, 20); rect(10, 10, 8, 8); break;                                 // AF area
+      case 2: for (let k = 0; k < 3; k++) rect(2 + k * 5, 6 + k * 3, 14, 12); break;         // drive burst
+      case 3: ctx.beginPath(); ctx.arc(14, 14, 6, 0, Math.PI * 2); ctx.stroke(); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; ctx.beginPath(); ctx.moveTo(14 + Math.cos(a) * 9, 14 + Math.sin(a) * 9); ctx.lineTo(14 + Math.cos(a) * 12, 14 + Math.sin(a) * 12); ctx.stroke(); } break; // WB sun
+      case 4: ctx.fillText('ISO', 14, 14); break;
+      case 5: ctx.fillText('±', 14, 13); break;
+      case 6: ctx.fillText('L', 14, 14); rect(2, 2, 24, 24); break;                         // quality
+      case 7: ctx.beginPath(); ctx.arc(14, 14, 11, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.arc(14, 14, 3, 0, Math.PI * 2); ctx.fill(); break; // metering
+      case 8: ctx.beginPath(); ctx.moveTo(4, 20); ctx.quadraticCurveTo(14, 2, 24, 20); ctx.stroke(); ctx.fillText('IS', 14, 20); break; // stabilizer
+      case 9: for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(8 + k * 6, 14, 5, 0, Math.PI * 2); ctx.stroke(); } break; // colour
+    }
+    ctx.restore();
   }
   function drawPlayback(d) {
     const shots = fw.state.shots, shot = shots[d.playIndex];

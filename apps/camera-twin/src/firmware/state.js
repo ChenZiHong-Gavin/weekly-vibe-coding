@@ -12,6 +12,9 @@ export const DRIVE_MODES = ['单拍', '高速连拍+', '高速连拍', '低速�
 export const WB_MODES = ['AWB', '日光', '阴影', '阴天', '钨丝灯', '荧光灯', '闪光灯'];
 
 import menuData from './menu.json' with { type: 'json' };
+import menuOptions from './menu-options.json' with { type: 'json' };
+// Per-item official intro text and option lists scraped from the Canon manual item pages (see docs/MODELING_BRIEF.md 数据来源).
+export const MENU_INFO = menuOptions;
 // Official tab structure from the Canon online manual (设置页菜单 pages), see menu.json. Values shown for items the twin simulates.
 export const MENU = menuData.tabs;
 export const MENU_VALUES = { '图像画质': 'RAW+▲L', '全像素双核RAW': '关闭', '裁切/长宽比': 'FULL', '数码长焦附加镜': '关', '曝光补偿/AEB': '−2..1..0..1..2', 'ISO感光度设置': '自动', '防闪烁拍摄': '关闭', '高频防闪烁拍摄': '关闭', '测光模式': '评价测光', '色彩模式': '自动', '色彩空间': 'sRGB', '清晰度': '0', 'HDR拍摄（PQ）': '关闭', 'HDR模式': '关闭HDR', '自动亮度优化': '标准', '高光色调优先': '关闭', '镜头像差校正': '开', '长时间曝光降噪功能': '关', '高ISO感光度降噪功能': '标准', '多重曝光': '关闭', '对焦包围拍摄': '关闭', '驱动模式': '单拍', '预先连续拍摄': '关', '间隔定时器': '关闭', 'B门定时器': '关闭', '静音快门功能': '关', '快门模式': '电子前帘', '未装存储卡释放快门': '关', '影像稳定器模式': '开', '测光定时器': '8秒', '图像确认': '2秒', '高速显示': '关', '显示模拟': '曝光+景深', '拍摄信息显示': '—', '显示帧频设置': '省电', '取景器显示格式': '显示1', '镜像显示': '关', '自动关闭电源温度': '标准', '短片记录尺寸': '4K 25P', '短片记录格式': 'MP4', '录音': '自动', '音频格式': 'LPCM', '自动对焦操作': 'ONE SHOT', '自动对焦区域': '整个区域', '伺服自动对焦追踪全部区域': '开', '对焦模式': 'AF', '短片伺服自动对焦': '开', '检测的被摄体': '人物', '眼睛检测': '自动', 'Case自动': '', '追踪灵敏度': '0', '加速/减速追踪': '0', '预览自动对焦': '关', '自动对焦辅助光发光': '开', '限制自动对焦区域': '', '手动对焦峰值设置': '关', '对焦向导': '关', '镜头电子手动对焦': '关', '保护图像': '', '删除图像': '', '旋转静止图像': '', '评分': '', '幻灯片播放': '', '放大倍率': '2x', '播放信息显示': '', '高光警告': '关', '显示自动对焦点': '关', '播放网格线': '关', '短片播放计时': '记录时间', '飞行模式': '关', 'Wi-Fi设置': '开', '蓝牙设置': '开', '相机名称': 'EOS R6 Mark III', '记录功能+存储卡/文件夹选择': '', '文件编号': '连续编号', '剪辑编号': '连续编号', '文件名': 'IMG_', '格式化存储卡': '', '自动旋转': '开', '添加旋转信息': '关闭', '日期/时间/区域': '2026/09/27 10:30', '语言': '简体中文', '系统频率': '50.00 Hz', '帮助文本尺寸': '小', '功能介绍': '开', '提示音': '开', '音量': '', '音频监控器': '关', '屏幕亮度': '4', '取景器亮度': '自动', '屏幕/取景器显示': '自动', '用户界面放大': '关', 'HDMI分辨率': '自动', '关机时的快门状态': '关闭', '清洁感应器': '', '节电': '', '重置相机': '', '自定义拍摄模式(C1-C3)': '', '电池信息': '', '版权信息': '', '固件': 'Ver. 1.0.0', '触摸快门': '关', '多功能锁': '', '触摸控制': '标准', '曝光等级增量': '1/3级', 'ISO感光度设置增量': '1/3级', '包围曝光自动取消': '开', '包围曝光顺序': '0−+', '包围曝光拍摄数量': '3张', '安全偏移': '关', '未装镜头释放快门': '关', '默认删除选项': '取消', '菜单显示': '正常显示' };
@@ -38,6 +41,8 @@ export const OPTIONS = {
   '关机时的快门状态': ['关闭', '打开'], '触摸快门': ['关', '开'], '触摸控制': ['标准', '灵敏', '关'], '菜单显示': ['正常显示', '仅显示我的菜单', '从我的菜单开始显示'],
   '曝光等级增量': ['1/3级', '1/2级'], 'ISO感光度设置增量': ['1/3级', '1级'], '包围曝光自动取消': ['开', '关'], '包围曝光顺序': ['0−+', '−0+', '+0−'], '包围曝光拍摄数量': ['3张', '2张', '5张', '7张'], '安全偏移': ['关', '开', 'ISO感光度'], '未装镜头释放快门': ['关', '开'], '默认删除选项': ['取消', '删除']
 };
+for (const [label, info] of Object.entries(menuOptions)) if (!OPTIONS[label] && info.options?.length) OPTIONS[label] = info.options.map(o => o.name);
+export const OPTION_DESC = Object.fromEntries(Object.entries(menuOptions).filter(([, v]) => v.options?.length).map(([k, v]) => [k, Object.fromEntries(v.options.map(o => [o.name, o.desc]))]));
 // Items that run a procedure instead of picking an option.
 export const ACTIONS = { '格式化存储卡': 'format', '清洁感应器': 'clean', '重置相机': 'reset', '删除图像': 'erase', '保护图像': 'protect', '评分': 'rate', '幻灯片播放': 'slideshow', '电池信息': 'battery', '固件': 'firmware', '版权信息': 'copyright', '日期/时间/区域': 'datetime' };
 export const QUICK_ITEMS = [
@@ -53,7 +58,7 @@ export function createFirmware({ now = () => Date.now(), schedule = (fn, ms) => 
     aperture: 3,             // f/5.6
     iso: 0,                  // AUTO
     ec: 9,                   // 0
-    settings: { ...MENU_VALUES, '白平衡': 'AWB' },
+    settings: { ...Object.fromEntries(Object.entries(OPTIONS).map(([k, v]) => [k, v[0]])), ...MENU_VALUES, '白平衡': 'AWB' },
     stillMovie: 'still',
     screen: 'shoot',         // off | shoot | menu | quick | playback
     infoLevel: 1,            // 0 clean, 1 basic, 2 full
@@ -184,7 +189,7 @@ export function createFirmware({ now = () => Date.now(), schedule = (fn, ms) => 
         if (ACTIONS[it.label]) { api.runAction(ACTIONS[it.label], it.label); emit('menu'); return; }
         const options = OPTIONS[it.label];
         if (options) { s.menu.editing = { label: it.label, options, index: Math.max(0, options.indexOf(get(it.label))) }; emit('menu'); return; }
-        openDialog({ kind: 'notice', title: it.label, options: ['确定'], text: '数字孪生尚未模拟这一项。' }); emit('dialog'); return;
+        openDialog({ kind: 'notice', title: it.label, options: ['确定'], text: (MENU_INFO[it.label]?.intro || '') + (MENU_INFO[it.label]?.intro ? '（官方说明；数字孪生未模拟此项的具体设置）' : '数字孪生尚未模拟这一项。') }); emit('dialog'); return;
       }
       if (s.screen === 'quick') { s.quick.editing = !s.quick.editing; emit('quick'); return; }
       if (s.screen === 'playback') { s.zoom = !s.zoom; emit('playback'); return; }
@@ -200,7 +205,7 @@ export function createFirmware({ now = () => Date.now(), schedule = (fn, ms) => 
       const actions = {
         format: () => openDialog({ kind: 'confirm', title: '格式化存储卡', text: `存储卡 1 · 将删除全部数据（${s.shots.length} 张）`, options: ['取消', '确定'], onConfirm: o => { if (o === '确定') { s.shots = []; s.playIndex = 0; s.formattedAt = now(); toast('格式化完成'); } } }),
         clean: () => { toast('正在清洁感应器…', 1500); schedule(() => { toast('清洁完成'); emit('clean'); }, 1500); },
-        reset: () => openDialog({ kind: 'confirm', title: '重置相机', text: '基本设置将恢复为默认值', options: ['取消', '确定'], onConfirm: o => { if (o === '确定') { Object.assign(s.settings, MENU_VALUES, { '白平衡': 'AWB' }); s.modeIndex = 5; s.shutter = 36; s.aperture = 3; s.iso = 0; s.ec = 9; toast('已重置'); } } }),
+        reset: () => openDialog({ kind: 'confirm', title: '重置相机', text: '基本设置将恢复为默认值', options: ['取消', '确定'], onConfirm: o => { if (o === '确定') { Object.assign(s.settings, Object.fromEntries(Object.entries(OPTIONS).map(([k, v]) => [k, v[0]])), MENU_VALUES, { '白平衡': 'AWB' }); s.modeIndex = 5; s.shutter = 36; s.aperture = 3; s.iso = 0; s.ec = 9; toast('已重置'); } } }),
         erase: () => { s.screen = 'playback'; s.playIndex = Math.max(0, s.shots.length - 1); if (s.shots.length) api.press('erase_button'); else toast('没有图像'); },
         protect: () => { const sh = s.shots[s.playIndex]; if (sh) { sh.protected = !sh.protected; toast(sh.protected ? '已保护' : '已取消保护'); } else toast('没有图像'); },
         rate: () => { s.screen = 'playback'; s.playIndex = Math.max(0, s.shots.length - 1); if (s.shots.length) api.press('rate_button'); else toast('没有图像'); },
