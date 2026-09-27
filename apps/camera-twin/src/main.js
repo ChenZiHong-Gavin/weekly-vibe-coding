@@ -98,6 +98,7 @@ guide.log('system', '点击电源开关开机，滚轮转动模式转盘和拨�
 const tracker = createTracker({ stage, els: { preview: $('#tracker-preview') }, onStatus: (text, ok) => { const el = $('#tracker-status'); el.textContent = text; el.style.color = ok ? '#8fd6a3' : '#cfcac0'; } });
 $('#tracker-start').addEventListener('click', async () => { try { tracker.setMarkerSize(+$('#tracker-size').value || 40); await tracker.start($('#tracker-mode').value); $('#tracker-preview').classList.remove('hidden'); } catch (e) { $('#tracker-status').textContent = '无法启动：' + e.message; } });
 $('#tracker-flip').addEventListener('click', () => tracker.flip());
+$('#tracker-mirror').addEventListener('click', () => tracker.mirror());
 $('#tracker-align').addEventListener('click', () => tracker.align());
 $('#tracker-stop').addEventListener('click', () => { tracker.stop(); $('#tracker-preview').classList.add('hidden'); });
 $('#tracker-print').addEventListener('click', () => { tracker.setMarkerSize(+$('#tracker-size').value || 40); tracker.printMarkers(); });

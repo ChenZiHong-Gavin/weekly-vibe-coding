@@ -53,7 +53,7 @@
         <canvas id="tracker-preview" class="hidden"></canvas>
         <div class="tracker-actions">
           <select id="tracker-mode"><option value="objectron">无标记识别（实验）</option><option value="marker">ArUco 标记</option></select>
-          <button id="tracker-start">开摄像头</button><button id="tracker-flip" class="ghost" title="模型前后朝向反了时点一下">翻转</button><button id="tracker-align" class="ghost" title="可选：标记贴歪了时，把真机正对摄像头再点一下">微调</button><button id="tracker-stop" class="ghost">停止</button><button id="tracker-print" class="ghost">打印标记</button>
+          <button id="tracker-start">开摄像头</button><button id="tracker-flip" class="ghost" title="模型前后朝向反了时点一下">前后翻转</button><button id="tracker-mirror" class="ghost" title="左右方向反了时点一下">左右镜像</button><button id="tracker-align" class="ghost" title="可选：标记贴歪了时，把真机正对摄像头再点一下">微调</button><button id="tracker-stop" class="ghost">停止</button><button id="tracker-print" class="ghost">打印标记</button>
           <label>标记边长 <input id="tracker-size" type="number" value="40" min="15" max="120" step="5"> mm</label>
         </div>
         <div id="tracker-status" class="fw-status">无标记模式：直接把相机正面对着摄像头即可（MediaPipe Objectron，精度一般）。标记模式：把 ArUco 标记 id 0 贴在热靴盖顶部、箭头朝镜头，更稳更准。两种都不需要手动对齐。</div>

@@ -29,11 +29,21 @@ function boxRotation(kp) {
 }
 
 export function createTracker({ stage, els, onStatus }) {
-  const state = { running: false, mode: 'marker', flipYaw: true, objectron: null, busy: false, markerMm: 40, video: null, stream: null, detector: null, posit: null, offsetQ: null, offsetP: null, lastSeen: 0, smooth: 0.35, positionGain: 1, fps: 0, raf: 0 };
+  const state = { running: false, mode: 'marker', flipYaw: true, mirror: true, objectron: null, busy: false, markerMm: 40, video: null, stream: null, detector: null, posit: null, offsetQ: null, offsetP: null, lastSeen: 0, smooth: 0.35, positionGain: 1, fps: 0, raf: 0 };
   const root = () => stage.state.root;
   const canvas = els.preview; const ctx = canvas.getContext('2d', { willReadFrequently: true });
   const flip = new THREE.Matrix4().makeScale(1, -1, -1); // OpenCV camera axes -> three.js axes
   const target = { q: new THREE.Quaternion(), p: new THREE.Vector3() };
+  // ---- stabilisation ----
+  // Mirror: the webcam looks at you, so its left is your right. Reflect the pose across the YZ plane so the model turns the way you turn.
+  const mirrorPose = (q, p) => { if (!state.mirror) return; q.set(q.x, -q.y, -q.z, q.w); p.x = -p.x; };
+  // A camera body is nearly symmetric front/back for the detector: if the new orientation is ~180° from the last one, prefer the flipped candidate.
+  const yaw180 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+  let prevQ = null;
+  const deflip = q => { if (!prevQ) return q; const alt = q.clone().multiply(yaw180); return prevQ.angleTo(alt) + 0.3 < prevQ.angleTo(q) ? alt : q; };
+  // Dead-band + exponential smoothing: ignore jitter under ~2°, follow big moves quickly, small moves slowly.
+  const smoothPose = (q, p, rate) => { if (prevQ && prevQ.angleTo(q) < 0.035 && root().position.distanceTo(p) < 0.15) return; root().quaternion.slerp(q, rate); root().position.lerp(p, rate); prevQ = root().quaternion.clone(); };
+  let agree = 0;
   const base = { q: new THREE.Quaternion(), p: new THREE.Vector3() };
   const status = (text, ok) => onStatus?.(text, ok);
 
@@ -54,7 +64,7 @@ export function createTracker({ stage, els, onStatus }) {
   function stop() {
     state.running = false; cancelAnimationFrame(state.raf);
     state.stream?.getTracks().forEach(t => t.stop()); state.stream = null; state.video = null;
-    if (root()) { root().quaternion.copy(base.q); root().position.copy(base.p); } state.offsetQ = null; state.zRef = null; state.lastPose = null;
+    if (root()) { root().quaternion.copy(base.q); root().position.copy(base.p); } state.offsetQ = null; state.zRef = null; state.lastPose = null; prevQ = null; agree = 0;
     status('同步已停止', false);
   }
   function setMarkerSize(mm) { state.markerMm = mm; if (state.posit) state.posit = new window.POS.Posit(mm, canvas.width); }
@@ -96,7 +106,8 @@ export function createTracker({ stage, els, onStatus }) {
     target.q.copy(q); if (state.offsetQ) target.q.multiply(state.offsetQ);
     if (!state.zRef) state.zRef = p.z;
     target.p.set(p.x, p.y, (p.z - state.zRef) * 0.5).multiplyScalar(state.positionGain).clampLength(0, 14);
-    root().quaternion.slerp(target.q, state.smooth); root().position.lerp(target.p, state.smooth);
+    mirrorPose(target.q, target.p);
+    smoothPose(target.q, target.p, state.smooth);
   }
   function onObjectron(r) {
     state.results = (state.results || 0) + 1;
@@ -109,20 +120,26 @@ export function createTracker({ stage, els, onStatus }) {
     ctx.strokeStyle = '#3ddc5a'; ctx.lineWidth = 2; ctx.beginPath();
     for (const [a, b] of [[1, 2], [1, 3], [1, 5], [2, 4], [2, 6], [3, 4], [3, 7], [4, 8], [5, 6], [5, 7], [6, 8], [7, 8]]) { ctx.moveTo(P[a][0], P[a][1]); ctx.lineTo(P[b][0], P[b][1]); }
     ctx.stroke();
-    const { q, center, size } = boxRotation(det.keypoints);
-    if (state.flipYaw) q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI));
+    let { q, center, size } = boxRotation(det.keypoints);
+    if (state.flipYaw) q.multiply(yaw180);
+    q = deflip(q);
+    // require two consecutive detections that agree (within ~25°) before moving, to drop one-frame garbage boxes
+    if (state.lastPose && state.lastPose.q.angleTo(q) < 0.45) agree++; else agree = 0;
     state.lastPose = { q, p: center };
     status(`无标记识别 · 盒 ${size.map(x => (x * 100).toFixed(0)).join('×')} · ${state.fps} fps${state.offsetQ ? ' · 已微调' : ''}`, true);
+    if (agree < 1) return;
     target.q.copy(q); if (state.offsetQ) target.q.multiply(state.offsetQ);
     target.p.set(center.x * 20, center.y * 20, 0).clampLength(0, 14);
-    root().quaternion.slerp(target.q, 0.2); root().position.lerp(target.p, 0.2);
+    mirrorPose(target.q, target.p);
+    smoothPose(target.q, target.p, 0.12);
   }
-  function toggleFlip() { state.flipYaw = !state.flipYaw; status(state.flipYaw ? "已翻转朝向" : "已恢复朝向", true); }
+  function toggleFlip() { state.flipYaw = !state.flipYaw; prevQ = null; status(state.flipYaw ? '已翻转前后朝向' : '已恢复前后朝向', true); }
+  function toggleMirror() { state.mirror = !state.mirror; prevQ = null; status(state.mirror ? '按你的视角同步（左右已反转）' : '按摄像头视角（镜像）', true); }
   function markerSVG(id, mm) { const dict = new window.AR.Dictionary('ARUCO_MIP_36h12'); return dict.generateSVG(id).replace('<svg ', `<svg width="${mm}mm" height="${mm}mm" `); }
   function printMarkers() {
     const mm = state.markerMm; const w = window.open('', '_blank');
     w.document.write(`<!doctype html><title>ArUco 标记</title><style>body{font-family:sans-serif;padding:20px}figure{display:inline-block;margin:0 24px 24px 0;text-align:center}svg{display:block;border:1px solid #ccc}@media print{p{display:none}}</style><p>按 100% 比例打印。id 0 贴在热靴盖顶部（箭头朝镜头方向），id 1 贴在背面屏幕旁；边长 ${mm} mm，四周留白边。</p>${[0, 1].map(id => `<figure>${markerSVG(id, mm)}<figcaption>id ${id}</figcaption></figure>`).join('')}<script>setTimeout(()=>print(),300)</script>`);
     w.document.close();
   }
-  return { start, stop, align, resetAlign, flip: toggleFlip, setMarkerSize, printMarkers, state };
+  return { start, stop, align, resetAlign, flip: toggleFlip, mirror: toggleMirror, setMarkerSize, printMarkers, state };
 }
