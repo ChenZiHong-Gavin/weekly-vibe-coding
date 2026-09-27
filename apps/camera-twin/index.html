@@ -12,54 +12,94 @@
     <div class="topbar-right">
       <span id="model-status" class="pill">模型：加载中</span>
       <span id="llm-status" class="pill">讲解员：未连接</span>
+      <button id="help-btn" class="icon-btn" title="键盘与操作说明" aria-label="操作说明">?</button>
     </div>
   </header>
   <main class="layout">
-    <aside class="panel parts">
-      <h2>部件</h2>
-      <input id="part-filter" type="search" placeholder="搜索部件…" autocomplete="off">
+    <aside class="panel parts" data-tab="parts">
+      <div class="panel-head"><h2>部件</h2><span id="part-count" class="muted"></span></div>
+      <input id="part-filter" type="search" placeholder="搜索部件，例如「卡槽」「转盘」" autocomplete="off">
       <ul id="part-list"></ul>
     </aside>
-    <section class="stage">
+    <section class="stage" data-tab="stage">
       <canvas id="stage"></canvas>
       <div class="viewbar">
-        <button data-view="front">正面</button>
-        <button data-view="back">背面</button>
-        <button data-view="top">顶部</button>
-        <button data-view="left">左侧</button>
-        <button data-view="right">右侧</button>
-        <button data-view="overview">全景</button>
-        <button id="show-all">显示全部</button>
+        <div class="segmented" role="group" aria-label="视角">
+          <button data-view="front">正面</button><button data-view="back">背面</button><button data-view="top">顶部</button><button data-view="left">左侧</button><button data-view="right">右侧</button><button data-view="overview" class="active">全景</button>
+        </div>
+        <button id="show-all" class="ghost" title="恢复全部部件显示并回到全景">复位</button>
         <select id="scene-select" title="取景画面"></select>
       </div>
+      <button id="power-btn" class="power-btn" title="开机 / 关机（P）"><span class="power-dot"></span>开机</button>
+      <div id="onboard" class="onboard">
+        <strong>先开机</strong>点击右肩的电源拨杆，或按 <kbd>P</kbd>。然后滚轮转动转盘，点击按钮，点击部件看说明。
+      </div>
+      <div id="tip" class="tip hidden"></div>
       <div id="fw-hint" class="fw-hint hidden"></div>
       <div id="part-card" class="part-card hidden">
+        <div class="part-card-head"><span id="part-card-side" class="tag"></span><button id="part-card-close" class="icon-btn" aria-label="关闭">×</button></div>
         <h3 id="part-card-title"></h3>
         <p id="part-card-desc"></p>
-        <button id="ask-part">问问这个部件</button>
+        <div class="part-card-actions"><button id="ask-part">问问这个部件</button><button id="locate-part" class="ghost">飞过去看</button></div>
       </div>
     </section>
-    <aside class="panel guide">
-      <h2>相机屏幕</h2>
-      <div class="lcd"><canvas id="lcd-preview"></canvas><div id="fw-status" class="fw-status">电源 OFF</div></div>
-      <h2>练习课程</h2>
-      <div id="lesson" class="lesson">
-        <select id="lesson-select"></select>
-        <div class="lesson-actions"><button id="lesson-start">开始</button><button id="lesson-hint" class="ghost">要提示</button><button id="lesson-stop" class="ghost">结束</button></div>
-        <div id="lesson-body" class="hidden"><p id="lesson-intro"></p><p id="lesson-source" class="lesson-source"></p><ol id="lesson-goals"></ol><div id="lesson-done" class="lesson-done hidden">完成！</div></div>
-      </div>
-      <h2>问问这台相机</h2>
-      <div id="chat-log" class="chat-log"></div>
-      <div id="steps" class="steps hidden"></div>
-      <form id="chat-form" class="chat-form">
-        <textarea id="chat-input" rows="2" placeholder="例如：怎么切换到伺服对焦？卡槽在哪里？"></textarea>
-        <div class="chat-actions">
-          <button type="submit" id="send">发送</button>
-          <button type="button" id="stop" class="ghost">停止演示</button>
+    <aside class="panel guide" data-tab="guide">
+      <details class="block" open>
+        <summary><h2>相机屏幕</h2><span id="fw-status" class="fw-status">电源 OFF</span></summary>
+        <div class="lcd"><canvas id="lcd-preview"></canvas></div>
+      </details>
+      <details class="block" open>
+        <summary><h2>练习课程</h2><span id="lesson-badge" class="muted"></span></summary>
+        <div id="lesson" class="lesson">
+          <select id="lesson-select"></select>
+          <div class="lesson-actions"><button id="lesson-start">开始</button><button id="lesson-hint" class="ghost">要提示</button><button id="lesson-stop" class="ghost">结束</button></div>
+          <div id="lesson-body" class="hidden"><p id="lesson-intro"></p><p id="lesson-source" class="lesson-source"></p><ol id="lesson-goals"></ol><div id="lesson-done" class="lesson-done hidden">完成！</div></div>
         </div>
-      </form>
+      </details>
+      <section class="block chat">
+        <div class="panel-head"><h2>问问这台相机</h2><button id="chat-clear" class="icon-btn" title="清空对话" aria-label="清空对话">↺</button></div>
+        <div id="chat-log" class="chat-log">
+          <div id="chat-empty" class="chat-empty">
+            <p>可以问用法、问位置，也可以让它直接帮你调。</p>
+            <div class="chips">
+              <button class="chip" data-q="怎么切换到伺服对焦？">怎么切换到伺服对焦</button>
+              <button class="chip" data-q="卡槽在哪里？怎么打开？">卡槽在哪里</button>
+              <button class="chip" data-q="帮我把相机设成 Av、F8、ISO 400">帮我设成 Av F8 ISO 400</button>
+              <button class="chip" data-q="怎么录 4K 视频？">怎么录 4K 视频</button>
+              <button class="chip" data-q="现在相机是什么模式、什么参数？">现在是什么参数</button>
+            </div>
+          </div>
+        </div>
+        <div id="steps" class="steps hidden"></div>
+        <form id="chat-form" class="chat-form">
+          <textarea id="chat-input" rows="2" placeholder="输入问题，回车发送，Shift+回车换行"></textarea>
+          <div class="chat-actions">
+            <button type="button" id="stop" class="ghost">停止演示</button>
+            <button type="submit" id="send">发送</button>
+          </div>
+        </form>
+      </section>
     </aside>
   </main>
+  <nav class="tabbar" aria-label="面板切换">
+    <button data-target="parts">部件</button><button data-target="stage" class="active">模型</button><button data-target="guide">屏幕与讲解</button>
+  </nav>
+  <div id="help" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="panel-head"><h2>操作说明</h2><button id="help-close" class="icon-btn" aria-label="关闭">×</button></div>
+      <div class="help-grid">
+        <div><h4>模型上</h4><ul><li>拖动旋转，滚轮缩放</li><li>点击部件：看说明</li><li>转盘：左右拖动或滚轮</li><li>快门：按下对焦，松开拍摄</li><li>翻转屏、卡槽盖、电池盖、镜头释放钮：点击开合</li><li>开机后点击屏幕：触摸菜单</li></ul></div>
+        <div><h4>键盘</h4><ul>
+          <li><kbd>P</kbd> 电源 <kbd>,</kbd><kbd>.</kbd> 模式转盘</li>
+          <li><kbd>←</kbd><kbd>→</kbd> 主拨盘 <kbd>↑</kbd><kbd>↓</kbd> 速控转盘 1</li>
+          <li><kbd>[</kbd><kbd>]</kbd> 速控转盘 2（ISO）</li>
+          <li><kbd>M</kbd> 菜单 <kbd>Q</kbd> 速控 <kbd>I</kbd> INFO <kbd>Esc</kbd> 返回</li>
+          <li><kbd>空格</kbd> 快门 <kbd>回车</kbd> SET <kbd>A</kbd> AF-ON <kbd>L</kbd> 曝光锁</li>
+          <li><kbd>S</kbd> 照片/短片 <kbd>V</kbd> 录像 <kbd>Z</kbd> 放大 <kbd>R</kbd> 评分 <kbd>退格</kbd> 删除</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

@@ -25,7 +25,7 @@ const guide = createGuide({ stage, firmware, lessons, partsById, modelSource: so
 // lessons UI
 $('#lesson-select').innerHTML = [...new Set(lessons.lessons.map(l => l.category))].map(c => `<optgroup label="${c}">` + lessons.lessons.filter(l => l.category === c).map(l => `<option value="${l.id}">${'★'.repeat(l.level)} ${l.title}</option>`).join('') + '</optgroup>').join('');
 function renderLesson(st) {
-  $('#lesson-body').classList.toggle('hidden', !st); if (!st) return;
+  $('#lesson-body').classList.toggle('hidden', !st); $('#lesson-badge').textContent = st ? (st.complete ? '已完成' : `${st.goals.filter(g => g.done).length}/${st.goals.length}`) : ''; if (!st) return;
   $('#lesson-intro').textContent = st.intro; $('#lesson-source').innerHTML = st.source ? `来源：<a href="${st.source}" target="_blank" rel="noopener">佳能人像摄影专业技巧</a>` : '';
   $('#lesson-goals').innerHTML = st.goals.map((g, i) => `<li class="${g.done ? 'done' : i === st.next ? 'next' : ''}">${g.text}</li>`).join('');
   $('#lesson-done').classList.toggle('hidden', !st.complete);
@@ -41,54 +41,59 @@ $('#scene-select').addEventListener('change', e => firmware.fw.setScene(e.target
 firmware.fw.subscribe((s, ev) => { if (ev === 'scene') $('#scene-select').value = s.scene; });
 fetch('/api/health').then(r => r.json()).then(h => { const el = $('#llm-status'); el.textContent = h.configured ? `讲解员：${h.model}` : '讲解员：未配置 ANTHROPIC_API_KEY'; el.classList.add(h.configured ? 'ok' : 'bad'); }).catch(() => { $('#llm-status').textContent = '讲解员：服务未启动'; });
 
-// part list
-const list = $('#part-list'); let active = null;
+// part list, grouped by where the part sits on the body
+const SIDE_LABELS = { top: '顶部', front: '正面', back: '背面', left: '左侧（端子）', right: '右侧（卡槽）', bottom: '底部', lens: '镜头', all: '整体' };
+const SIDE_ORDER = ['top', 'front', 'back', 'left', 'right', 'bottom', 'lens', 'all'];
+const list = $('#part-list'); let active = null; const collapsed = new Set();
 function renderList(filter = '') {
   const q = filter.trim().toLowerCase();
-  list.innerHTML = data.parts.filter(p => !q || p.name.includes(q) || p.en.toLowerCase().includes(q) || p.id.includes(q)).map(p => `<li data-id="${p.id}" class="${p.id === active ? 'active' : ''}"><span>${p.name}</span><small>${p.side}</small></li>`).join('');
+  const match = p => !q || p.name.includes(q) || p.en.toLowerCase().includes(q) || p.id.includes(q) || (p.description || '').includes(q);
+  const groups = SIDE_ORDER.map(side => ({ side, items: data.parts.filter(p => p.side === side && match(p)) })).filter(g => g.items.length);
+  list.innerHTML = groups.map(g => `<div class="group ${!q && collapsed.has(g.side) ? 'collapsed' : ''}" data-side="${g.side}"><div class="group-head"><span>${SIDE_LABELS[g.side] || g.side}</span><span class="n">${g.items.length}</span></div>` +
+    g.items.map(p => `<li data-id="${p.id}" class="${p.id === active ? 'active' : ''} ${INTERACTIVE.has(p.id) ? 'interactive' : ''}" title="${INTERACTIVE.has(p.id) ? '可操作' : ''}"><span>${p.name}</span><span class="io"></span></li>`).join('') + '</div>').join('');
+  $('#part-count').textContent = q ? `${groups.reduce((n, g) => n + g.items.length, 0)} 个匹配` : `${data.parts.length} 个部件 · 绿点可操作`;
 }
 renderList(); $('#part-filter').addEventListener('input', e => renderList(e.target.value));
-list.addEventListener('click', e => { const li = e.target.closest('li'); if (li) select(li.dataset.id); });
+list.addEventListener('click', e => { const head = e.target.closest('.group-head'); if (head) { const side = head.parentElement.dataset.side; collapsed.has(side) ? collapsed.delete(side) : collapsed.add(side); renderList($('#part-filter').value); return; } const li = e.target.closest('li'); if (li) select(li.dataset.id); });
+list.addEventListener('mouseover', e => { const li = e.target.closest('li'); if (li && li.dataset.id !== active) stage.highlight([li.dataset.id, ...(active ? [active] : [])]); });
+list.addEventListener('mouseleave', () => stage.highlight(active ? [active] : []));
 function showCard(id, fly) {
   const p = partsById.get(id); const card = $('#part-card'); if (!p) { card.classList.add('hidden'); stage.highlight([]); return; }
-  card.classList.remove('hidden'); $('#part-card-title').textContent = `${p.name} · ${p.en}`;
+  card.classList.remove('hidden'); $('#part-card-title').textContent = `${p.name} · ${p.en}`; $('#part-card-side').textContent = SIDE_LABELS[p.side] || p.side;
   $('#part-card-desc').textContent = p.description + (p.howto ? ' ' + p.howto : '') + (firmware.DIALS[id] ? '（可操作：左右拖动或滚轮）' : INTERACTIVE.has(id) ? '（可操作：点击）' : '');
   stage.highlight([id]); if (fly) stage.focus([id]);
+  document.querySelector('#part-list li.active')?.classList.remove('active'); document.querySelector(`#part-list li[data-id="${id}"]`)?.classList.add('active');
+  document.querySelector(`#part-list li[data-id="${id}"]`)?.scrollIntoView({ block: 'nearest' });
 }
-function select(id) { active = id; renderList($('#part-filter').value); showCard(id, true); }
+function select(id) { active = id; showCard(id, true); }
+$('#part-card-close').addEventListener('click', () => { active = null; showCard(null); document.querySelector('#part-list li.active')?.classList.remove('active'); });
+$('#locate-part').addEventListener('click', () => { if (active) stage.focus([active]); });
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
-  const fw = firmware.fw; const map = { p: () => fw.togglePower(), m: () => fw.press('menu_button'), i: () => fw.press('info_button'), q: () => fw.press('q_button'), ' ': () => fw.press('shutter_button'), Enter: () => fw.press('set_button'), ArrowLeft: () => fw.mainDial(-1), ArrowRight: () => fw.mainDial(1), ArrowUp: () => fw.quickDial1(-1), ArrowDown: () => fw.quickDial1(1), '[': () => fw.quickDial2(-1), ']': () => fw.quickDial2(1), ',': () => fw.turnMode(-1), '.': () => fw.turnMode(1), v: () => fw.press('movie_button'), s: () => fw.setStillMovie(fw.state.stillMovie === 'still' ? 'movie' : 'still'), r: () => fw.press('rate_button'), a: () => fw.press('af_on_button'), l: () => fw.press('ae_lock_button'), z: () => fw.press('magnify_button'), Backspace: () => fw.press('erase_button'), Escape: () => fw.press('menu_button') };
+  if (e.key === '?' ) { toggleHelp(true); return; }
+  const fw = firmware.fw; const map = { p: () => fw.togglePower(), m: () => fw.press('menu_button'), i: () => fw.press('info_button'), q: () => fw.press('q_button'), ' ': () => fw.press('shutter_button'), Enter: () => fw.press('set_button'), ArrowLeft: () => fw.mainDial(-1), ArrowRight: () => fw.mainDial(1), ArrowUp: () => fw.quickDial1(-1), ArrowDown: () => fw.quickDial1(1), '[': () => fw.quickDial2(-1), ']': () => fw.quickDial2(1), ',': () => fw.turnMode(-1), '.': () => fw.turnMode(1), v: () => fw.press('movie_button'), s: () => fw.setStillMovie(fw.state.stillMovie === 'still' ? 'movie' : 'still'), r: () => fw.press('rate_button'), a: () => fw.press('af_on_button'), l: () => fw.press('ae_lock_button'), z: () => fw.press('magnify_button'), Backspace: () => fw.press('erase_button'), Escape: () => { if (!$('#help').classList.contains('hidden')) toggleHelp(false); else fw.press('menu_button'); } };
   if (map[e.key]) { e.preventDefault(); map[e.key](); }
 });
-$('#ask-part').addEventListener('click', () => { const p = partsById.get(active); if (p) guide.ask(`${p.name}是做什么的？怎么用？`, { part: active }); });
-let downAt = null, drag = null;
-$('#stage').addEventListener('pointerdown', e => {
-  downAt = [e.clientX, e.clientY];
-  const hit = stage.pickHit(e.clientX, e.clientY); if (!hit) return;
-  if (firmware.DIALS[hit.id]) { drag = { id: hit.id, x: e.clientX, acc: 0 }; stage.controls.enabled = false; $('#stage').setPointerCapture(e.pointerId); }
-  else if (hit.id === 'shutter_button') { firmware.fw.halfPress(); flashHint('半按快门：对焦'); }
-});
-$('#stage').addEventListener('pointermove', e => {
-  if (!drag) return; drag.acc += e.clientX - drag.x; drag.x = e.clientX;
-  while (Math.abs(drag.acc) >= 28) { const d = Math.sign(drag.acc); drag.acc -= d * 28; firmware.wheel(drag.id, d); drag.moved = true; flashHint(drag.id); }
-});
-const endDrag = e => { if (drag) { stage.controls.enabled = true; try { $('#stage').releasePointerCapture(e.pointerId); } catch {} } };
-$('#stage').addEventListener('pointerup', endDrag); $('#stage').addEventListener('pointercancel', endDrag);
-$('#stage').addEventListener('click', e => {
-  if (drag) { const moved = drag.moved; drag = null; if (moved) return; }
-  if (downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return; // was a drag
-  const hit = stage.pickHit(e.clientX, e.clientY); if (!hit) return; const id = hit.id;
-  if (id === 'screen' && firmware.touch(hit)) { flashHint('触摸屏'); return; }
-  if (INTERACTIVE.has(id) && firmware.click(id, { shift: e.shiftKey })) { flashHint(id); if (active !== id) { active = id; renderList($('#part-filter').value); showCard(id, false); } return; }
-  select(id);
-});
-$('#stage').addEventListener('wheel', e => { const id = stage.pick(e.clientX, e.clientY); if (id && firmware.wheel(id, e.deltaY)) { e.preventDefault(); e.stopImmediatePropagation(); flashHint(id); } }, { capture: true, passive: false });
-$('#stage').addEventListener('pointermove', e => { if (drag) return; const id = stage.pick(e.clientX, e.clientY); $('#stage').style.cursor = id && INTERACTIVE.has(id) ? (firmware.DIALS[id] ? 'ew-resize' : 'pointer') : 'grab'; });
-function flashHint(id) { const p = partsById.get(id); const el = $('#fw-hint'); el.textContent = p ? p.name : id; el.classList.remove('hidden'); clearTimeout(flashHint.t); flashHint.t = setTimeout(() => el.classList.add('hidden'), 1200); }
-document.querySelectorAll('.viewbar [data-view]').forEach(b => b.addEventListener('click', () => stage.setView(b.dataset.view)));
-$('#show-all').addEventListener('click', () => guide.reset());
+document.querySelectorAll('.viewbar [data-view]').forEach(b => b.addEventListener('click', () => { stage.setView(b.dataset.view); document.querySelectorAll('.viewbar [data-view]').forEach(x => x.classList.toggle('active', x === b)); }));
+$('#show-all').addEventListener('click', () => { guide.reset(); document.querySelectorAll('.viewbar [data-view]').forEach(x => x.classList.toggle('active', x.dataset.view === 'overview')); });
 $('#chat-form').addEventListener('submit', e => { e.preventDefault(); guide.ask($('#chat-input').value, { part: active }); });
 $('#chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#chat-form').requestSubmit(); } });
 $('#stop').addEventListener('click', () => guide.stop());
-guide.log('system', '点击电源开关开机，滚轮转动模式转盘和拨盘，点击按钮操作。键盘：P 电源，逗号/句号 模式，左右 主拨盘，上下 速控转盘1，[ ] 速控转盘2，M 菜单，I INFO，Q 速控，空格 快门，回车 SET，S 照片/短片，V 录像，A AF-ON，L 曝光锁，Z 放大，R 评分，退格 删除。');
+// power button + onboarding
+const powerBtn = $('#power-btn');
+function syncPowerUI(st) { const on = st.power !== 'off'; powerBtn.classList.toggle('on', on); powerBtn.lastChild.textContent = on ? (st.power === 'lock' ? '已锁定' : '已开机') : '开机'; $('#onboard').classList.toggle('hidden', on || syncPowerUI.dismissed); }
+powerBtn.addEventListener('click', () => firmware.fw.togglePower());
+firmware.fw.subscribe(st => syncPowerUI(st)); syncPowerUI(firmware.fw.state);
+$('#onboard').addEventListener('click', () => { syncPowerUI.dismissed = true; $('#onboard').classList.add('hidden'); });
+// chat empty state chips and clear
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => guide.ask(c.dataset.q, { part: active })));
+const chatEmpty = $('#chat-empty');
+new MutationObserver(() => { chatEmpty.classList.toggle('hidden', $('#chat-log').querySelectorAll('.msg').length > 0); }).observe($('#chat-log'), { childList: true });
+$('#chat-clear').addEventListener('click', () => { guide.history.length = 0; $('#chat-log').querySelectorAll('.msg').forEach(m => m.remove()); guide.reset(); });
+// help modal
+function toggleHelp(show) { $('#help').classList.toggle('hidden', !show); }
+$('#help-btn').addEventListener('click', () => toggleHelp(true)); $('#help-close').addEventListener('click', () => toggleHelp(false));
+$('#help').addEventListener('click', e => { if (e.target === $('#help')) toggleHelp(false); });
+// narrow-screen tabs
+document.querySelectorAll('.tabbar button').forEach(b => b.addEventListener('click', () => { document.querySelector('.layout').dataset.active = b.dataset.target; document.querySelectorAll('.tabbar button').forEach(x => x.classList.toggle('active', x === b)); window.dispatchEvent(new Event('resize')); }));
+document.querySelector('.layout').dataset.active = 'stage';
