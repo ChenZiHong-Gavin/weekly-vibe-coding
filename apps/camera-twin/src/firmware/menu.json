@@ -1,0 +1,1284 @@
+{
+ "source": "https://cam.start.canon/zh/C022/manual/html/ 设置页菜单 各页",
+ "tabs": [
+  {
+   "id": "shoot",
+   "label": "拍摄",
+   "color": "#c8412b",
+   "source": "UG-04_Shooting_0020.html",
+   "pages": [
+    {
+     "name": "图像画质/大小",
+     "items": [
+      {
+       "label": "图像画质",
+       "adv": false,
+       "page": "UG-04_Shooting_0070.html"
+      },
+      {
+       "label": "全像素双核RAW",
+       "adv": false,
+       "page": "UG-04_Shooting_0080.html"
+      },
+      {
+       "label": "裁切/长宽比",
+       "adv": false,
+       "page": "UG-04_Shooting_0110.html"
+      },
+      {
+       "label": "数码长焦附加镜",
+       "adv": true,
+       "page": "UG-04_Shooting_0130.html"
+      }
+     ]
+    },
+    {
+     "name": "曝光",
+     "items": [
+      {
+       "label": "曝光补偿/AEB",
+       "adv": true,
+       "page": "UG-04_Shooting_0160.html"
+      },
+      {
+       "label": "ISO感光度设置",
+       "adv": true,
+       "page": "UG-04_Shooting_0180.html"
+      },
+      {
+       "label": "防闪烁拍摄",
+       "adv": true,
+       "page": "UG-04_Shooting_0210.html"
+      },
+      {
+       "label": "高频防闪烁拍摄",
+       "adv": true,
+       "page": "UG-04_Shooting_0220.html"
+      },
+      {
+       "label": "外接闪光灯控制",
+       "adv": true,
+       "page": "UG-04_Shooting_0810.html"
+      },
+      {
+       "label": "测光模式",
+       "adv": true,
+       "page": "UG-04_Shooting_0230.html"
+      },
+      {
+       "label": "自动对焦期间被摄体识别优先AE",
+       "adv": true,
+       "page": "UG-04_Shooting_0240.html"
+      }
+     ]
+    },
+    {
+     "name": "色彩/色调/动态范围",
+     "items": [
+      {
+       "label": "色彩模式",
+       "adv": true,
+       "page": "UG-04_Shooting_0260.html"
+      },
+      {
+       "label": "色彩空间",
+       "adv": true,
+       "page": "UG-04_Shooting_0270.html"
+      },
+      {
+       "label": "清晰度",
+       "adv": true,
+       "page": "UG-04_Shooting_0280.html"
+      },
+      {
+       "label": "HDR拍摄（PQ）",
+       "adv": true,
+       "page": "UG-04_Shooting_0290.html"
+      },
+      {
+       "label": "HDR模式",
+       "adv": true,
+       "page": "UG-04_Shooting_0310.html"
+      },
+      {
+       "label": "自动亮度优化",
+       "adv": true,
+       "page": "UG-04_Shooting_0320.html"
+      },
+      {
+       "label": "高光色调优先",
+       "adv": true,
+       "page": "UG-04_Shooting_0330.html"
+      }
+     ]
+    },
+    {
+     "name": "白平衡/画质校正",
+     "items": [
+      {
+       "label": "镜头像差校正",
+       "adv": true,
+       "page": "UG-04_Shooting_0360.html"
+      },
+      {
+       "label": "长时间曝光降噪功能",
+       "adv": true,
+       "page": "UG-04_Shooting_0370.html"
+      },
+      {
+       "label": "高ISO感光度降噪功能",
+       "adv": true,
+       "page": "UG-04_Shooting_0380.html"
+      },
+      {
+       "label": "除尘数据",
+       "adv": true,
+       "page": "UG-04_Shooting_0390.html"
+      }
+     ]
+    },
+    {
+     "name": "各种拍摄",
+     "items": [
+      {
+       "label": "多重曝光",
+       "adv": true,
+       "page": "UG-04_Shooting_0440.html"
+      },
+      {
+       "label": "对焦包围拍摄",
+       "adv": true,
+       "page": "UG-04_Shooting_0450.html"
+      }
+     ]
+    },
+    {
+     "name": "快门控制",
+     "items": [
+      {
+       "label": "驱动模式",
+       "adv": false,
+       "page": "UG-04_Shooting_0460.html"
+      },
+      {
+       "label": "预先连续拍摄",
+       "adv": true,
+       "page": "UG-04_Shooting_0410.html"
+      },
+      {
+       "label": "间隔定时器",
+       "adv": false,
+       "page": "UG-04_Shooting_0470.html"
+      },
+      {
+       "label": "B门定时器",
+       "adv": true,
+       "page": "UG-04_Shooting_0480.html"
+      },
+      {
+       "label": "静音快门功能",
+       "adv": true,
+       "page": "UG-04_Shooting_0490.html"
+      },
+      {
+       "label": "快门模式",
+       "adv": true,
+       "page": "UG-04_Shooting_0500.html"
+      },
+      {
+       "label": "未装存储卡释放快门",
+       "adv": false,
+       "page": "UG-04_Shooting_0510.html"
+      }
+     ]
+    },
+    {
+     "name": "辅助拍摄",
+     "items": [
+      {
+       "label": "影像稳定器模式",
+       "adv": false,
+       "page": "UG-04_Shooting_0530.html"
+      },
+      {
+       "label": "测光定时器",
+       "adv": true,
+       "page": "UG-04_Shooting_0580.html"
+      },
+      {
+       "label": "图像确认",
+       "adv": false,
+       "page": "UG-04_Shooting_0590.html"
+      },
+      {
+       "label": "高速显示",
+       "adv": true,
+       "page": "UG-04_Shooting_0600.html"
+      },
+      {
+       "label": "显示模拟",
+       "adv": true,
+       "page": "UG-04_Shooting_0610.html"
+      },
+      {
+       "label": "光学取景模拟视图辅助",
+       "adv": true,
+       "page": "UG-04_Shooting_0620.html"
+      },
+      {
+       "label": "HDR/C.Log查看帮助",
+       "adv": true,
+       "page": "UG-04_Shooting_0630.html"
+      }
+     ]
+    },
+    {
+     "name": "辅助拍摄",
+     "items": [
+      {
+       "label": "拍摄信息显示",
+       "adv": false,
+       "page": "UG-04_Shooting_0660.html"
+      },
+      {
+       "label": "速控自定义",
+       "adv": true,
+       "page": "UG-04_Shooting_0680.html"
+      },
+      {
+       "label": "显示帧频设置",
+       "adv": false,
+       "page": "UG-04_Shooting_0690.html"
+      },
+      {
+       "label": "取景器显示格式",
+       "adv": false,
+       "page": "UG-04_Shooting_0700.html"
+      },
+      {
+       "label": "镜像显示",
+       "adv": false,
+       "page": "UG-04_Shooting_0710.html"
+      },
+      {
+       "label": "自动关闭电源温度",
+       "adv": false,
+       "page": "UG-04_Shooting_0720.html"
+      }
+     ]
+    },
+    {
+     "name": "短片",
+     "items": [
+      {
+       "label": "短片记录尺寸",
+       "adv": false,
+       "page": "UG-04_Shooting_0050.html"
+      },
+      {
+       "label": "短片记录格式",
+       "adv": false,
+       "page": "UG-04_Shooting_0060.html"
+      },
+      {
+       "label": "录音",
+       "adv": false,
+       "page": "UG-04_Shooting_0140.html#Shooting_0140_1"
+      },
+      {
+       "label": "音频格式",
+       "adv": false,
+       "page": "UG-04_Shooting_0140.html#Shooting_0140_2"
+      },
+      {
+       "label": "音频设置",
+       "adv": true,
+       "page": "UG-04_Shooting_0140.html#Shooting_0140_3"
+      },
+      {
+       "label": "音频状态",
+       "adv": false,
+       "page": "UG-04_Shooting_0140.html#Shooting_0140_10"
+      }
+     ]
+    },
+    {
+     "name": "短片",
+     "items": [
+      {
+       "label": "ISO感光度设置",
+       "adv": true,
+       "page": "UG-04_Shooting_0170.html"
+      },
+      {
+       "label": "自动低速快门",
+       "adv": true,
+       "page": "UG-04_Shooting_0200.html"
+      },
+      {
+       "label": "自动水平校准",
+       "adv": false,
+       "page": "UG-04_Shooting_0540.html"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "af",
+   "label": "自动对焦",
+   "color": "#8e44ad",
+   "source": "UG-05_AF-Drive_0020.html",
+   "pages": [
+    {
+     "name": "AF操作/区域",
+     "items": [
+      {
+       "label": "自动对焦操作",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0040.html"
+      },
+      {
+       "label": "自动对焦区域",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0060.html"
+      },
+      {
+       "label": "伺服自动对焦追踪全部区域",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0060.html#AF-Drive_0060_3"
+      },
+      {
+       "label": "对焦模式",
+       "adv": false,
+       "page": "UG-05_AF-Drive_0060.html#AF-Drive_0060_7"
+      },
+      {
+       "label": "短片伺服自动对焦",
+       "adv": false,
+       "page": "UG-05_AF-Drive_0050.html"
+      }
+     ]
+    },
+    {
+     "name": "被摄体检测",
+     "items": [
+      {
+       "label": "检测的被摄体",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0060.html#AF-Drive_0060_4"
+      },
+      {
+       "label": "眼睛检测",
+       "adv": false,
+       "page": "UG-05_AF-Drive_0060.html#AF-Drive_0060_5"
+      },
+      {
+       "label": "注册人物优先级",
+       "adv": false,
+       "page": "UG-05_AF-Drive_0080.html"
+      }
+     ]
+    },
+    {
+     "name": "伺服自动对焦特性",
+     "items": [
+      {
+       "label": "Case自动",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0090.html#AF-Drive_0090_1"
+      },
+      {
+       "label": "“Case自动”特性",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0090.html#AF-Drive_0090_1-1"
+      },
+      {
+       "label": "Case手动",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0090.html#AF-Drive_0090_2"
+      },
+      {
+       "label": "追踪灵敏度",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0090.html#AF-Drive_0090_2-1"
+      },
+      {
+       "label": "加速/减速追踪",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0090.html#AF-Drive_0090_2-2"
+      }
+     ]
+    },
+    {
+     "name": "自定义自动对焦操作",
+     "items": [
+      {
+       "label": "伺服第一张图像优先",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_2-1"
+      },
+      {
+       "label": "单次自动对焦释放优先",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_2-2"
+      },
+      {
+       "label": "预览自动对焦",
+       "adv": false,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_2-3"
+      },
+      {
+       "label": "无法进行自动对焦时的镜头驱动",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_1-1"
+      },
+      {
+       "label": "自动对焦辅助光发光",
+       "adv": false,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_2-4"
+      }
+     ]
+    },
+    {
+     "name": "自定义控制",
+     "items": [
+      {
+       "label": "限制自动对焦区域",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_3-1"
+      },
+      {
+       "label": "与方向链接的自动对焦点",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_4-1"
+      },
+      {
+       "label": "限制检测的被摄体",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_3-2"
+      },
+      {
+       "label": "左/右眼检测",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_3-3"
+      }
+     ]
+    },
+    {
+     "name": "手动对焦相关",
+     "items": [
+      {
+       "label": "手动对焦峰值设置",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0070.html#AF-Drive_0070_1"
+      },
+      {
+       "label": "对焦向导",
+       "adv": false,
+       "page": "UG-05_AF-Drive_0070.html#AF-Drive_0070_2"
+      },
+      {
+       "label": "镜头电子手动对焦",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_5-1"
+      },
+      {
+       "label": "按钮：清除手动对焦放大",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_6-1"
+      }
+     ]
+    },
+    {
+     "name": "各种设置/各种设置",
+     "items": [
+      {
+       "label": "注册/调出自动对焦相关设置",
+       "adv": true,
+       "page": "UG-05_AF-Drive_0100.html#AF-Drive_0100_8-1"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "play",
+   "label": "回放",
+   "color": "#2d6bb5",
+   "source": "UG-06_Playback_0020.html",
+   "pages": [
+    {
+     "name": "文件操作",
+     "items": [
+      {
+       "label": "保护图像",
+       "adv": false,
+       "page": "UG-06_Playback_0100.html"
+      },
+      {
+       "label": "删除图像",
+       "adv": false,
+       "page": "UG-06_Playback_0110.html"
+      },
+      {
+       "label": "旋转静止图像",
+       "adv": false,
+       "page": "UG-06_Playback_0120.html"
+      },
+      {
+       "label": "改变短片旋转信息",
+       "adv": false,
+       "page": "UG-06_Playback_0130.html"
+      },
+      {
+       "label": "评分",
+       "adv": false,
+       "page": "UG-06_Playback_0140.html"
+      },
+      {
+       "label": "设置评分时保护",
+       "adv": false,
+       "page": "UG-06_Playback_0150.html"
+      }
+     ]
+    },
+    {
+     "name": "文件操作",
+     "items": [
+      {
+       "label": "图像复制",
+       "adv": false,
+       "page": "UG-06_Playback_0160.html"
+      },
+      {
+       "label": "打印指令",
+       "adv": false,
+       "page": "UG-06_Playback_0170.html"
+      }
+     ]
+    },
+    {
+     "name": "图像处理",
+     "items": [
+      {
+       "label": "RAW图像处理",
+       "adv": false,
+       "page": "UG-06_Playback_0180.html"
+      },
+      {
+       "label": "创意辅助",
+       "adv": false,
+       "page": "UG-06_Playback_0190.html"
+      },
+      {
+       "label": "速控RAW处理",
+       "adv": false,
+       "page": "UG-06_Playback_0200.html"
+      },
+      {
+       "label": "调整尺寸",
+       "adv": false,
+       "page": "UG-06_Playback_0210.html"
+      },
+      {
+       "label": "剪裁",
+       "adv": false,
+       "page": "UG-06_Playback_0220.html"
+      },
+      {
+       "label": "HEIF→JPEG转换",
+       "adv": false,
+       "page": "UG-06_Playback_0230.html"
+      }
+     ]
+    },
+    {
+     "name": "回放方法",
+     "items": [
+      {
+       "label": "幻灯片播放",
+       "adv": false,
+       "page": "UG-06_Playback_0240.html"
+      },
+      {
+       "label": "设定图像搜索条件",
+       "adv": false,
+       "page": "UG-06_Playback_0250.html"
+      },
+      {
+       "label": "从上一浏览图像",
+       "adv": false,
+       "page": "UG-06_Playback_0260.html"
+      },
+      {
+       "label": "放大倍率",
+       "adv": false,
+       "page": "UG-06_Playback_0040.html"
+      }
+     ]
+    },
+    {
+     "name": "各种设置",
+     "items": [
+      {
+       "label": "播放信息显示",
+       "adv": false,
+       "page": "UG-06_Playback_0270.html"
+      },
+      {
+       "label": "高光警告",
+       "adv": false,
+       "page": "UG-06_Playback_0280.html"
+      },
+      {
+       "label": "显示自动对焦点",
+       "adv": false,
+       "page": "UG-06_Playback_0290.html"
+      },
+      {
+       "label": "播放网格线",
+       "adv": false,
+       "page": "UG-06_Playback_0300.html"
+      },
+      {
+       "label": "短片播放计时",
+       "adv": false,
+       "page": "UG-06_Playback_0310.html"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "net",
+   "label": "通信功能",
+   "color": "#2e8b57",
+   "source": "UG-07_Network_0020.html",
+   "pages": [
+    {
+     "name": "网络功能",
+     "items": [
+      {
+       "label": "连接至智能手机(平板电脑)",
+       "adv": false,
+       "page": "UG-07_Network_0030.html"
+      },
+      {
+       "label": "连接至无线遥控器",
+       "adv": false,
+       "page": "UG-07_Network_0040.html"
+      },
+      {
+       "label": "连接至EOS Utility",
+       "adv": false,
+       "page": "UG-07_Network_0050.html"
+      },
+      {
+       "label": "上传至佳能影像上传",
+       "adv": false,
+       "page": "UG-07_Network_0060.html"
+      },
+      {
+       "label": "将图像传输至FTP服务器",
+       "adv": false,
+       "page": "UG-07_Network_0070.html"
+      },
+      {
+       "label": "高级连接",
+       "adv": false,
+       "page": "UG-07_Network_0080.html"
+      }
+     ]
+    },
+    {
+     "name": "现场直播",
+     "items": [
+      {
+       "label": "USB (UVC/UAC) 流式传输",
+       "adv": false,
+       "page": "UG-07_Network_0090.html"
+      },
+      {
+       "label": "HDMI流式传输",
+       "adv": false,
+       "page": "UG-07_Network_0100.html"
+      }
+     ]
+    },
+    {
+     "name": "网络设置",
+     "items": [
+      {
+       "label": "飞行模式",
+       "adv": false,
+       "page": "UG-07_Network_0110.html"
+      },
+      {
+       "label": "Wi-Fi设置",
+       "adv": false,
+       "page": "UG-07_Network_0120.html"
+      },
+      {
+       "label": "蓝牙设置",
+       "adv": false,
+       "page": "UG-07_Network_0130.html"
+      },
+      {
+       "label": "相机名称",
+       "adv": false,
+       "page": "UG-07_Network_0140.html"
+      },
+      {
+       "label": "错误详情",
+       "adv": false,
+       "page": "UG-07_Network_0150.html"
+      }
+     ]
+    },
+    {
+     "name": "各种设置",
+     "items": [
+      {
+       "label": "GPS设备设置",
+       "adv": false,
+       "page": "UG-07_Network_0170.html"
+      },
+      {
+       "label": "选择USB连接应用程序",
+       "adv": false,
+       "page": "UG-07_Network_0180.html"
+      },
+      {
+       "label": "将通信设置保存到存储卡/从卡加载",
+       "adv": false,
+       "page": "UG-07_Network_0190.html"
+      },
+      {
+       "label": "重置通信设置",
+       "adv": false,
+       "page": "UG-07_Network_0200.html"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "setup",
+   "label": "设置",
+   "color": "#d4a017",
+   "source": "UG-08_Set-up_0020.html",
+   "pages": [
+    {
+     "name": "文件/存储卡设置",
+     "items": [
+      {
+       "label": "记录功能+存储卡/文件夹选择",
+       "adv": false,
+       "page": "UG-08_Set-up_0030.html"
+      },
+      {
+       "label": "文件编号",
+       "adv": false,
+       "page": "UG-08_Set-up_0040.html"
+      },
+      {
+       "label": "剪辑编号",
+       "adv": false,
+       "page": "UG-08_Set-up_0050.html"
+      },
+      {
+       "label": "文件名",
+       "adv": false,
+       "page": "UG-08_Set-up_0060.html"
+      },
+      {
+       "label": "格式化存储卡",
+       "adv": false,
+       "page": "UG-08_Set-up_0070.html"
+      },
+      {
+       "label": "自动旋转",
+       "adv": false,
+       "page": "UG-08_Set-up_0080.html"
+      },
+      {
+       "label": "添加旋转信息",
+       "adv": false,
+       "page": "UG-08_Set-up_0090.html"
+      }
+     ]
+    },
+    {
+     "name": "国家/地区/向导",
+     "items": [
+      {
+       "label": "日期/时间/区域",
+       "adv": false,
+       "page": "UG-08_Set-up_0100.html"
+      },
+      {
+       "label": "语言",
+       "adv": false,
+       "page": "UG-08_Set-up_0110.html"
+      },
+      {
+       "label": "系统频率",
+       "adv": false,
+       "page": "UG-08_Set-up_0120.html"
+      },
+      {
+       "label": "帮助文本尺寸",
+       "adv": false,
+       "page": "UG-08_Set-up_0130.html#Set-up_0130_1"
+      },
+      {
+       "label": "功能介绍",
+       "adv": false,
+       "page": "UG-08_Set-up_0140.html"
+      }
+     ]
+    },
+    {
+     "name": "音频设置",
+     "items": [
+      {
+       "label": "提示音",
+       "adv": false,
+       "page": "UG-08_Set-up_0150.html"
+      },
+      {
+       "label": "音量",
+       "adv": false,
+       "page": "UG-08_Set-up_0160.html"
+      },
+      {
+       "label": "音频监控器",
+       "adv": false,
+       "page": "UG-08_Set-up_0170.html"
+      }
+     ]
+    },
+    {
+     "name": "自定义显示",
+     "items": [
+      {
+       "label": "屏幕亮度",
+       "adv": false,
+       "page": "UG-08_Set-up_0180.html"
+      },
+      {
+       "label": "取景器亮度",
+       "adv": false,
+       "page": "UG-08_Set-up_0190.html"
+      },
+      {
+       "label": "屏幕/取景器色调",
+       "adv": false,
+       "page": "UG-08_Set-up_0200.html"
+      },
+      {
+       "label": "微调取景器色调",
+       "adv": false,
+       "page": "UG-08_Set-up_0200.html"
+      }
+     ]
+    },
+    {
+     "name": "自定义显示",
+     "items": [
+      {
+       "label": "屏幕/取景器显示",
+       "adv": false,
+       "page": "UG-08_Set-up_0220.html"
+      },
+      {
+       "label": "用户界面放大",
+       "adv": false,
+       "page": "UG-08_Set-up_0230.html"
+      },
+      {
+       "label": "HDMI分辨率",
+       "adv": false,
+       "page": "UG-08_Set-up_0240.html"
+      }
+     ]
+    },
+    {
+     "name": "各种设置",
+     "items": [
+      {
+       "label": "关机时的快门状态",
+       "adv": false,
+       "page": "UG-08_Set-up_0250.html"
+      },
+      {
+       "label": "清洁感应器",
+       "adv": false,
+       "page": "UG-08_Set-up_0260.html"
+      },
+      {
+       "label": "管理密码",
+       "adv": false,
+       "page": "UG-08_Set-up_0340.html"
+      },
+      {
+       "label": "节电",
+       "adv": false,
+       "page": "UG-08_Set-up_0270.html"
+      }
+     ]
+    },
+    {
+     "name": "重置/所有设置",
+     "items": [
+      {
+       "label": "重置相机",
+       "adv": true,
+       "page": "UG-08_Set-up_0280.html"
+      },
+      {
+       "label": "自定义拍摄模式(C1-C3)",
+       "adv": true,
+       "page": "UG-08_Set-up_0290.html"
+      },
+      {
+       "label": "将相机设置保存到存储卡/从卡加载",
+       "adv": true,
+       "page": "UG-08_Set-up_0300.html"
+      }
+     ]
+    },
+    {
+     "name": "各种设置",
+     "items": [
+      {
+       "label": "电池信息",
+       "adv": false,
+       "page": "UG-08_Set-up_0310.html"
+      },
+      {
+       "label": "版权信息",
+       "adv": true,
+       "page": "UG-08_Set-up_0320.html"
+      },
+      {
+       "label": "显示日志",
+       "adv": false,
+       "page": "UG-08_Set-up_0330.html#Set-up_0330_1"
+      },
+      {
+       "label": "手册/软件URL",
+       "adv": false,
+       "page": "UG-08_Set-up_0330.html#Set-up_0330_2"
+      },
+      {
+       "label": "认证徽标显示",
+       "adv": true,
+       "page": "UG-08_Set-up_0330.html#Set-up_0330_3"
+      },
+      {
+       "label": "固件",
+       "adv": false,
+       "page": "UG-08_Set-up_0330.html#Set-up_0330_4"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ctrl",
+   "label": "自定义控制",
+   "color": "#e67e22",
+   "source": "UG-09_Customize_0020.html",
+   "pages": [
+    {
+     "name": "拍摄时的自定义控制",
+     "items": [
+      {
+       "label": "自定义拍摄按钮",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-1"
+      },
+      {
+       "label": "短片的快门按钮功能",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-2"
+      },
+      {
+       "label": "自定义转盘/控制环",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-3"
+      },
+      {
+       "label": "设定Tv/Av时的转向",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-4"
+      },
+      {
+       "label": "设定Tv/Av时的转向",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-5"
+      },
+      {
+       "label": "拍摄期间切换/",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-6"
+      }
+     ]
+    },
+    {
+     "name": "拍摄时的自定义控制(静止图像拍摄)",
+     "items": [
+      {
+       "label": "触摸快门",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-7"
+      },
+      {
+       "label": "多功能锁",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-8"
+      },
+      {
+       "label": "镜头光学变焦速度",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-9"
+      }
+     ]
+    },
+    {
+     "name": "拍摄时的自定义控制(短片记录)",
+     "items": [
+      {
+       "label": "多功能锁",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-8"
+      },
+      {
+       "label": "镜头光学变焦速度",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-9"
+      }
+     ]
+    },
+    {
+     "name": "拍摄时的自定义控制",
+     "items": [
+      {
+       "label": "触摸和拖拽自动对焦设置",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-10"
+      },
+      {
+       "label": "自动对焦区域选择控制",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-11"
+      },
+      {
+       "label": "灵敏度- 自动对焦点选择",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-12"
+      },
+      {
+       "label": "对焦/控制环",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-13"
+      },
+      {
+       "label": "对焦环旋转",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-14"
+      },
+      {
+       "label": "RF镜头MF对焦环灵敏度",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_1-15"
+      }
+     ]
+    },
+    {
+     "name": "回放时的自定义控制",
+     "items": [
+      {
+       "label": "自定义播放按钮",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_2-1"
+      },
+      {
+       "label": "用进行图像跳转",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_2-2"
+      },
+      {
+       "label": "图像跳转用+",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_2-3"
+      },
+      {
+       "label": "播放期间切换/",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_2-4"
+      }
+     ]
+    },
+    {
+     "name": "自定义控制/重置",
+     "items": [
+      {
+       "label": "触摸控制",
+       "adv": false,
+       "page": "UG-09_Customize_0030.html#Customize_0030_3-1"
+      },
+      {
+       "label": "清除全部自定义控制",
+       "adv": true,
+       "page": "UG-09_Customize_0030.html#Customize_0030_3-2"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cfn",
+   "label": "自定义功能",
+   "color": "#e67e22",
+   "source": "UG-10_Custom_0020.html",
+   "pages": [
+    {
+     "name": "曝光C.Fn",
+     "items": [
+      {
+       "label": "曝光等级增量",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-1"
+      },
+      {
+       "label": "ISO感光度设置增量",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-2"
+      },
+      {
+       "label": "测光感光度/ISO自动",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-3"
+      },
+      {
+       "label": "包围曝光自动取消",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-4"
+      },
+      {
+       "label": "包围曝光顺序",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-5"
+      },
+      {
+       "label": "包围曝光拍摄数量",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-6"
+      }
+     ]
+    },
+    {
+     "name": "曝光C.Fn",
+     "items": [
+      {
+       "label": "安全偏移",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-7"
+      },
+      {
+       "label": "对新光圈维持相同曝光",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-8"
+      },
+      {
+       "label": "对焦后自动锁定曝光的测光模式",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-9"
+      },
+      {
+       "label": "快门速度范围设置",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-10"
+      },
+      {
+       "label": "光圈范围设置",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_1-11"
+      }
+     ]
+    },
+    {
+     "name": "其他C.Fn/重置",
+     "items": [
+      {
+       "label": "添加裁切信息",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_2-1"
+      },
+      {
+       "label": "默认删除选项",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_2-2"
+      },
+      {
+       "label": "未装镜头释放快门",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_2-3"
+      },
+      {
+       "label": "电源关闭时缩回镜头",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_2-4"
+      },
+      {
+       "label": "添加IPTC信息",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_2-5"
+      },
+      {
+       "label": "清除全部自定义功能(C.Fn)",
+       "adv": false,
+       "page": "UG-10_Custom_0030.html#Custom_0030_2-6"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "my",
+   "label": "我的菜单",
+   "color": "#27ae60",
+   "source": "UG-10_Custom_0040.html",
+   "pages": [
+    {
+     "name": "我的菜单管理",
+     "items": [
+      {
+       "label": "添加我的菜单设置页",
+       "adv": false,
+       "page": "UG-10_Custom_0050.html#Custom_0050_1"
+      },
+      {
+       "label": "删除全部我的菜单设置页",
+       "adv": false,
+       "page": "UG-10_Custom_0050.html#Custom_0050_4"
+      },
+      {
+       "label": "删除全部项目",
+       "adv": false,
+       "page": "UG-10_Custom_0050.html#Custom_0050_4"
+      },
+      {
+       "label": "菜单显示",
+       "adv": false,
+       "page": "UG-10_Custom_0050.html#Custom_0050_5"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

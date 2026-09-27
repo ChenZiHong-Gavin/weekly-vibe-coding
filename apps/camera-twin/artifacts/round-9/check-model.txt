@@ -1,0 +1,34 @@
+
+> camera-twin@0.1.0 check:model
+> node scripts/check-model.mjs
+
+{
+  "ok": true,
+  "missing": [],
+  "sizeIssues": [],
+  "partsWithoutMesh": [],
+  "badControls": [],
+  "meshes": 188,
+  "triangles": 140592,
+  "dims": {
+    "width": 14.67,
+    "height": 10.09,
+    "depth": 17.13
+  },
+  "bodyDims": {
+    "width": 14.670000009834766,
+    "height": 10.089999986886978,
+    "depth": 8.208427199423314
+  },
+  "controls": [
+    "mode_dial",
+    "screen_open",
+    "card_door_open",
+    "power",
+    "still_movie",
+    "lens_attached",
+    "lens_zoom"
+  ],
+  "parts": 64,
+  "requiredParts": 64
+}

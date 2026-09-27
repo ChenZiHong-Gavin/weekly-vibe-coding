@@ -1,0 +1,13 @@
+
+> camera-twin@0.1.0 build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 15 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   2.16 kB │ gzip:   0.99 kB
+dist/assets/index-Cor7zudk.css    3.28 kB │ gzip:   1.22 kB
+dist/assets/index-B0VR5jnh.js   761.25 kB │ gzip: 202.12 kB
+✓ built in 623ms

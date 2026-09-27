@@ -1,0 +1,98 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import { buildCamera, IMPLEMENTED } from '../src/model/r6iii.js';
+import { collectParts, REQUIRED_PART_IDS, validateCamera } from '../src/model/contract.js';
+
+test('R6 III ships all tagged meshes, standard materials and stays within the triangle budget', () => {
+  assert.equal(IMPLEMENTED, true);
+  const root = buildCamera(THREE), parts = collectParts(root), report = validateCamera(root, THREE);
+  assert.equal(report.ok, true, JSON.stringify(report));
+  assert.ok(report.triangles <= 200000, `Triangle budget exceeded: ${report.triangles}`);
+  assert.deepEqual([...parts.keys()].sort(), [...REQUIRED_PART_IDS].sort());
+  root.traverse(o => {
+    if (o.userData.part) assert.equal(o.name, o.userData.part);
+    if (o.isMesh) {
+      for (const material of [o.material].flat()) assert.equal(material.type, 'MeshStandardMaterial');
+      for (const value of o.geometry.attributes.position.array) assert.ok(Number.isFinite(value));
+    }
+  });
+});
+
+test('controls articulate around hinges, reverse deterministically and preserve all part identities', () => {
+  const root = buildCamera(THREE), parts = collectParts(root), controls = root.userData.controls;
+  const bounds = id => { root.updateMatrixWorld(true); return new THREE.Box3().setFromObject(parts.get(id)); };
+  const before = [...parts.keys()];
+  for (const [control,id] of [['mode_dial','mode_dial'],['screen_open','screen'],['card_door_open','card_slot_cover'],['power','power_switch'],['still_movie','still_movie_switch']]) {
+    controls[control](0); root.updateMatrixWorld(true);
+    const initial=parts.get(id).matrixWorld.clone();
+    controls[control](1); root.updateMatrixWorld(true);
+    assert.notDeepEqual(parts.get(id).matrixWorld.elements,initial.elements,control);
+    controls[control](0); root.updateMatrixWorld(true);
+    assert.deepEqual(parts.get(id).matrixWorld.elements,initial.elements,`${control} must reset exactly`);
+    controls[control](.5); root.updateMatrixWorld(true);
+    root.traverse(o => assert.ok(o.matrixWorld.elements.every(Number.isFinite)));
+    controls[control](0);
+  }
+  const closed = bounds('screen'); controls.screen_open(1); const open = bounds('screen');
+  assert.ok(open.max.x < closed.min.x + .5, 'screen must swing completely to the left of the body');
+  assert.deepEqual([...collectParts(root).keys()],before);
+});
+
+test('closed card door occludes both slots and opening exposes them', () => {
+  const root = buildCamera(THREE);
+  const firstPart = z => {
+    root.updateMatrixWorld(true);
+    const ray = new THREE.Raycaster(new THREE.Vector3(20,-.96,z),new THREE.Vector3(-1,0,0));
+    const hit=ray.intersectObject(root,true)[0];
+    let object=hit?.object; while(object && !object.userData.part) object=object.parent;
+    return object?.userData.part;
+  };
+  for (const [id,z] of [['card_slot_1',-.60],['card_slot_2',.79]]) {
+    root.userData.controls.card_door_open(0); assert.equal(firstPart(z),'card_slot_cover');
+    root.userData.controls.card_door_open(1); assert.equal(firstPart(z),id);
+  }
+});
+
+test('bottom service parts and left rubber covers remain outside the structural shell', () => {
+  const root=buildCamera(THREE); root.updateMatrixWorld(true);
+  for(const [origin,direction,id] of [
+    [[-.9,-20,-.20],[0,1,0],'tripod_socket'],
+    [[4.93,-20,-.85],[0,1,0],'battery_cover'],
+    [[5.0,-20,-2.65],[0,1,0],'battery_cover_lock'],
+    [[-20,-.5,.82],[1,0,0],'terminal_cover']
+  ]) {
+    const ray=new THREE.Raycaster(new THREE.Vector3(...origin),new THREE.Vector3(...direction));
+    let object=ray.intersectObject(root,true)[0]?.object;
+    while(object && !object.userData.part) object=object.parent;
+    assert.equal(object?.userData.part,id,`${id} must not be buried in the body`);
+  }
+});
+
+test('lens assembly dimensions, nested identity and independent attachment/zoom travel', () => {
+  const root=buildCamera(THREE), parts=collectParts(root), c=root.userData.controls;
+  const lens=parts.get('lens'), barrel=parts.get('lens_barrel');
+  const box=id=>{root.updateMatrixWorld(true);return new THREE.Box3().setFromObject(parts.get(id));};
+  const size=box('lens').getSize(new THREE.Vector3());
+  assert.ok(Math.abs(size.z-10.7)<.1);
+  assert.ok(Math.abs(Math.max(size.x,size.y)-8.4)<.15);
+  for(const id of ['lens_mount_ring','lens_barrel','lens_zoom_ring','lens_focus_ring','lens_red_ring','lens_control_ring','lens_front_element','lens_af_mf_switch','lens_is_switch']) {
+    let p=parts.get(id).parent;while(p && p!==lens)p=p.parent;
+    assert.equal(p,lens,id);
+  }
+  const focalMark=value=>parts.get('lens_zoom_ring').getObjectByName(`mark_${value}`).getWorldPosition(new THREE.Vector3());
+  root.updateMatrixWorld(true);assert.ok(Math.abs(focalMark('24').x-lens.position.x)<1e-6);
+  c.lens_zoom(1);root.updateMatrixWorld(true);assert.ok(Math.abs(focalMark('105').x-lens.position.x)<1e-6);
+  assert.ok(focalMark('105').y>lens.position.y+4);
+  c.lens_zoom(0);
+  const attached=lens.position.clone(), closed=box('lens_front_element').min.z;
+  c.lens_attached(0);assert.equal(lens.position.z,attached.z-6);
+  c.lens_zoom(1);assert.equal(barrel.position.z,-2.5);
+  assert.ok(Math.abs(box('lens_front_element').min.z-(closed-8.5))<1e-6);
+  c.lens_attached(1);assert.ok(lens.position.equals(attached));
+  assert.ok(Math.abs(box('lens_front_element').min.z-(closed-2.5))<1e-6);
+  c.lens_zoom(0);assert.equal(box('lens_front_element').min.z,closed);
+  for(const value of [-2,2,NaN,Infinity]) {c.lens_attached(value);c.lens_zoom(value);root.updateMatrixWorld(true);root.traverse(o=>assert.ok(o.matrixWorld.elements.every(Number.isFinite)));}
+  c.lens_attached(1);c.lens_zoom(0);assert.equal(validateCamera(root,THREE).ok,true);
+  root.traverse(o=>{if(o.isMesh)for(const m of [o.material].flat()){assert.equal(m.map,null);assert.equal(m.emissiveMap,null);}});
+});

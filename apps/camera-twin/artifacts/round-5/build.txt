@@ -1,0 +1,18 @@
+
+> camera-twin@0.1.0 build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 15 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   2.16 kB │ gzip:   0.99 kB
+dist/assets/index-Cor7zudk.css    3.28 kB │ gzip:   1.22 kB
+dist/assets/index-B8lWkv-0.js   751.14 kB │ gzip: 198.22 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 588ms

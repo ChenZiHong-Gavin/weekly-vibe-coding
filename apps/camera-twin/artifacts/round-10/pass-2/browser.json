@@ -1,0 +1,145 @@
+{
+  "states": [
+    {
+      "name": "front",
+      "controls": {},
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        -0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "front-screen-open",
+      "controls": {
+        "screen_open": 1
+      },
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        -0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "top",
+      "controls": {},
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        -0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "bottom-closed",
+      "controls": {},
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        -0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "bottom-battery-open",
+      "controls": {
+        "battery_cover_open": 1
+      },
+      "canvasTextures": 40,
+      "batteryY": -3.35,
+      "sliders": [
+        -0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "battery-open-detail",
+      "controls": {
+        "battery_cover_open": 1
+      },
+      "canvasTextures": 40,
+      "batteryY": -3.35,
+      "sliders": [
+        -0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "card-slot-closed",
+      "controls": {},
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        -0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "card-slot-open",
+      "controls": {
+        "card_door_open": 1
+      },
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        -0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "lens-af-is-off",
+      "controls": {
+        "lens_af_mf": 0,
+        "lens_is": 0
+      },
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        -0.23,
+        0.23
+      ]
+    },
+    {
+      "name": "lens-mf-is-on",
+      "controls": {
+        "lens_af_mf": 1,
+        "lens_is": 1
+      },
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "lens-af-is-on",
+      "controls": {
+        "lens_af_mf": 0,
+        "lens_is": 1
+      },
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        -0.23,
+        -0.23
+      ]
+    },
+    {
+      "name": "lens-mf-is-off",
+      "controls": {
+        "lens_af_mf": 1,
+        "lens_is": 0
+      },
+      "canvasTextures": 40,
+      "batteryY": -1.85,
+      "sliders": [
+        0.23,
+        0.23
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,42 @@
+:root{--bg:#f4f1ea;--panel:#fffdf8;--ink:#1f1d1a;--muted:#6f6a61;--line:#e3ddd0;--accent:#c8412b;--accent-soft:#f6d9d2;--ok:#2f7a4a;}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,"PingFang SC","Noto Sans SC",system-ui,sans-serif}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.brand{font-weight:600;display:flex;align-items:center;gap:8px}.brand small{color:var(--muted);font-weight:400}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+.pill{border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--muted);margin-left:8px;background:#fff}
+.pill.ok{color:var(--ok);border-color:#bfe0c9}.pill.bad{color:var(--accent);border-color:#f0c2b8}
+.layout{display:grid;grid-template-columns:240px 1fr 360px;height:calc(100% - 45px)}
+.panel{background:var(--panel);border-right:1px solid var(--line);padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.panel.guide{border-right:0;border-left:1px solid var(--line)}
+.panel h2{font-size:13px;margin:0;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+#part-filter,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;background:#fff}
+#part-list{list-style:none;margin:0;padding:0;overflow:auto}
+#part-list li{padding:6px 8px;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;gap:6px}
+#part-list li:hover{background:#f1ece2}#part-list li.active{background:var(--accent-soft)}
+#part-list li small{color:var(--muted)}
+.stage{position:relative;min-width:0}#stage{width:100%;height:100%;display:block}
+.viewbar{position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap}
+button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+button:hover{border-color:#c9c2b3}button.primary,#send{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.ghost{background:transparent}
+.part-card{position:absolute;left:12px;bottom:12px;max-width:360px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.part-card h3{margin:0 0 6px;font-size:15px}.part-card p{margin:0 0 8px;color:var(--muted)}
+.hidden{display:none!important}
+.chat-log{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;min-height:120px}
+.msg{padding:8px 10px;border-radius:10px;max-width:95%;white-space:pre-wrap}
+.msg.user{align-self:flex-end;background:#ece6d8}.msg.guide{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.msg.error{background:#fbe9e5;color:var(--accent)}.msg.system{color:var(--muted);font-size:12px;align-self:center}
+.steps{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff}
+.steps ol{margin:0;padding-left:18px}.steps li{padding:2px 0;cursor:pointer}.steps li.current{color:var(--accent);font-weight:600}
+.chat-form{display:flex;flex-direction:column;gap:6px}.chat-actions{display:flex;gap:6px;justify-content:flex-end}
+@media (max-width:1000px){.layout{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}.panel{max-height:30vh}}
+
+.lcd{border:6px solid #111;border-radius:8px;background:#000;overflow:hidden}
+.lcd canvas{width:100%;display:block;aspect-ratio:3/2}
+.fw-status{font-size:12px;color:#cfcac0;background:#1b1b1d;padding:4px 8px;font-variant-numeric:tabular-nums}
+.fw-hint{position:absolute;top:56px;left:12px;background:rgba(31,29,26,.85);color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;pointer-events:none}
+.lesson{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;display:flex;flex-direction:column;gap:6px}
+.lesson select{width:100%;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;background:#fff}
+.lesson-actions{display:flex;gap:6px}.lesson p{margin:0;color:var(--muted);font-size:13px}
+#lesson-goals{margin:0;padding-left:20px}#lesson-goals li{padding:2px 0}#lesson-goals li.done{color:var(--ok);text-decoration:line-through}#lesson-goals li.next{font-weight:600}
+.lesson-done{background:#e4f5e9;color:var(--ok);border-radius:8px;padding:6px 10px;font-weight:600}

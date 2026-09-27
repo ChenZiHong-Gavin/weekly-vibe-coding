@@ -1,0 +1,14 @@
+
+> camera-twin@0.1.0 dev
+> node --env-file-if-exists=.env server.mjs
+
+.env not found. Continuing without it.
+camera-twin dev → http://127.0.0.1:4319  模型接口：未配置
+7:38:47 PM [vite] (client) page reload src/firmware/screen.js
+7:38:47 PM [vite] (client) page reload src/firmware/index.js
+7:38:47 PM [vite] (client) page reload src/guide.js
+7:38:47 PM [vite] (client) page reload src/guide-contract.js
+7:38:47 PM [vite] (client) page reload src/main.js
+7:39:55 PM [vite] (client) page reload src/model/r6iii.js
+7:41:30 PM [vite] (client) page reload src/model/r6iii.js
+7:43:12 PM [vite] (client) page reload src/model/r6iii.js

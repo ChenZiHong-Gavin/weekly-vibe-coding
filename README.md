@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-24%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-26%2F100-blue)
 
 **中文** | [English](./README_EN.md)
 
@@ -23,6 +23,7 @@
     - [专题七：学习必备](#专题七学习必备)
     - [专题八：抽象排序算法](#专题八抽象排序算法)
     - [专题九：假装是真的](#专题九假装是真的)
+    - [专题十：数字孪生](#专题十数字孪生)
   - [如何运行](#如何运行)
   - [贡献](#贡献)
   - [License](#license)
@@ -100,6 +101,12 @@
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/wake-up-call.md)
 
       <img width="400" alt="Wake Up Call character and alarm setup" src="./docs/screenshots/wake-up-call.png" />
+
+24. **[机械解构师 · Mechanism Lab](./apps/mechanical-explainer/)** (`apps/mechanical-explainer`)
+    - 暖白机械展台，收录 10 件实拍参考的可运行三维作品（9 件 Codex 构建、1 件豆包生成），支持原图对照、拆解、局部观察与参数控制。
+    - 独立 Node.js 应用，本地展台无需模型；保留单图重建工作台，生成需配置多模态模型 API。详见 [使用说明](./apps/mechanical-explainer/README.md)。
+
+      <img width="400" alt="Mechanism Lab radial engine exhibition" src="./docs/screenshots/mechanical-explainer.png" />
 
 ### 专题二：手势交互
 
@@ -209,6 +216,11 @@
 
 
 
+
+### 专题十：数字孪生
+26. **[Camera Twin · 相机数字孪生](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/tree/main/apps/camera-twin)** (`apps/camera-twin`)
+    - 一台 Canon EOS R6 Mark III 的可交互三维数字孪生：程序化 Three.js 机身与 RF 24-105 镜头（Codex 按官方线稿与照片建模），能开机的虚拟固件（官方菜单结构、曝光、速控、录像、回放），点击部件即讲解，讲解员（豆包/Claude）可操控相机演示，并带 8 门练习课程实时判定。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/camera-twin.md)
 
 ## 如何运行
 

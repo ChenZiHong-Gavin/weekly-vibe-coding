@@ -1,0 +1,500 @@
+{
+  "camera": {
+    "model": "Canon EOS R6 Mark III",
+    "dimensions_mm": {
+      "width": 138.4,
+      "height": 98.4,
+      "depth": 88.4
+    },
+    "weight_g": 699,
+    "sensor": "32.5MP 全画幅 CMOS",
+    "manual": "https://cam.start.canon/en/C022/manual/html/UG-00_Before_0120.html"
+  },
+  "parts": [
+    {
+      "id": "body",
+      "name": "机身",
+      "en": "Body",
+      "side": "all",
+      "description": "镁合金骨架加工程塑料外壳，正面握持面覆防滑蒙皮。所有其他部件都装在它上面。"
+    },
+    {
+      "id": "mode_dial",
+      "name": "模式转盘",
+      "en": "Mode dial",
+      "side": "top",
+      "description": "顶部右侧的带锁转盘，分基础区（A+、SCN）和创意区（Fv、P、Tv、Av、M、B、C1–C3）。",
+      "howto": "按住中央锁扣再转动。拍摄模式决定曝光由谁控制：Av 你定光圈，Tv 你定快门，M 全手动。"
+    },
+    {
+      "id": "power_switch",
+      "name": "电源/多功能锁开关",
+      "en": "Power/multi-function lock switch",
+      "side": "top",
+      "description": "OFF、ON、LOCK 三档拨杆，环绕在模式转盘外侧。LOCK 位可锁定转盘和多功能控制钮，防止误触。"
+    },
+    {
+      "id": "main_dial",
+      "name": "主拨盘",
+      "en": "Main dial",
+      "side": "top",
+      "description": "快门按钮后方的横向滚轮，食指操作。默认在 Av 模式下调光圈、Tv 模式下调快门。"
+    },
+    {
+      "id": "mfn_button",
+      "name": "多功能按钮（M-Fn）",
+      "en": "Multi-function button",
+      "side": "top",
+      "description": "快门按钮旁的小按钮。按下后可用主拨盘切换 ISO、驱动模式、对焦模式、白平衡等，也用于向手机发送图片。"
+    },
+    {
+      "id": "shutter_button",
+      "name": "快门按钮",
+      "en": "Shutter button",
+      "side": "top",
+      "description": "握柄顶部的两段式按钮。半按对焦并测光，全按拍摄。"
+    },
+    {
+      "id": "movie_button",
+      "name": "短片拍摄按钮",
+      "en": "Movie shooting button",
+      "side": "top",
+      "description": "带红点的按钮，在模式转盘旁。按下开始或停止录像；回放时用于切换照片与短片回放。"
+    },
+    {
+      "id": "still_movie_switch",
+      "name": "照片/短片切换开关",
+      "en": "Still photo/movie recording switch",
+      "side": "top",
+      "description": "顶部左侧的拨杆，在照片模式和短片模式之间切换，两种模式各有独立的曝光设置。"
+    },
+    {
+      "id": "hot_shoe",
+      "name": "多功能热靴",
+      "en": "Multi-function shoe",
+      "side": "top",
+      "description": "取景器上方的金属靴座，带数据触点，可接闪光灯、外置麦克风等配件。出厂时盖有靴盖。"
+    },
+    {
+      "id": "af_assist_lamp",
+      "name": "自拍指示灯 / 自动对焦辅助光",
+      "en": "Self-timer lamp / AF-assist beam",
+      "side": "front",
+      "description": "正面握柄上方的小灯，自拍倒计时闪烁，弱光下发出辅助光帮助对焦。"
+    },
+    {
+      "id": "grip",
+      "name": "握柄（电池仓）",
+      "en": "Grip (battery compartment)",
+      "side": "front",
+      "description": "深握柄，内部是电池仓，使用 LP-E6P 电池。底部有电池仓盖。"
+    },
+    {
+      "id": "dof_preview_button",
+      "name": "景深预览按钮",
+      "en": "Depth-of-field preview button",
+      "side": "front",
+      "description": "镜头卡口右下方的按钮。按住时镜头收缩到设定光圈，屏幕上可看到实际景深。"
+    },
+    {
+      "id": "lens_mount",
+      "name": "RF 镜头卡口",
+      "en": "Lens mount",
+      "side": "front",
+      "description": "直径 54mm 的 RF 卡口，法兰距 20mm。红色标记是镜头安装对齐点。"
+    },
+    {
+      "id": "lens_contacts",
+      "name": "镜头触点",
+      "en": "Contacts",
+      "side": "front",
+      "description": "卡口内下方的 12 个金属触点，用于机身与镜头通信、供电。"
+    },
+    {
+      "id": "mount_index",
+      "name": "RF 镜头安装标记",
+      "en": "RF lens mount index",
+      "side": "front",
+      "description": "卡口上方的红点。装镜头时对准镜头上的红点，顺时针旋转到咔哒声。"
+    },
+    {
+      "id": "image_sensor",
+      "name": "快门帘幕 / 图像传感器",
+      "en": "Shutter curtain / Image sensor",
+      "side": "front",
+      "description": "卡口内可见的 32.5MP 全画幅传感器，带机身防抖。关机时快门帘幕默认关闭以防尘。"
+    },
+    {
+      "id": "lens_release_button",
+      "name": "镜头释放按钮",
+      "en": "Lens release button",
+      "side": "front",
+      "description": "卡口右侧的大按钮。按住并逆时针旋转镜头即可拆下。"
+    },
+    {
+      "id": "tally_lamp",
+      "name": "录制指示灯",
+      "en": "Tally lamp",
+      "side": "front",
+      "description": "正面顶部的小红灯，录像时点亮，方便被拍者知道正在录制。"
+    },
+    {
+      "id": "microphone",
+      "name": "内置麦克风",
+      "en": "Microphone",
+      "side": "top",
+      "description": "顶部的立体声麦克风开孔，录像默认收音来源。"
+    },
+    {
+      "id": "strap_mount_left",
+      "name": "背带环（左）",
+      "en": "Strap mount (left)",
+      "side": "left",
+      "description": "机身左肩的三角环，用于挂背带。"
+    },
+    {
+      "id": "strap_mount_right",
+      "name": "背带环（右）",
+      "en": "Strap mount (right)",
+      "side": "right",
+      "description": "机身右肩（握柄侧）的三角环。"
+    },
+    {
+      "id": "viewfinder",
+      "name": "电子取景器",
+      "en": "Viewfinder eyepiece",
+      "side": "back",
+      "description": "0.5 英寸 OLED 电子取景器，放大倍率 0.76x。眼睛靠近时眼感应器自动切换显示。"
+    },
+    {
+      "id": "eyecup",
+      "name": "眼罩",
+      "en": "Eyecup",
+      "side": "back",
+      "description": "取景器外的橡胶眼罩，遮光并保护镜片。"
+    },
+    {
+      "id": "viewfinder_sensor",
+      "name": "取景器眼感应器",
+      "en": "Viewfinder sensor",
+      "side": "back",
+      "description": "取景器下方的小窗，检测眼睛靠近后自动关闭屏幕、点亮取景器。"
+    },
+    {
+      "id": "diopter_knob",
+      "name": "屈光度调节旋钮",
+      "en": "Dioptric adjustment knob",
+      "side": "back",
+      "description": "眼罩右侧的小滚轮，调节取景器清晰度以适应视力。"
+    },
+    {
+      "id": "screen",
+      "name": "翻转触摸屏",
+      "en": "Screen",
+      "side": "back",
+      "description": "3 英寸侧翻式触摸屏，可向左展开并翻转，用于取景、菜单和自拍。"
+    },
+    {
+      "id": "menu_button",
+      "name": "菜单按钮",
+      "en": "Menu button",
+      "side": "back",
+      "description": "取景器左侧的 MENU 按钮，打开设置菜单。"
+    },
+    {
+      "id": "rate_button",
+      "name": "颜色模式 / 评分按钮",
+      "en": "Color mode / rating button",
+      "side": "back",
+      "description": "MENU 旁的 RATE/COLOR 按钮，拍摄时打开颜色模式，回放时给照片评分。"
+    },
+    {
+      "id": "af_on_button",
+      "name": "AF 启动按钮",
+      "en": "AF start button",
+      "side": "back",
+      "description": "拇指位置的 AF-ON 按钮。按下即对焦，与快门半按等效，常用于后键对焦。"
+    },
+    {
+      "id": "ae_lock_button",
+      "name": "自动曝光锁按钮",
+      "en": "AE lock button",
+      "side": "back",
+      "description": "星号按钮。按下锁定当前测光值，重新构图时曝光不变。"
+    },
+    {
+      "id": "af_point_button",
+      "name": "自动对焦点选择按钮",
+      "en": "AF point selection button",
+      "side": "back",
+      "description": "AE 锁旁的按钮，进入对焦区域选择。"
+    },
+    {
+      "id": "multi_controller",
+      "name": "多功能控制钮",
+      "en": "Multi-controller",
+      "side": "back",
+      "description": "八向摇杆，可按下。用来移动对焦点、在菜单中导航。"
+    },
+    {
+      "id": "quick_control_dial_2",
+      "name": "速控转盘 2",
+      "en": "Quick control dial 2",
+      "side": "top",
+      "description": "顶部右后方的垂直转盘，默认控制 ISO。"
+    },
+    {
+      "id": "quick_control_dial_1",
+      "name": "速控转盘 1",
+      "en": "Quick control dial 1",
+      "side": "back",
+      "description": "背面 SET 按钮外圈的大转盘，默认调曝光补偿，M 模式下调光圈。"
+    },
+    {
+      "id": "set_button",
+      "name": "SET 按钮",
+      "en": "Set button",
+      "side": "back",
+      "description": "速控转盘 1 中央的确认键。"
+    },
+    {
+      "id": "magnify_button",
+      "name": "放大 / 缩小按钮",
+      "en": "Magnify/reduce button",
+      "side": "back",
+      "description": "放大镜图标。拍摄时放大取景画面检查对焦，回放时放大照片。"
+    },
+    {
+      "id": "info_button",
+      "name": "INFO 按钮",
+      "en": "Info button",
+      "side": "back",
+      "description": "切换屏幕显示的信息层级。"
+    },
+    {
+      "id": "q_button",
+      "name": "速控按钮",
+      "en": "Quick Control button",
+      "side": "back",
+      "description": "Q 按钮，打开速控屏幕，快速改常用设置。"
+    },
+    {
+      "id": "playback_button",
+      "name": "回放按钮",
+      "en": "Playback button",
+      "side": "back",
+      "description": "查看已拍照片和短片。"
+    },
+    {
+      "id": "erase_button",
+      "name": "删除按钮",
+      "en": "Erase button",
+      "side": "back",
+      "description": "垃圾桶图标，回放时删除当前文件。"
+    },
+    {
+      "id": "access_lamp",
+      "name": "存取指示灯",
+      "en": "Access lamp",
+      "side": "back",
+      "description": "写卡时点亮。亮时不要取卡或电池。"
+    },
+    {
+      "id": "speaker",
+      "name": "扬声器",
+      "en": "Speaker",
+      "side": "back",
+      "description": "背面左上角的小孔，回放短片时出声。"
+    },
+    {
+      "id": "terminal_cover",
+      "name": "端子盖",
+      "en": "Terminal cover",
+      "side": "left",
+      "description": "机身左侧的橡胶盖，盖住麦克风、USB、耳机、HDMI 和遥控端子。"
+    },
+    {
+      "id": "mic_terminal",
+      "name": "外接麦克风端子",
+      "en": "External microphone IN terminal",
+      "side": "left",
+      "description": "3.5mm 输入。"
+    },
+    {
+      "id": "usb_terminal",
+      "name": "数字端子（USB-C）",
+      "en": "Digital terminal",
+      "side": "left",
+      "description": "USB-C，用于传输、充电和网络摄像头模式。"
+    },
+    {
+      "id": "headphone_terminal",
+      "name": "耳机端子",
+      "en": "Headphone terminal",
+      "side": "left",
+      "description": "3.5mm 输出，录像时监听。"
+    },
+    {
+      "id": "hdmi_terminal",
+      "name": "HDMI 输出端子",
+      "en": "HDMI OUT terminal",
+      "side": "left",
+      "description": "HDMI micro，可输出 RAW 视频到外录机。"
+    },
+    {
+      "id": "remote_terminal",
+      "name": "遥控端子",
+      "en": "Remote control terminal",
+      "side": "left",
+      "description": "接有线快门线。"
+    },
+    {
+      "id": "card_slot_cover",
+      "name": "存储卡插槽盖",
+      "en": "Card slot cover",
+      "side": "right",
+      "description": "握柄外侧的滑盖，向后滑开。"
+    },
+    {
+      "id": "card_slot_1",
+      "name": "卡槽 1（CFexpress Type B）",
+      "en": "Card slot 1",
+      "side": "right",
+      "description": "R6 Mark III 新增的 CFexpress 槽，7K RAW 录像需要它。"
+    },
+    {
+      "id": "card_slot_2",
+      "name": "卡槽 2（SD UHS-II）",
+      "en": "Card slot 2",
+      "side": "right",
+      "description": "SD 卡槽，可与卡槽 1 同时写入做备份。"
+    },
+    {
+      "id": "tripod_socket",
+      "name": "三脚架螺孔",
+      "en": "Tripod socket",
+      "side": "bottom",
+      "description": "底部 1/4 英寸螺孔，位于光轴正下方。"
+    },
+    {
+      "id": "battery_cover",
+      "name": "电池仓盖",
+      "en": "Battery compartment cover",
+      "side": "bottom",
+      "description": "底部握柄下的盖子，带锁扣。"
+    },
+    {
+      "id": "battery_cover_lock",
+      "name": "电池仓盖锁",
+      "en": "Battery compartment cover lock",
+      "side": "bottom",
+      "description": "拨动后可打开电池仓盖。"
+    },
+    {
+      "id": "body_cap",
+      "name": "机身盖",
+      "en": "Body cap",
+      "side": "front",
+      "description": "不装镜头时盖在卡口上的塑料盖。"
+    },
+    {
+      "id": "lens",
+      "name": "RF 24-105mm F4L IS USM 镜头",
+      "en": "RF 24-105mm F4L IS USM lens",
+      "side": "lens",
+      "description": "R6 Mark III 的标准套机镜头，恒定 F4 光圈、5 级光学防抖、Nano USM 对焦。黑色镜身，前端有 L 镜头标志性的红环。",
+      "howto": "对准机身卡口红点，插入后顺时针旋转到咔哒声即安装完成。"
+    },
+    {
+      "id": "lens_mount_ring",
+      "name": "镜头卡口环",
+      "en": "Lens mount ring",
+      "side": "lens",
+      "description": "镜头尾部的金属卡口环，带红色安装标记和防尘橡胶圈。"
+    },
+    {
+      "id": "lens_control_ring",
+      "name": "控制环",
+      "en": "Control ring",
+      "side": "lens",
+      "description": "镜头最前端带滚花的银色环，可在菜单里分配为光圈、ISO 或曝光补偿。"
+    },
+    {
+      "id": "lens_zoom_ring",
+      "name": "变焦环",
+      "en": "Zoom ring",
+      "side": "lens",
+      "description": "镜身中部最宽的橡胶环，标有 24、35、50、70、105 焦距刻度。转动变焦时镜筒会伸出。"
+    },
+    {
+      "id": "lens_focus_ring",
+      "name": "对焦环",
+      "en": "Focus ring",
+      "side": "lens",
+      "description": "变焦环前方较窄的橡胶环，手动对焦时使用。"
+    },
+    {
+      "id": "lens_af_mf_switch",
+      "name": "AF/MF 开关",
+      "en": "AF/MF switch",
+      "side": "lens",
+      "description": "镜身左侧的拨杆，在自动对焦和手动对焦之间切换。"
+    },
+    {
+      "id": "lens_is_switch",
+      "name": "防抖开关",
+      "en": "Stabilizer switch",
+      "side": "lens",
+      "description": "AF/MF 开关下方的拨杆，开关光学防抖。上三脚架时通常关闭。"
+    },
+    {
+      "id": "lens_front_element",
+      "name": "前镜片",
+      "en": "Front element",
+      "side": "lens",
+      "description": "77mm 滤镜口径的前镜组，带多层镀膜。"
+    },
+    {
+      "id": "lens_red_ring",
+      "name": "红环",
+      "en": "Red ring",
+      "side": "lens",
+      "description": "L 系列镜头的标志，位于对焦环前方。"
+    },
+    {
+      "id": "lens_barrel",
+      "name": "伸缩镜筒",
+      "en": "Extending barrel",
+      "side": "lens",
+      "description": "变焦到 105mm 时从镜身前端伸出的内筒。"
+    },
+    {
+      "id": "card_1",
+      "name": "CFexpress 卡",
+      "en": "CFexpress card",
+      "side": "right",
+      "description": "插在卡槽 1 里的 CFexpress Type B 卡，7K RAW 录像需要它。"
+    },
+    {
+      "id": "card_2",
+      "name": "SD 卡",
+      "en": "SD card",
+      "side": "right",
+      "description": "插在卡槽 2 里的 SD UHS-II 卡。"
+    },
+    {
+      "id": "battery",
+      "name": "电池 LP-E6P",
+      "en": "Battery LP-E6P",
+      "side": "bottom",
+      "description": "握柄内的 LP-E6P 锂电池，打开底部电池仓盖后取出。"
+    }
+  ],
+  "lens": {
+    "model": "Canon RF 24-105mm F4 L IS USM",
+    "length_mm": 107,
+    "diameter_mm": 84,
+    "filter_mm": 77,
+    "weight_g": 700
+  }
+}

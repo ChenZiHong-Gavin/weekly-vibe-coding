@@ -1,0 +1,26 @@
+
+> camera-twin@0.1.0 test
+> node --test tests/*.test.mjs
+
+✔ parts.json ids are unique and have Chinese names (0.4575ms)
+✔ placeholder satisfies the model contract (8.177209ms)
+✔ real builder, once implemented, satisfies the model contract (105.596792ms)
+✔ validatePlan accepts a good plan and rejects bad ones (0.302917ms)
+✔ guide tool enumerates every part id (0.517542ms)
+✔ validatePlan accepts firmware steps and rejects unknown actions (0.173083ms)
+✔ firmware: power, dials and exposure behave like the manual says (1.393958ms)
+✔ menu.json mirrors the official manual: 8 tabs, secondary tabs, creative-zone marks (0.21025ms)
+✔ firmware: menu options, quick control, dialogs, movie and playback (0.625ms)
+✔ R6 III ships all tagged meshes, standard materials and stays within the triangle budget (113.534708ms)
+✔ controls articulate around hinges, reverse deterministically and preserve all part identities (75.506375ms)
+✔ closed card door occludes both slots and opening exposes them (65.75ms)
+✔ bottom service parts and left rubber covers remain outside the structural shell (51.780542ms)
+✔ lens assembly dimensions, nested identity and independent attachment/zoom travel (55.792ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 426.787

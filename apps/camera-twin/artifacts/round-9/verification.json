@@ -1,0 +1,28 @@
+{
+  "minimumTabClearanceCm": 0.0049999978393318045,
+  "unchangedParts": 62,
+  "states": [
+    {
+      "label": "OFF",
+      "t": 0,
+      "degrees": 44.40934278535333
+    },
+    {
+      "label": "ON",
+      "t": 0.5,
+      "degrees": -48.433630362450536
+    },
+    {
+      "label": "LOCK",
+      "t": 1,
+      "degrees": 0.4407280727610038
+    }
+  ],
+  "stationaryLegends": true,
+  "physicalOrder": [
+    "OFF",
+    "LOCK",
+    "ON"
+  ],
+  "finiteAndReversible": true
+}

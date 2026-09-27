@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>相机数字孪生 · Canon EOS R6 Mark III</title>
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span>相机数字孪生 <small>Canon EOS R6 Mark III</small></div>
+    <div class="topbar-right">
+      <span id="model-status" class="pill">模型：加载中</span>
+      <span id="llm-status" class="pill">讲解员：未连接</span>
+    </div>
+  </header>
+  <main class="layout">
+    <aside class="panel parts">
+      <h2>部件</h2>
+      <input id="part-filter" type="search" placeholder="搜索部件…" autocomplete="off">
+      <ul id="part-list"></ul>
+    </aside>
+    <section class="stage">
+      <canvas id="stage"></canvas>
+      <div class="viewbar">
+        <button data-view="front">正面</button>
+        <button data-view="back">背面</button>
+        <button data-view="top">顶部</button>
+        <button data-view="left">左侧</button>
+        <button data-view="right">右侧</button>
+        <button data-view="overview">全景</button>
+        <button id="show-all">显示全部</button>
+      </div>
+      <div id="fw-hint" class="fw-hint hidden"></div>
+      <div id="part-card" class="part-card hidden">
+        <h3 id="part-card-title"></h3>
+        <p id="part-card-desc"></p>
+        <button id="ask-part">问问这个部件</button>
+      </div>
+    </section>
+    <aside class="panel guide">
+      <h2>相机屏幕</h2>
+      <div class="lcd"><canvas id="lcd-preview"></canvas><div id="fw-status" class="fw-status">电源 OFF</div></div>
+      <h2>练习课程</h2>
+      <div id="lesson" class="lesson">
+        <select id="lesson-select"></select>
+        <div class="lesson-actions"><button id="lesson-start">开始</button><button id="lesson-hint" class="ghost">要提示</button><button id="lesson-stop" class="ghost">结束</button></div>
+        <div id="lesson-body" class="hidden"><p id="lesson-intro"></p><ol id="lesson-goals"></ol><div id="lesson-done" class="lesson-done hidden">完成！</div></div>
+      </div>
+      <h2>问问这台相机</h2>
+      <div id="chat-log" class="chat-log"></div>
+      <div id="steps" class="steps hidden"></div>
+      <form id="chat-form" class="chat-form">
+        <textarea id="chat-input" rows="2" placeholder="例如：怎么切换到伺服对焦？卡槽在哪里？"></textarea>
+        <div class="chat-actions">
+          <button type="submit" id="send">发送</button>
+          <button type="button" id="stop" class="ghost">停止演示</button>
+        </div>
+      </form>
+    </aside>
+  </main>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+
+> camera-twin@0.1.0 test
+> node --test tests/*.test.mjs
+
+✔ parts.json ids are unique and have Chinese names (0.79925ms)
+✔ placeholder satisfies the model contract (15.052958ms)
+✔ real builder, once implemented, satisfies the model contract (87.963125ms)
+✔ validatePlan accepts a good plan and rejects bad ones (0.273125ms)
+✔ guide tool enumerates every part id (0.164875ms)
+✔ R6 III ships all tagged meshes, standard materials and stays within the triangle budget (101.400792ms)
+✔ controls articulate around hinges, reverse deterministically and preserve all part identities (49.2825ms)
+✔ closed card door occludes both slots and opening exposes them (48.966459ms)
+✔ bottom service parts and left rubber covers remain outside the structural shell (53.235833ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 334.02975
