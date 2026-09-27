@@ -5,7 +5,6 @@ import data from './parts.json' with { type: 'json' };
 import { attachFirmware, INTERACTIVE } from './firmware/index.js';
 import { createLessonRunner } from './firmware/lessons.js';
 import { SCENES } from './firmware/scenes.js';
-import { createTracker } from './tracker.js';
 
 const $ = s => document.querySelector(s);
 const partsById = new Map(data.parts.map(p => [p.id, p]));
@@ -93,14 +92,3 @@ $('#chat-form').addEventListener('submit', e => { e.preventDefault(); guide.ask(
 $('#chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#chat-form').requestSubmit(); } });
 $('#stop').addEventListener('click', () => guide.stop());
 guide.log('system', '点击电源开关开机，滚轮转动模式转盘和拨盘，点击按钮操作。键盘：P 电源，逗号/句号 模式，左右 主拨盘，上下 速控转盘1，[ ] 速控转盘2，M 菜单，I INFO，Q 速控，空格 快门，回车 SET，S 照片/短片，V 录像，A AF-ON，L 曝光锁，Z 放大，R 评分，退格 删除。');
-
-// real-camera sync
-const tracker = createTracker({ stage, els: { preview: $('#tracker-preview') }, onStatus: (text, ok) => { const el = $('#tracker-status'); el.textContent = text; el.style.color = ok ? '#8fd6a3' : '#cfcac0'; } });
-$('#tracker-start').addEventListener('click', async () => { try { tracker.setMarkerSize(+$('#tracker-size').value || 40); await tracker.start($('#tracker-mode').value); $('#tracker-preview').classList.remove('hidden'); } catch (e) { $('#tracker-status').textContent = '无法启动：' + e.message; } });
-$('#tracker-flip').addEventListener('click', () => tracker.flip());
-$('#tracker-mirror').addEventListener('click', () => tracker.mirror());
-$('#tracker-align').addEventListener('click', () => tracker.align());
-$('#tracker-stop').addEventListener('click', () => { tracker.stop(); $('#tracker-preview').classList.add('hidden'); });
-$('#tracker-print').addEventListener('click', () => { tracker.setMarkerSize(+$('#tracker-size').value || 40); tracker.printMarkers(); });
-$('#tracker-size').addEventListener('change', e => tracker.setMarkerSize(+e.target.value || 40));
-window.__twin.tracker = tracker;
