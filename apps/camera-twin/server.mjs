@@ -30,15 +30,10 @@ async function guide(body) {
   if (!ark && !client) return { status: 503, error: '未配置模型密钥。复制 .env.example 为 .env 并填入 ARK_API_KEY 或 ANTHROPIC_API_KEY 后重启。' };
   const messages = (Array.isArray(body.messages) ? body.messages : []).filter(m => ['user', 'assistant'].includes(m.role) && typeof m.content === 'string' && m.content.length < 4000).slice(-12);
   if (!messages.length || messages[messages.length - 1].role !== 'user') return { status: 400, error: '缺少用户问题' };
-  const manifest = describeCamera(body.modelSource === 'r6iii' ? 'r6iii' : 'placeholder');
-  let context = body.context?.part ? `\n\n用户当前选中的部件：${body.context.part}` : '';
-  if (body.context?.camera && typeof body.context.camera === 'object') context += `\n\n虚拟相机当前状态（JSON）：${JSON.stringify(body.context.camera).slice(0, 1500)}`;
-  if (body.context?.lesson && typeof body.context.lesson === 'object') { const L = body.context.lesson; context += `\n\n用户正在练习课程「${L.title}」，目标进度：${(L.goals || []).map((g, i) => `${i + 1}.${g.text}${g.done ? '✓' : ''}`).join(' ')}。当前卡在第 ${(L.next ?? 0) + 1} 步。练习中只给提示和 focus 到相关部件，不要用 firmware 替用户完成目标，除非用户明确说"帮我做"。`; }
-  const system = [{ type: 'text', text: SYSTEM + '\n\n部件清单与控制件（JSON）：\n' + JSON.stringify(manifest), cache_control: { type: 'ephemeral' } }];
-  const last = messages[messages.length - 1];
-  messages[messages.length - 1] = { role: 'user', content: last.content + context };
-  if (ark) return guideViaArk(system[0].text, messages);
-  const response = await client.messages.create({ model: MODEL, max_tokens: 4000, system, messages, tools: [guideTool()], tool_choice: { type: 'auto' }, thinking: { type: 'adaptive' } });
+  const { system: sysText, messages: msgs } = buildRequest(body, messages);
+  if (ark) return guideViaArk(sysText, msgs);
+  const system = [{ type: 'text', text: sysText, cache_control: { type: 'ephemeral' } }];
+  const response = await client.messages.create({ model: MODEL, max_tokens: 4000, system, messages: msgs, tools: [guideTool()], tool_choice: { type: 'auto' }, thinking: { type: 'adaptive' } });
   if (response.stop_reason === 'refusal') return { status: 422, error: '讲解员拒绝了这个请求。' + (response.stop_details?.explanation ? ' ' + response.stop_details.explanation : '') };
   const tool = response.content.find(b => b.type === 'tool_use' && b.name === 'present_camera');
   if (tool) { try { return { status: 200, plan: validatePlan(tool.input), usage: response.usage }; } catch (e) { return { status: 502, error: '讲解格式无效：' + e.message }; } }
@@ -47,27 +42,61 @@ async function guide(body) {
   return { status: 502, error: '讲解员没有返回内容' };
 }
 
-async function guideViaArk(systemText, messages) {
+function buildRequest(body, messages) {
+  const manifest = describeCamera(body.modelSource === 'r6iii' ? 'r6iii' : 'placeholder');
+  let context = body.context?.part ? `\n\n用户当前选中的部件：${body.context.part}` : '';
+  if (body.context?.camera && typeof body.context.camera === 'object') context += `\n\n虚拟相机当前状态（JSON）：${JSON.stringify(body.context.camera).slice(0, 1500)}`;
+  if (body.context?.lesson && typeof body.context.lesson === 'object') { const L = body.context.lesson; context += `\n\n用户正在练习课程「${L.title}」，目标进度：${(L.goals || []).map((g, i) => `${i + 1}.${g.text}${g.done ? '✓' : ''}`).join(' ')}。当前卡在第 ${(L.next ?? 0) + 1} 步。练习中只给提示和 focus 到相关部件，不要用 firmware 替用户完成目标，除非用户明确说"帮我做"。`; }
+  const system = SYSTEM + '\n\n部件清单与控制件（JSON）：\n' + JSON.stringify(manifest);
+  const last = messages[messages.length - 1];
+  const msgs = messages.slice(0, -1).concat({ role: 'user', content: last.content + context });
+  return { system, messages: msgs };
+}
+
+/** Streaming variant for Ark: emits NDJSON lines {type:'answer',text} while the answer field grows, then {type:'plan'} or {type:'error'}. */
+async function guideStreamViaArk(systemText, messages, res) {
   const t = guideTool(); const tool = { type: 'function', function: { name: t.name, description: t.description, parameters: t.input_schema } };
-  const body = { model: ark.model, messages: [{ role: 'system', content: systemText }, ...messages], tools: [tool], tool_choice: { type: 'function', function: { name: t.name } }, temperature: 0.2, max_tokens: 2600, ...(ark.model === 'doubao-seed-evolving' ? { thinking: { type: 'disabled' } } : {}) };
+  const body = { model: ark.model, stream: true, messages: [{ role: 'system', content: systemText }, ...messages], tools: [tool], tool_choice: { type: 'function', function: { name: t.name } }, temperature: 0.2, max_tokens: 2600, ...(ark.model === 'doubao-seed-evolving' ? { thinking: { type: 'disabled' } } : {}) };
+  res.writeHead(200, { 'content-type': 'application/x-ndjson; charset=utf-8', 'cache-control': 'no-cache', 'x-accel-buffering': 'no' });
+  const send = obj => res.write(JSON.stringify(obj) + '\n');
   const controller = new AbortController(); const timer = setTimeout(() => controller.abort('timeout'), 90000);
+  let args = '', content = '', lastAnswer = '', finish = null;
+  const partialAnswer = () => { const m = /"answer"\s*:\s*"((?:[^"\\]|\\.)*)/.exec(args); if (!m) return null; try { return JSON.parse('"' + m[1] + '"'); } catch { return m[1].replace(/\\n/g, '\n').replace(/\\"/g, '"'); } };
   try {
     const r = await fetch(ark.base + '/chat/completions', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + ark.key }, body: JSON.stringify(body), signal: controller.signal });
-    const raw = await r.text();
-    if (!r.ok) return { status: r.status === 401 || r.status === 403 ? 401 : r.status === 429 ? 429 : 502, error: `豆包接口 ${r.status}：${raw.slice(0, 300)}` };
-    let result; try { result = JSON.parse(raw); } catch { return { status: 502, error: '豆包响应不是 JSON' }; }
-    const choice = result.choices?.[0], msg = choice?.message, call = msg?.tool_calls?.[0];
-    if (choice?.finish_reason === 'length') return { status: 502, error: '讲解内容被截断' };
-    if (call?.function?.name === t.name) { try { return { status: 200, plan: validatePlan(JSON.parse(call.function.arguments)), usage: result.usage }; } catch (e) { console.warn('豆包工具参数无效', e.message, call.function.arguments.slice(0, 1500)); return { status: 502, error: '讲解格式无效：' + e.message }; } }
-    const text = typeof msg?.content === 'string' ? msg.content.trim() : '';
-    if (text) return { status: 200, plan: { answer: text, steps: [] }, usage: result.usage };
-    return { status: 502, error: '豆包没有返回内容' };
-  } catch (e) { return { status: 502, error: e.name === 'AbortError' ? '豆包请求超时' : '无法连接豆包接口：' + e.message }; }
-  finally { clearTimeout(timer); }
+    if (!r.ok) { const raw = await r.text(); send({ type: 'error', status: r.status, error: `豆包接口 ${r.status}：${raw.slice(0, 300)}` }); return res.end(); }
+    const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
+    while (true) {
+      const { value, done } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true }); let i;
+      while ((i = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith('data:')) continue; const data = line.slice(5).trim(); if (data === '[DONE]') continue;
+        let j; try { j = JSON.parse(data); } catch { continue; }
+        const ch = j.choices?.[0]; if (!ch) continue; if (ch.finish_reason) finish = ch.finish_reason;
+        const d = ch.delta || {}; if (typeof d.content === 'string') content += d.content;
+        for (const tc of d.tool_calls || []) if (tc.function?.arguments) args += tc.function.arguments;
+        const a = partialAnswer(); if (a && a !== lastAnswer) { lastAnswer = a; send({ type: 'answer', text: a }); }
+      }
+    }
+    if (finish === 'length') { send({ type: 'error', status: 502, error: '讲解内容被截断' }); return res.end(); }
+    if (args) { try { send({ type: 'plan', plan: validatePlan(JSON.parse(args)) }); } catch (e) { console.warn('豆包流式参数无效', e.message, args.slice(0, 800)); send({ type: 'error', status: 502, error: '讲解格式无效：' + e.message }); } }
+    else if (content.trim()) send({ type: 'plan', plan: { answer: content.trim(), steps: [] } });
+    else send({ type: 'error', status: 502, error: '豆包没有返回内容' });
+  } catch (e) { send({ type: 'error', status: 502, error: e.name === 'AbortError' ? '豆包请求超时' : '无法连接豆包接口：' + e.message }); }
+  finally { clearTimeout(timer); res.end(); }
 }
 
 async function handleApi(req, res, url) {
   if (url.pathname === '/api/health') return json(res, 200, { configured, model: MODEL, provider: ark ? 'ark' : 'anthropic' });
+  if (url.pathname === '/api/guide/stream' && req.method === 'POST') {
+    let body; try { body = await readBody(req); } catch (e) { return json(res, 400, { error: e.message }); }
+    if (!ark) return json(res, 503, { error: '流式讲解目前只支持豆包接口' });
+    const messages = (Array.isArray(body.messages) ? body.messages : []).filter(m => ['user', 'assistant'].includes(m.role) && typeof m.content === 'string' && m.content.length < 4000).slice(-12);
+    if (!messages.length || messages[messages.length - 1].role !== 'user') return json(res, 400, { error: '缺少用户问题' });
+    const { system, messages: msgs } = buildRequest(body, messages);
+    return guideStreamViaArk(system, msgs, res);
+  }
   if (url.pathname === '/api/guide' && req.method === 'POST') {
     try { const r = await guide(await readBody(req)); return json(res, r.status, r.status === 200 ? { plan: r.plan, usage: r.usage } : { error: r.error }); }
     catch (e) {

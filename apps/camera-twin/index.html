@@ -30,6 +30,7 @@
         <button data-view="right">右侧</button>
         <button data-view="overview">全景</button>
         <button id="show-all">显示全部</button>
+        <select id="scene-select" title="取景画面"></select>
       </div>
       <div id="fw-hint" class="fw-hint hidden"></div>
       <div id="part-card" class="part-card hidden">
@@ -46,6 +47,15 @@
         <select id="lesson-select"></select>
         <div class="lesson-actions"><button id="lesson-start">开始</button><button id="lesson-hint" class="ghost">要提示</button><button id="lesson-stop" class="ghost">结束</button></div>
         <div id="lesson-body" class="hidden"><p id="lesson-intro"></p><p id="lesson-source" class="lesson-source"></p><ol id="lesson-goals"></ol><div id="lesson-done" class="lesson-done hidden">完成！</div></div>
+      </div>
+      <h2>同步真机</h2>
+      <div class="tracker">
+        <canvas id="tracker-preview" class="hidden"></canvas>
+        <div class="tracker-actions">
+          <button id="tracker-start">开摄像头</button><button id="tracker-align" class="ghost">对齐</button><button id="tracker-stop" class="ghost">停止</button><button id="tracker-print" class="ghost">打印标记</button>
+          <label>标记边长 <input id="tracker-size" type="number" value="40" min="15" max="120" step="5"> mm</label>
+        </div>
+        <div id="tracker-status" class="fw-status">在真机上贴一张 ArUco 标记，摄像头就能把它的旋转和位置同步到模型。</div>
       </div>
       <h2>问问这台相机</h2>
       <div id="chat-log" class="chat-log"></div>

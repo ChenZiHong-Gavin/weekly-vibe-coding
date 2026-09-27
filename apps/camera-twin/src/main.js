@@ -4,6 +4,8 @@ import { createGuide } from './guide.js';
 import data from './parts.json' with { type: 'json' };
 import { attachFirmware, INTERACTIVE } from './firmware/index.js';
 import { createLessonRunner } from './firmware/lessons.js';
+import { SCENES } from './firmware/scenes.js';
+import { createTracker } from './tracker.js';
 
 const $ = s => document.querySelector(s);
 const partsById = new Map(data.parts.map(p => [p.id, p]));
@@ -35,6 +37,9 @@ $('#lesson-start').addEventListener('click', () => { renderLesson.celebrated = f
 $('#lesson-stop').addEventListener('click', () => { lessons.stop(); });
 $('#lesson-hint').addEventListener('click', () => { const st = lessons.status(); if (!st) { guide.log('system', '先选一门课程并点击开始。'); return; } if (st.complete) { guide.log('system', '这门课已经完成了。'); return; } guide.ask(`我在练习「${st.title}」，卡在第 ${st.next + 1} 步「${st.goals[st.next].text}」。给我提示，告诉我该碰哪个部件、怎么操作，但不要替我完成。`, { part: active, lesson: st }); });
 window.__twin.lessons = lessons;
+$('#scene-select').innerHTML = Object.values(SCENES).map(sc => `<option value="${sc.id}">取景：${sc.name}</option>`).join('');
+$('#scene-select').addEventListener('change', e => firmware.fw.setScene(e.target.value));
+firmware.fw.subscribe((s, ev) => { if (ev === 'scene') $('#scene-select').value = s.scene; });
 fetch('/api/health').then(r => r.json()).then(h => { const el = $('#llm-status'); el.textContent = h.configured ? `讲解员：${h.model}` : '讲解员：未配置 ANTHROPIC_API_KEY'; el.classList.add(h.configured ? 'ok' : 'bad'); }).catch(() => { $('#llm-status').textContent = '讲解员：服务未启动'; });
 
 // part list
@@ -88,3 +93,12 @@ $('#chat-form').addEventListener('submit', e => { e.preventDefault(); guide.ask(
 $('#chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#chat-form').requestSubmit(); } });
 $('#stop').addEventListener('click', () => guide.stop());
 guide.log('system', '点击电源开关开机，滚轮转动模式转盘和拨盘，点击按钮操作。键盘：P 电源，逗号/句号 模式，左右 主拨盘，上下 速控转盘1，[ ] 速控转盘2，M 菜单，I INFO，Q 速控，空格 快门，回车 SET，S 照片/短片，V 录像，A AF-ON，L 曝光锁，Z 放大，R 评分，退格 删除。');
+
+// real-camera sync
+const tracker = createTracker({ stage, els: { preview: $('#tracker-preview') }, onStatus: (text, ok) => { const el = $('#tracker-status'); el.textContent = text; el.style.color = ok ? '#8fd6a3' : '#cfcac0'; } });
+$('#tracker-start').addEventListener('click', async () => { try { tracker.setMarkerSize(+$('#tracker-size').value || 40); await tracker.start(); $('#tracker-preview').classList.remove('hidden'); } catch (e) { $('#tracker-status').textContent = '无法启动：' + e.message; } });
+$('#tracker-align').addEventListener('click', () => tracker.align());
+$('#tracker-stop').addEventListener('click', () => { tracker.stop(); $('#tracker-preview').classList.add('hidden'); });
+$('#tracker-print').addEventListener('click', () => { tracker.setMarkerSize(+$('#tracker-size').value || 40); tracker.printMarkers(); });
+$('#tracker-size').addEventListener('change', e => tracker.setMarkerSize(+e.target.value || 40));
+window.__twin.tracker = tracker;

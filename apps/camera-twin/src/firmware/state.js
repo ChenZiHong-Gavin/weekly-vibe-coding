@@ -13,6 +13,7 @@ export const WB_MODES = ['AWB', '日光', '阴影', '阴天', '钨丝灯', '荧�
 
 import menuData from './menu.json' with { type: 'json' };
 import menuOptions from './menu-options.json' with { type: 'json' };
+import { SCENES } from './scenes.js';
 // Per-item official intro text and option lists scraped from the Canon manual item pages (see docs/MODELING_BRIEF.md 数据来源).
 export const MENU_INFO = menuOptions;
 // Official tab structure from the Canon online manual (设置页菜单 pages), see menu.json. Values shown for items the twin simulates.
@@ -69,7 +70,8 @@ export function createFirmware({ now = () => Date.now(), schedule = (fn, ms) => 
     recording: null,         // { startedAt }
     timer: null,             // self-timer { until }
     aeLock: false, afLocked: false, toast: null, lastEvent: '',
-    stats: { stills: 0, movies: 0, deleted: 0 }, formattedAt: undefined
+    stats: { stills: 0, movies: 0, deleted: 0 }, formattedAt: undefined,
+    scene: 'landscape'
   };
   const listeners = new Set();
   const emit = (ev) => { s.lastEvent = ev; listeners.forEach(l => l(s, ev)); };
@@ -91,14 +93,32 @@ export function createFirmware({ now = () => Date.now(), schedule = (fn, ms) => 
     mode, get, set,
     /** Effective exposure for rendering: returns { ev, stops, brightness } given a sunny scene of EV 13. */
     exposure() {
-      const m = mode();
+      const m = mode(), scene = SCENES[s.scene] || SCENES.landscape;
       const shutterSec = shutterSeconds(SHUTTERS[s.shutter]);
       const N = parseFloat(APERTURES[s.aperture]);
       const isoV = s.iso === 0 ? 400 : parseInt(ISOS[s.iso], 10);
       const ecStops = (s.ec - 9) / 3;
-      const sceneEV = 13;
-      if (m === 'M' || m === 'B') { const ev = Math.log2(N * N / shutterSec) - Math.log2(isoV / 100); return { ev, stops: sceneEV - ev, brightness: Math.pow(2, (sceneEV - ev) * 0.9) }; }
-      return { ev: sceneEV - ecStops, stops: ecStops, brightness: Math.pow(2, ecStops * 0.9) };
+      // Backlit scene: evaluative metering exposes for the bright background, so the face ends up dark.
+      // Spot metering + AE lock (or spot alone, roughly) meters the face instead: face correct, background blown out.
+      const bl = scene.backlit; const spotOnFace = bl && get('测光模式') === '点测光' && s.aeLock;
+      const faceStops = bl ? (spotOnFace ? 0 : bl.faceStops) : 0, bgStops = bl && spotOnFace ? -bl.faceStops : 0;
+      let stops;
+      if (m === 'M' || m === 'B') { const ev = Math.log2(N * N / shutterSec) - Math.log2(isoV / 100); stops = scene.sceneEV - ev; }
+      else stops = ecStops;
+      const b = x => Math.pow(2, x * 0.9);
+      return { ev: scene.sceneEV - stops, stops, brightness: b(stops + bgStops), faceBrightness: b(stops + faceStops), faceStops: stops + faceStops, scene: scene.id };
+    },
+    setScene(id) { if (SCENES[id]) { s.scene = id; emit('scene'); } },
+    /** Where the AF system currently "sees" faces/eyes, given subject detection and AF area settings. */
+    afTargets() {
+      const scene = SCENES[s.scene] || SCENES.landscape; const area = get('自动对焦区域') || '整个区域';
+      const detectPeople = ['自动', '人物'].includes(get('检测的被摄体') || '人物') && get('对焦模式') !== 'MF';
+      const wholeArea = area === '整个区域' || area.startsWith('灵活');
+      if (!detectPeople || !scene.faces.length || !wholeArea) return { faces: [], eye: null, mode: area };
+      const face = scene.faces.find(f => f.near) || scene.faces[0];
+      const eyeOn = get('眼睛检测') !== '关闭';
+      const eye = eyeOn ? (get('左/右眼检测') === '右眼' ? face.eyes[1] : face.eyes[0]) : null;
+      return { faces: scene.faces, main: face, eye, mode: area, servo: get('自动对焦操作') === 'SERVO' };
     },
     display() {
       const m = mode(), auto = basicZone();
@@ -246,7 +266,7 @@ export function createFirmware({ now = () => Date.now(), schedule = (fn, ms) => 
     setEc(v) { const i = Math.round(Number(v) * 3) + 9; if (i >= 0 && i < EC_STEPS) { s.ec = i; emit('exposure'); } },
     setSetting(label, value) { const opts = label === '白平衡' ? WB_MODES : OPTIONS[label]; if (opts && opts.includes(value)) { set(label, value); toast(`${label}：${value}`); emit('setting'); return true; } return false; },
     setScreen(v) { if (['shoot', 'menu', 'quick', 'playback'].includes(v) && on()) { s.screen = v; emit('screen'); } },
-    snapshot() { const d = api.display(); return { power: d.power, stillMovie: d.stillMovie, screen: d.screen, mode: d.mode, modeName: d.modeName, shutter: d.shutter, aperture: d.aperture, iso: d.iso, ec: fmtEc(d.ec), af: d.af, afArea: d.afArea, drive: d.drive, wb: d.wb, quality: d.quality, metering: d.metering, shots: d.shots, remaining: d.remaining, recording: d.recording, menu: d.screen === 'menu' ? { tab: api.menuView().label, page: api.menuView().pageName, item: api.menuView().items[s.menu.item]?.label } : undefined, exposureStops: +api.exposure().stops.toFixed(2) }; }
+    snapshot() { const d = api.display(); return { scene: SCENES[s.scene]?.name, power: d.power, stillMovie: d.stillMovie, screen: d.screen, mode: d.mode, modeName: d.modeName, shutter: d.shutter, aperture: d.aperture, iso: d.iso, ec: fmtEc(d.ec), af: d.af, afArea: d.afArea, drive: d.drive, wb: d.wb, quality: d.quality, metering: d.metering, shots: d.shots, remaining: d.remaining, recording: d.recording, menu: d.screen === 'menu' ? { tab: api.menuView().label, page: api.menuView().pageName, item: api.menuView().items[s.menu.item]?.label } : undefined, exposureStops: +api.exposure().stops.toFixed(2) }; }
   };
   function takeShot(selfTimer = false) {
     const d = api.display(); s.stats.stills++;

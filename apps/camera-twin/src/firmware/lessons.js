@@ -6,7 +6,7 @@ const eq = (a, b) => String(a) === String(b);
 const CANON_PORTRAIT = 'https://www.canon.com.cn/special/canon_portrait/';
 // 人像课程：依据佳能（中国）「人像摄影专业技巧」系列（实践篇 / 对焦篇 / 曝光篇）改编到 R6 Mark III + RF 24-105 F4L。
 export const PORTRAIT_LESSONS = [
-  { id: 'portrait_bokeh', category: '人像', title: '人像 1：背景虚化的常用设置', level: 2, source: CANON_PORTRAIT + '1.html',
+  { id: 'portrait_bokeh', category: '人像', scene: 'kid', title: '人像 1：背景虚化的常用设置', level: 2, source: CANON_PORTRAIT + '1.html',
     intro: '佳能教程"场景 1"：用光圈优先固定光圈、开到最大，把背景大幅虚化；照片风格改成"人像"让肤色柔滑；竖拍多，所以关掉自动旋转。原文用 F2.8，这支 RF 24-105 最大 F4，变焦到 105mm 端虚化最明显。',
     goals: [
       { text: '模式 Av（光圈优先）', check: d => d.power !== 'off' && d.mode === 'Av', hint: '教程建议用光圈优先，光线变化时光圈也不会变。转动模式转盘到 Av。' },
@@ -15,7 +15,7 @@ export const PORTRAIT_LESSONS = [
       { text: '曝光补偿 +1/3', check: d => d.ec === 1, hint: '教程拍摄数据是 +1/3EV，让肤色明快。背面速控转盘 1 往右一格。' },
       { text: '自动旋转 = 关', check: (d, fw) => eq(fw.get('自动旋转'), '关'), hint: '教程技巧 2：竖拍回放时不要自动旋转。MENU → 设置 → 文件/存储卡设置 → 自动旋转。' }
     ] },
-  { id: 'portrait_eyes', category: '人像', title: '人像 2：对焦在眼睛上', level: 2, source: CANON_PORTRAIT + '7.html',
+  { id: 'portrait_eyes', category: '人像', scene: 'kid', title: '人像 2：对焦在眼睛上', level: 2, source: CANON_PORTRAIT + '7.html',
     intro: '佳能"对焦篇"：人像的原则是针对眼部合焦。R6 Mark III 用被摄体检测 + 眼睛检测就能自动锁定眼睛；静止的人用 ONE SHOT，走动的人用 SERVO 持续追踪。',
     goals: [
       { text: '检测的被摄体 = 人物', check: (d, fw) => eq(fw.get('检测的被摄体'), '人物'), hint: 'MENU → 自动对焦 → 被摄体检测 → 检测的被摄体，选"人物"。' },
@@ -24,16 +24,16 @@ export const PORTRAIT_LESSONS = [
       { text: '自动对焦操作 = SERVO', check: d => eq(d.af, 'SERVO'), hint: '人会动，用伺服自动对焦持续追踪眼睛。Q 速控屏第一项。' },
       { text: '半按快门或按 AF-ON 完成对焦', check: d => d.afLocked, hint: '按住画面里的快门按钮不放，或按 AF-ON（键盘 A），取景框变绿。' }
     ] },
-  { id: 'portrait_backlit', category: '人像', title: '人像 3：逆光人像的曝光', level: 3, source: CANON_PORTRAIT + '12.html',
+  { id: 'portrait_backlit', category: '人像', scene: 'backlit', title: '人像 3：逆光人像的曝光', level: 3, source: CANON_PORTRAIT + '12.html',
     intro: '佳能"曝光篇"：逆光时相机会被明亮背景骗到，人脸变黑。两种办法：一是评价测光加正曝光补偿把脸提亮；二是用点测光对准脸，再按自动曝光锁固定曝光后重新构图。高光色调优先能保住背景的亮部细节。',
     goals: [
       { text: '模式 Av', check: d => d.power !== 'off' && d.mode === 'Av' },
       { text: '测光模式 = 点测光', check: (d, fw) => eq(fw.get('测光模式'), '点测光'), hint: 'Q 速控屏"测光"项，或 MENU → 拍摄 → 曝光 → 测光模式。' },
-      { text: '按 AE 锁（✱）锁定曝光', check: d => d.aeLock, hint: '对准人脸测光后按背面右上的星号按钮（键盘 L），屏幕左上出现 ✱。' },
+      { text: '对准人脸按 AE 锁（✱），看屏幕上脸部变亮、背景变亮', check: (d, fw) => d.aeLock && fw.exposure().faceStops >= -0.5, hint: '点测光对准人脸后按背面右上的星号按钮（键盘 L），屏幕左上出现 ✱，脸就不再发黑。' },
       { text: '曝光补偿 +1', check: d => d.ec === 3, hint: '教程说逆光脸暗就加正补偿。速控转盘 1 往右三格到 +1。' },
       { text: '高光色调优先 = 启用', check: (d, fw) => eq(fw.get('高光色调优先'), '启用'), hint: '场景 2 技巧 3：亮度差大时启用高光色调优先。MENU → 拍摄 → 色彩/色调/动态范围。' }
     ] },
-  { id: 'portrait_lowkey', category: '人像', title: '人像 4：暗调人像', level: 3, source: CANON_PORTRAIT + '4.html',
+  { id: 'portrait_lowkey', category: '人像', scene: 'lowkey', title: '人像 4：暗调人像', level: 3, source: CANON_PORTRAIT + '4.html',
     intro: '佳能"场景 4"：有意让脸部曝光不足做出暗调，关键是负曝光补偿，并且关掉自动亮度优化，否则相机会把暗部又提亮回去。原文 F4、1/60、ISO 250、-1EV。',
     goals: [
       { text: '模式 Av，光圈 F4.0', check: d => d.power !== 'off' && d.mode === 'Av' && eq(d.aperture, '4.0') },
@@ -41,7 +41,7 @@ export const PORTRAIT_LESSONS = [
       { text: '曝光补偿 -1', check: d => d.ec === -3, hint: '速控转盘 1 往左三格。' },
       { text: '自动亮度优化 = 关闭', check: (d, fw) => eq(fw.get('自动亮度优化'), '关闭'), hint: '教程技巧 2。MENU → 拍摄 → 色彩/色调/动态范围 → 自动亮度优化。' }
     ] },
-  { id: 'portrait_mono', category: '人像', title: '人像 5：黑白颗粒人像', level: 3, source: CANON_PORTRAIT + '5.html',
+  { id: 'portrait_mono', category: '人像', scene: 'lowkey', title: '人像 5：黑白颗粒人像', level: 3, source: CANON_PORTRAIT + '5.html',
     intro: '佳能"场景 5"：把照片风格设成"单色"，大胆提高 ISO 利用噪点做颗粒感，并关掉高 ISO 降噪让颗粒保留。原文 F2、1/160、ISO 3200、+2/3EV。',
     goals: [
       { text: '色彩模式 = 单色', check: (d, fw) => eq(fw.get('色彩模式'), '单色'), hint: 'Q 速控屏最后一项"色彩"，或 RATE/COLOR 按钮循环。' },
@@ -49,7 +49,7 @@ export const PORTRAIT_LESSONS = [
       { text: '高ISO感光度降噪功能 = 关', check: (d, fw) => eq(fw.get('高ISO感光度降噪功能'), '关'), hint: '教程技巧 4。MENU → 拍摄 → 白平衡/画质校正。' },
       { text: '曝光补偿 +2/3', check: d => d.ec === 2, hint: '速控转盘 1 往右两格。' }
     ] },
-  { id: 'portrait_kids', category: '人像', title: '人像 6：抓拍孩子的表情', level: 2, source: CANON_PORTRAIT + '2.html',
+  { id: 'portrait_kids', category: '人像', scene: 'kid', title: '人像 6：抓拍孩子的表情', level: 2, source: CANON_PORTRAIT + '2.html',
     intro: '佳能"场景 2"技巧 4：为了捕捉瞬间的表情变化，把驱动模式设为连拍；光线不足就适当提高 ISO。配合伺服对焦和人物检测，连按快门时眼睛始终清楚。',
     goals: [
       { text: '驱动模式 = 高速连拍+', check: (d, fw) => eq(fw.get('驱动模式'), '高速连拍+'), hint: 'Q 速控屏第三项"驱动"。' },
@@ -119,8 +119,8 @@ export function createLessonRunner(fw) {
   fw.subscribe(() => { if (current) emit(); });
   return {
     lessons: LESSONS.map(({ id, title, level, category, source, intro, goals }) => ({ id, title, level, category, source: source || null, intro, goals: goals.map(g => g.text) })),
-    start(id) { const lesson = LESSONS.find(l => l.id === id); if (!lesson) return null; current = { lesson, done: [], startedAt: Date.now() }; emit(); return status(); },
-    stop() { current = null; emit(); },
+    start(id) { const lesson = LESSONS.find(l => l.id === id); if (!lesson) return null; current = { lesson, done: [], startedAt: Date.now() }; fw.setScene?.(lesson.scene || 'landscape'); emit(); return status(); },
+    stop() { current = null; fw.setScene?.('landscape'); emit(); },
     status, subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }
   };
 }

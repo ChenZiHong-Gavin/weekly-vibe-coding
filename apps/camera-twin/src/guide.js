@@ -10,9 +10,20 @@ export function createGuide({ stage, firmware, lessons, partsById, modelSource, 
     log('user', question); els.input.value = ''; els.send.disabled = true; const pending = log('system', '讲解员思考中…');
     history.push({ role: 'user', content: question });
     try {
-      const res = await fetch('/api/guide', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: history.slice(-12), modelSource, context: { ...context, camera: firmware?.fw.snapshot(), lesson: lessons?.status() || undefined } }) });
-      const data = await res.json(); pending.remove();
-      if (!res.ok) { history.pop(); log('error', data.error || '请求失败'); return; }
+      const payload = JSON.stringify({ messages: history.slice(-12), modelSource, context: { ...context, camera: firmware?.fw.snapshot(), lesson: lessons?.status() || undefined } });
+      let data = null, res = await fetch('/api/guide/stream', { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload });
+      if (res.ok && res.headers.get('content-type')?.includes('ndjson')) {
+        // NDJSON: answer text arrives while the model is still writing the steps
+        const live = log('guide', ''); pending.textContent = '讲解员正在回答…';
+        const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '';
+        while (true) { const { value, done } = await reader.read(); if (done) break; buf += dec.decode(value, { stream: true }); let i; while ((i = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, i); buf = buf.slice(i + 1); if (!line.trim()) continue; const ev = JSON.parse(line); if (ev.type === 'answer') live.textContent = ev.text; else if (ev.type === 'plan') data = { plan: ev.plan }; else if (ev.type === 'error') data = { error: ev.error }; } }
+        pending.remove(); live.remove();
+        if (!data || data.error) { history.pop(); log('error', data?.error || '请求失败'); return; }
+      } else {
+        if (res.status === 503 || res.status === 404) res = await fetch('/api/guide', { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload });
+        data = await res.json(); pending.remove();
+        if (!res.ok) { history.pop(); log('error', data.error || '请求失败'); return; }
+      }
       const plan = validatePlan(data.plan);
       history.push({ role: 'assistant', content: plan.answer + (plan.steps.length ? `\n[演示 ${plan.steps.length} 步：${plan.steps.map(s => s.caption).join('；')}]` : '') });
       log('guide', plan.answer);
@@ -35,7 +46,7 @@ export function createGuide({ stage, firmware, lessons, partsById, modelSource, 
   }
   function runFirmware({ action, value }) {
     const fw = firmware.fw, n = Number(value);
-    const ops = { power_on: () => fw.setPower('on'), power_off: () => fw.setPower('off'), power_lock: () => fw.setPower('lock'), set_mode: () => fw.setMode(value), set_aperture: () => fw.setAperture(value), set_shutter: () => fw.setShutter(value), set_iso: () => fw.setIso(value), set_ec: () => fw.setEc(value), press: () => fw.press(value), main_dial: () => fw.mainDial(n || 1), quick_dial_1: () => fw.quickDial1(n || 1), quick_dial_2: () => fw.quickDial2(n || 1), still_movie: () => fw.setStillMovie(value), set_setting: () => { const [k, v] = String(value).split('='); fw.setSetting(k?.trim(), v?.trim()); }, start_lesson: () => { const st = lessons?.start(value); if (st) log('system', `开始课程：${st.title}`); } };
+    const ops = { power_on: () => fw.setPower('on'), power_off: () => fw.setPower('off'), power_lock: () => fw.setPower('lock'), set_mode: () => fw.setMode(value), set_aperture: () => fw.setAperture(value), set_shutter: () => fw.setShutter(value), set_iso: () => fw.setIso(value), set_ec: () => fw.setEc(value), press: () => fw.press(value), main_dial: () => fw.mainDial(n || 1), quick_dial_1: () => fw.quickDial1(n || 1), quick_dial_2: () => fw.quickDial2(n || 1), still_movie: () => fw.setStillMovie(value), set_setting: () => { const [k, v] = String(value).split('='); fw.setSetting(k?.trim(), v?.trim()); }, start_lesson: () => { const st = lessons?.start(value); if (st) log('system', `开始课程：${st.title}`); }, set_scene: () => fw.setScene(value) };
     ops[action]?.();
   }
   async function play(plan) {

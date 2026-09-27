@@ -101,3 +101,14 @@ test('portrait lessons follow the Canon tutorials and are completable', async ()
   r.start('portrait_mono'); fw.setSetting('色彩模式', '单色'); fw.setIso('3200'); fw.setSetting('高ISO感光度降噪功能', '关'); fw.setEc(2 / 3); assert.ok(r.status().complete, 'mono');
   r.start('portrait_kids'); fw.setSetting('驱动模式', '高速连拍+'); fw.setIso('800'); fw.setScreen('shoot'); fw.press('shutter_button'); fw.press('shutter_button'); fw.press('shutter_button'); assert.ok(r.status().complete, 'kids');
 });
+
+test('scenes: backlit face exposure and AF targets follow settings', async () => {
+  const { SCENES } = await import('../src/firmware/scenes.js');
+  const fw = createFirmware(); fw.setPower('on'); fw.setScene('backlit');
+  assert.ok(fw.exposure().faceStops < -1.5, '评价测光下人脸欠曝');
+  fw.setSetting('测光模式', '点测光'); fw.press('ae_lock_button'); assert.ok(fw.exposure().faceStops > -0.5, '点测光加 AE 锁后人脸正常'); assert.ok(fw.exposure().brightness > 1.5, '背景过曝');
+  fw.setScene('kid'); let t = fw.afTargets(); assert.ok(t.main && t.eye, '人物+眼睛检测');
+  fw.setSetting('眼睛检测', '关闭'); t = fw.afTargets(); assert.ok(t.main && !t.eye);
+  fw.setSetting('自动对焦区域', '单点自动对焦'); assert.equal(fw.afTargets().main, undefined, '单点区域不做人物检测');
+  for (const sc of Object.values(SCENES)) for (const f of sc.faces) { assert.equal(f.box.length, 4); assert.equal(f.eyes.length, 2); }
+});

@@ -46,7 +46,8 @@ export function attachFirmware({ stage, root, lcdPreview, onEvent }) {
   function redraw() { renderer.draw(); texture.needsUpdate = true; if (previewCtx) previewCtx.drawImage(screenCanvas, 0, 0); }
   fw.subscribe((s, ev) => { applyDisplays(); syncPose(); redraw(); onEvent?.(ev, fw); });
   // toasts expire on their own; keep the texture fresh at a low rate
-  setInterval(() => { if (fw.state.toast || fw.state.recording || fw.state.timer) redraw(); }, 250);
+  renderer.onPhotoLoaded(() => redraw());
+  setInterval(() => { if (fw.state.toast || fw.state.recording || fw.state.timer || (fw.state.screen === 'shoot' && fw.afTargets().servo)) redraw(); }, fw.afTargets ? 120 : 250);
 
   // Mechanical controls are toggled with a short tween so the motion reads as a hinge, not a jump.
   const mech = {}; // name -> current value

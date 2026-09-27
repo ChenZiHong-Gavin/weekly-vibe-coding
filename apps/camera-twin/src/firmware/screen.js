@@ -1,5 +1,6 @@
 // Draws the rear LCD / EVF picture for a firmware state onto a 2D canvas (3:2). Pure canvas, no Three.js.
 import { fmtEc, OPTION_DESC } from './state.js';
+import { SCENES } from './scenes.js';
 
 export const SCREEN_W = 960, SCREEN_H = 640;
 
@@ -12,6 +13,11 @@ export function createScreenRenderer(canvas, fw) {
   const bg = document.createElement('canvas'); bg.width = W; bg.height = H; paintScene(bg.getContext('2d'), W, H, 'bg');
   const fg = document.createElement('canvas'); fg.width = W; fg.height = H; paintScene(fg.getContext('2d'), W, H, 'fg');
   const supportsFilter = 'filter' in ctx;
+  // photo scenes: loaded lazily, drawn cover-fit
+  const photos = {}; let onPhotoLoaded = null;
+  function photo(id) { const sc = SCENES[id]; if (!sc?.src) return null; if (!photos[id]) { const im = new Image(); im.onload = () => onPhotoLoaded?.(); im.src = sc.src; photos[id] = im; } return photos[id].complete && photos[id].naturalWidth ? photos[id] : null; }
+  function coverRect(im) { const r = Math.max(W / im.naturalWidth, H / im.naturalHeight); const w = im.naturalWidth * r, h = im.naturalHeight * r; return { x: (W - w) / 2, y: (H - h) / 2, w, h }; }
+  const toPx = (rect, nx, ny) => [rect.x + nx * rect.w, rect.y + ny * rect.h];
 
   function draw() {
     const d = fw.display();
@@ -25,14 +31,26 @@ export function createScreenRenderer(canvas, fw) {
     return d;
   }
   function drawLiveView(d) {
-    const { brightness } = fw.exposure();
+    const ex = fw.exposure(); const { brightness } = ex;
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-    // depth of field: wide apertures blur the far hills, the tree in front stays sharp
     const N = parseFloat(d.aperture), blur = supportsFilter ? Math.max(0, 7 - N * 0.45) : 0;
-    if (blur > 0.3) { ctx.filter = `blur(${blur.toFixed(1)}px)`; ctx.drawImage(bg, 0, 0); ctx.filter = 'none'; ctx.drawImage(fg, 0, 0); } else ctx.drawImage(scene, 0, 0);
-    // exposure: multiply / screen via alpha overlays (keeps it cheap and obviously wrong when 5 stops off)
-    if (brightness < 1) { ctx.fillStyle = `rgba(0,0,0,${Math.min(0.97, 1 - brightness)})`; ctx.fillRect(0, 0, W, H); }
-    else if (brightness > 1) { ctx.fillStyle = `rgba(255,252,240,${Math.min(0.95, 1 - 1 / brightness)})`; ctx.fillRect(0, 0, W, H); }
+    const sc = SCENES[fw.state.scene] || SCENES.landscape, im = photo(sc.id);
+    let rect = null;
+    if (im) {
+      rect = coverRect(im);
+      // depth of field on a photo: blur everything, then paint the main face back sharp inside a soft ellipse
+      if (blur > 0.3) { ctx.filter = `blur(${blur.toFixed(1)}px)`; ctx.drawImage(im, rect.x, rect.y, rect.w, rect.h); ctx.filter = 'none'; const f = sc.faces.find(x => x.near) || sc.faces[0]; if (f) { ctx.save(); const [cx, cy] = toPx(rect, f.box[0] + f.box[2] / 2, f.box[1] + f.box[3] / 2); ctx.beginPath(); ctx.ellipse(cx, cy, f.box[2] * rect.w * 0.62, f.box[3] * rect.h * 0.62, 0, 0, Math.PI * 2); ctx.clip(); ctx.drawImage(im, rect.x, rect.y, rect.w, rect.h); ctx.restore(); } }
+      else ctx.drawImage(im, rect.x, rect.y, rect.w, rect.h);
+      grade(ex);
+    } else {
+      if (blur > 0.3) { ctx.filter = `blur(${blur.toFixed(1)}px)`; ctx.drawImage(bg, 0, 0); ctx.filter = 'none'; ctx.drawImage(fg, 0, 0); } else ctx.drawImage(scene, 0, 0);
+      grade(ex);
+    }
+    function grade({ brightness }) {
+      if (brightness < 1) { ctx.fillStyle = `rgba(0,0,0,${Math.min(0.97, 1 - brightness)})`; ctx.fillRect(0, 0, W, H); }
+      else if (brightness > 1) { ctx.fillStyle = `rgba(255,252,240,${Math.min(0.95, 1 - 1 / brightness)})`; ctx.fillRect(0, 0, W, H); }
+    }
+    if (fw.get('色彩模式') === '单色' && supportsFilter) { ctx.save(); ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = '#888'; ctx.fillRect(0, 0, W, H); ctx.restore(); }
     if (d.stillMovie === 'movie') { // 16:9 letterbox like the movie standby screen
       ctx.fillStyle = 'rgba(0,0,0,.85)'; ctx.fillRect(0, 0, W, 50); ctx.fillRect(0, H - 50, W, 50);
       if (d.recording !== null) { ctx.fillStyle = '#e53935'; ctx.beginPath(); ctx.arc(40, H / 2 - 230, 12, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = font(26, 700); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText('REC  ' + tc(d.recording), 62, H / 2 - 230); }
@@ -40,9 +58,16 @@ export function createScreenRenderer(canvas, fw) {
     }
     if (d.timer !== null) { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.font = font(160, 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(d.timer), W / 2, H / 2); }
     if (d.infoLevel === 0) return;
-    // AF frame: shape follows the AF area setting
+    // AF frame: subject/eye detection boxes when the scene has faces, otherwise the area frame
     ctx.strokeStyle = d.afLocked ? '#3ddc5a' : '#ffffff'; ctx.lineWidth = 3;
-    if (d.afArea === '整个区域') { for (const [x, y] of [[40, 70], [W - 40, 70], [40, H - 90], [W - 40, H - 90]]) { ctx.beginPath(); ctx.moveTo(x + (x < W / 2 ? 0 : -24), y); ctx.lineTo(x + (x < W / 2 ? 24 : 0), y); ctx.moveTo(x, y + (y < H / 2 ? 0 : -24)); ctx.lineTo(x, y + (y < H / 2 ? 24 : 0)); ctx.stroke(); } }
+    const t = fw.afTargets();
+    if (rect && t.main) {
+      const jitter = t.servo ? Math.sin(Date.now() / 140) * 3 : 0;
+      for (const f of t.faces) { const [x, y] = toPx(rect, f.box[0], f.box[1]); ctx.strokeStyle = f === t.main ? (d.afLocked ? '#3ddc5a' : '#ffffff') : 'rgba(255,255,255,.45)'; ctx.lineWidth = f === t.main ? 3 : 2; cornerBox(x + jitter, y, f.box[2] * rect.w, f.box[3] * rect.h); }
+      if (t.eye) { const [ex1, ey1] = toPx(rect, t.eye[0], t.eye[1]); const s2 = Math.max(26, t.main.box[2] * rect.w * 0.16); ctx.strokeStyle = d.afLocked ? '#3ddc5a' : '#ffffff'; ctx.lineWidth = 3; ctx.strokeRect(ex1 - s2 / 2 + jitter, ey1 - s2 / 2, s2, s2); }
+      ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(W - 250, 60, 228, 34); ctx.fillStyle = '#fff'; ctx.font = font(18, 600); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText((t.eye ? '眼睛检测 ' : '人物检测 ') + (t.servo ? 'SERVO 追踪中' : d.afLocked ? '已合焦' : ''), W - 240, 77);
+    }
+    else if (d.afArea === '整个区域') { for (const [x, y] of [[40, 70], [W - 40, 70], [40, H - 90], [W - 40, H - 90]]) { ctx.beginPath(); ctx.moveTo(x + (x < W / 2 ? 0 : -24), y); ctx.lineTo(x + (x < W / 2 ? 24 : 0), y); ctx.moveTo(x, y + (y < H / 2 ? 0 : -24)); ctx.lineTo(x, y + (y < H / 2 ? 24 : 0)); ctx.stroke(); } }
     else if (d.afArea === '定点自动对焦') ctx.strokeRect(W / 2 - 24, H / 2 - 18, 48, 36);
     else if (d.afArea.startsWith('灵活')) ctx.strokeRect(W / 2 - 150, H / 2 - 90, 300, 180);
     else ctx.strokeRect(W / 2 - 70, H / 2 - 48, 140, 96);
@@ -116,6 +141,7 @@ export function createScreenRenderer(canvas, fw) {
     dlg.options.forEach((o, i) => { ctx.fillStyle = i === dlg.index ? '#c8412b' : '#3a3a3d'; ctx.fillRect(bx, y + h - 72, bw, 48); ctx.fillStyle = '#fff'; ctx.font = font(24, 600); ctx.fillText(o, bx + bw / 2, y + h - 48); bx += bw + gap; });
   }
   function wrapText(text, cx, y, maxW, lh) { const chars = [...text]; let line = ''; for (const c of chars) { if (ctx.measureText(line + c).width > maxW) { ctx.fillText(line, cx, y); y += lh; line = c; } else line += c; } if (line) ctx.fillText(line, cx, y); }
+  function cornerBox(x, y, w, h) { const L = Math.min(22, w / 4); ctx.beginPath(); for (const [px, py, dx, dy] of [[x, y, 1, 1], [x + w, y, -1, 1], [x, y + h, 1, -1], [x + w, y + h, -1, -1]]) { ctx.moveTo(px + dx * L, py); ctx.lineTo(px, py); ctx.lineTo(px, py + dy * L); } ctx.stroke(); }
   const tc = secs => `${String(Math.floor(secs / 3600)).padStart(2, '0')}:${String(Math.floor(secs / 60) % 60).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
   function drawQuick(d) {
     const items = fw.quickView();
@@ -168,7 +194,7 @@ export function createScreenRenderer(canvas, fw) {
     return d;
   }
   function drawToast(text) { ctx.font = font(26, 600); const w = ctx.measureText(text).width + 48; ctx.fillStyle = 'rgba(0,0,0,.75)'; ctx.fillRect(W / 2 - w / 2, H / 2 + 90, w, 54); ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, W / 2, H / 2 + 117); }
-  return { draw, canvas };
+  return { draw, canvas, onPhotoLoaded: fn => { onPhotoLoaded = fn; } };
 }
 
 /** A fixed "world" the lens is looking at: sky, hills, a lake, a tree. Deterministic, no assets. */

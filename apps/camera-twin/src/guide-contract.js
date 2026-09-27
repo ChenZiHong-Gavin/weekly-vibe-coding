@@ -14,7 +14,8 @@ export const FIRMWARE_ACTIONS = {
   set_setting: '直接设置一个菜单/速控项，value 形如 "自动对焦操作=SERVO"、"驱动模式=自拍:10秒"、"白平衡=日光"、"图像画质=RAW"；可用项见 firmwareOptions',
   main_dial: '转动主拨盘，value 为 -1 或 1', quick_dial_1: '转动速控转盘 1，value 为 -1 或 1', quick_dial_2: '转动速控转盘 2，value 为 -1 或 1',
   still_movie: '切换照片/短片开关，value 为 still 或 movie',
-  start_lesson: '开始一门练习课程，value 为课程 id（见 lessons）。用户表示想练习、想学、想考考自己时使用'
+  start_lesson: '开始一门练习课程，value 为课程 id（见 lessons）。用户表示想练习、想学、想考考自己时使用',
+  set_scene: '切换取景画面，value 为 landscape/kid/lowkey/backlit 之一'
 };
 const PART_IDS = parts.parts.map(p => p.id);
 const fail = m => { throw new Error(m); };
