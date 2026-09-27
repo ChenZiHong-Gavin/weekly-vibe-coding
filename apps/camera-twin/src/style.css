@@ -45,3 +45,4 @@ button.ghost{background:transparent}
 .tracker{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;display:flex;flex-direction:column;gap:6px}
 .tracker canvas{width:100%;border-radius:6px;background:#000}.tracker-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px}
 .tracker-actions input{width:56px;border:1px solid var(--line);border-radius:6px;padding:3px 4px;font:inherit}
+.tracker-actions select{border:1px solid var(--line);border-radius:6px;padding:4px 6px;font:inherit;background:#fff}
