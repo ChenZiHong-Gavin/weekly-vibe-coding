@@ -22,10 +22,10 @@ window.__twin = { stage, firmware };
 const lessons = createLessonRunner(firmware.fw);
 const guide = createGuide({ stage, firmware, lessons, partsById, modelSource: source, els: { log: $('#chat-log'), steps: $('#steps'), input: $('#chat-input'), send: $('#send') } });
 // lessons UI
-$('#lesson-select').innerHTML = lessons.lessons.map(l => `<option value="${l.id}">${'★'.repeat(l.level)} ${l.title}</option>`).join('');
+$('#lesson-select').innerHTML = [...new Set(lessons.lessons.map(l => l.category))].map(c => `<optgroup label="${c}">` + lessons.lessons.filter(l => l.category === c).map(l => `<option value="${l.id}">${'★'.repeat(l.level)} ${l.title}</option>`).join('') + '</optgroup>').join('');
 function renderLesson(st) {
   $('#lesson-body').classList.toggle('hidden', !st); if (!st) return;
-  $('#lesson-intro').textContent = st.intro;
+  $('#lesson-intro').textContent = st.intro; $('#lesson-source').innerHTML = st.source ? `来源：<a href="${st.source}" target="_blank" rel="noopener">佳能人像摄影专业技巧</a>` : '';
   $('#lesson-goals').innerHTML = st.goals.map((g, i) => `<li class="${g.done ? 'done' : i === st.next ? 'next' : ''}">${g.text}</li>`).join('');
   $('#lesson-done').classList.toggle('hidden', !st.complete);
   if (st.complete && !renderLesson.celebrated) { renderLesson.celebrated = true; guide.log('system', `课程「${st.title}」完成，用时 ${Math.round((st.completedAt - st.startedAt) / 1000)} 秒。`); }

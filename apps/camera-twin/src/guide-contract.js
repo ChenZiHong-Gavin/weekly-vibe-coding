@@ -22,7 +22,7 @@ const isObj = x => x !== null && typeof x === 'object' && !Array.isArray(x);
 const text = (x, max, label) => { if (typeof x !== 'string' || !x.trim() || x.length > max) fail(`${label}格式不正确`); return x.trim(); };
 
 export function describeCamera(modelSource) {
-  return { camera: parts.camera, modelSource, parts: parts.parts.map(({ id, name, en, side, description, howto }) => ({ id, name, en, side, description, howto })), controls: CONTROLS, firmwareActions: FIRMWARE_ACTIONS, firmwareOptions: { ...OPTIONS, '白平衡': WB_MODES }, lessons: LESSONS.map(l => ({ id: l.id, title: l.title, level: l.level, goals: l.goals.map(g => g.text) })) };
+  return { camera: parts.camera, modelSource, parts: parts.parts.map(({ id, name, en, side, description, howto }) => ({ id, name, en, side, description, howto })), controls: CONTROLS, firmwareActions: FIRMWARE_ACTIONS, firmwareOptions: { ...OPTIONS, '白平衡': WB_MODES }, lessons: LESSONS.map(l => ({ id: l.id, category: l.category, title: l.title, level: l.level, intro: l.intro, goals: l.goals.map(g => g.text) })) };
 }
 
 export function validatePlan(value) {

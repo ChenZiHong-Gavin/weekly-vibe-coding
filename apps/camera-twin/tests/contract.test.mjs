@@ -89,3 +89,15 @@ test('lessons: goals check in order, hints exist, all lessons completable', asyn
   r.start('playback_delete'); fw.press('menu_button'); fw.press('shutter_button'); fw.press('shutter_button'); fw.press('playback_button'); fw.press('erase_button'); fw.quickDial1(1); fw.press('set_button'); assert.ok(r.status().complete, '删除课程');
   r.stop(); assert.equal(r.status(), null);
 });
+
+test('portrait lessons follow the Canon tutorials and are completable', async () => {
+  const { createLessonRunner, PORTRAIT_LESSONS } = await import('../src/firmware/lessons.js');
+  assert.equal(PORTRAIT_LESSONS.length, 6); for (const l of PORTRAIT_LESSONS) assert.ok(l.source.startsWith('https://www.canon.com.cn/special/canon_portrait/'), l.id);
+  const fw = createFirmware(); const r = createLessonRunner(fw); fw.setPower('on');
+  r.start('portrait_bokeh'); fw.setMode('Av'); fw.setAperture('4.0'); fw.setSetting('色彩模式', '人像'); fw.setEc(1 / 3); fw.setSetting('自动旋转', '关'); assert.ok(r.status().complete, 'bokeh');
+  r.start('portrait_eyes'); fw.setSetting('检测的被摄体', '人物'); fw.setSetting('眼睛检测', '自动'); fw.setSetting('自动对焦区域', '整个区域'); fw.setSetting('自动对焦操作', 'SERVO'); fw.press('af_on_button'); assert.ok(r.status().complete, 'eyes');
+  r.start('portrait_backlit'); fw.setSetting('测光模式', '点测光'); fw.press('ae_lock_button'); fw.setEc(1); fw.setSetting('高光色调优先', '启用'); assert.ok(r.status().complete, 'backlit');
+  r.start('portrait_lowkey'); fw.setIso('250'); fw.setEc(-1); fw.setSetting('自动亮度优化', '关闭'); assert.ok(r.status().complete, 'lowkey');
+  r.start('portrait_mono'); fw.setSetting('色彩模式', '单色'); fw.setIso('3200'); fw.setSetting('高ISO感光度降噪功能', '关'); fw.setEc(2 / 3); assert.ok(r.status().complete, 'mono');
+  r.start('portrait_kids'); fw.setSetting('驱动模式', '高速连拍+'); fw.setIso('800'); fw.setScreen('shoot'); fw.press('shutter_button'); fw.press('shutter_button'); fw.press('shutter_button'); assert.ok(r.status().complete, 'kids');
+});

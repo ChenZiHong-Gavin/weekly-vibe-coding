@@ -40,3 +40,4 @@ button.ghost{background:transparent}
 .lesson-actions{display:flex;gap:6px}.lesson p{margin:0;color:var(--muted);font-size:13px}
 #lesson-goals{margin:0;padding-left:20px}#lesson-goals li{padding:2px 0}#lesson-goals li.done{color:var(--ok);text-decoration:line-through}#lesson-goals li.next{font-weight:600}
 .lesson-done{background:#e4f5e9;color:var(--ok);border-radius:8px;padding:6px 10px;font-weight:600}
+.lesson-source{font-size:12px}.lesson-source a{color:var(--accent)}
