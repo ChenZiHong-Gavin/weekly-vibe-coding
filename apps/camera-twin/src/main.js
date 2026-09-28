@@ -114,7 +114,11 @@ function flashHint(id) { const p = partsById.get(id); const el = $('#fw-hint'); 
 document.querySelectorAll('.viewbar [data-view]').forEach(b => b.addEventListener('click', () => { stage.setView(b.dataset.view); document.querySelectorAll('.viewbar [data-view]').forEach(x => x.classList.toggle('active', x === b)); }));
 $('#show-all').addEventListener('click', () => { guide.reset(); document.querySelectorAll('.viewbar [data-view]').forEach(x => x.classList.toggle('active', x.dataset.view === 'overview')); });
 $('#chat-form').addEventListener('submit', e => { e.preventDefault(); guide.ask($('#chat-input').value, { part: active }); });
-$('#chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#chat-form').requestSubmit(); } });
+// Enter sends, Shift+Enter inserts a newline. Enter that confirms an IME candidate (composing / keyCode 229) must not send.
+let composing = false;
+$('#chat-input').addEventListener('compositionstart', () => { composing = true; });
+$('#chat-input').addEventListener('compositionend', () => { setTimeout(() => { composing = false; }, 0); });
+$('#chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { if (e.isComposing || composing || e.keyCode === 229) return; e.preventDefault(); $('#chat-form').requestSubmit(); } });
 $('#stop').addEventListener('click', () => guide.stop());
 // power button + onboarding
 const powerBtn = $('#power-btn');
