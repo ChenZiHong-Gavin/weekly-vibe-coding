@@ -76,7 +76,7 @@ export function buildCamera(THREE) {
     for(let i=0;i<pos.count;i+=3) triangles.push([0,1,2].map(j=>[
       pos.getX(i+j),pos.getY(i+j),pos.getZ(i+j),normal.getX(i+j),normal.getY(i+j),normal.getZ(i+j)
     ]));
-    for(const [min,max] of [ [[3.73,-6,-2.80],[6.13,1.2,1.10]], [[6.30,-3.65,-1.40],[8,1.70,1.94]], [[4.64,2.35,-2.70],[5.26,4.1,-1.50]] ]) {
+    for(const [min,max] of [ [[3.73,-6,-2.80],[6.13,1.2,1.10]], [[6.30,-3.65,-1.40],[8,1.70,1.94]], [[4.35,2.35,-2.41],[5.55,4.1,-1.79]] ]) {
       const outside=[];
       for(const triangle of triangles) {
         let inside=triangle;
@@ -276,7 +276,7 @@ export function buildCamera(THREE) {
     .intersectObject(crownProbe)[0].point.y;
   const dialSocket = new THREE.Group(); dialSocket.name='main_dial_socket'; grip.add(dialSocket);
   const rimPositions=[];
-  const edge=[[-.31,-.60],[.31,-.60],[.31,.60],[-.31,.60]];
+  const edge=[[-.60,-.31],[.60,-.31],[.60,.31],[-.60,.31]];
   function socketQuad(a,b,c,d) { rimPositions.push(...a,...b,...c,...a,...c,...d); }
   for(let i=0;i<4;i++) {
     const [ax,az]=edge[i], [bx,bz]=edge[(i+1)%4];
@@ -292,7 +292,7 @@ export function buildCamera(THREE) {
   socketGeometry.computeVertexNormals();
   const socketBlack=black.clone();socketBlack.side=THREE.DoubleSide;
   mesh(dialSocket,socketGeometry,socketBlack);
-  pad(dialSocket,.62,.07,1.20,.025,black,[4.95,2.35,-2.1]);
+  pad(dialSocket,1.20,.07,.62,.025,black,[4.95,2.35,-2.1]);
   // Seam running around the sloping shutter platform.
   const gripSeam = [];
   for (let i=0;i<=32;i++) {
@@ -394,7 +394,9 @@ export function buildCamera(THREE) {
   concentricFinish(dialFace);
   quickDial2.children[1].material=dialFace;
   // Horizontal X axle: 13 mm diameter / 5 mm width, with only the crown exposed.
+  // Axle runs front-back (Z): the exposed crown is a strip elongated left-right, ridges running front-back, as on the real grip.
   const mainDial=part('main_dial',[4.95,2.98,-2.1]);
+  mainDial.rotation.order='YXZ'; mainDial.rotation.y=PI/2;
   mainDial.userData.rotationAxis='x';
   const dialRubber=material(0x181a1c,.94); grain(dialRubber,110,.18);
   // 64 transverse teeth around the full circumference. Each has two shoulders and
