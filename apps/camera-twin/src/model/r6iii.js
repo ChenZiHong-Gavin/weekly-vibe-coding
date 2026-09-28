@@ -76,7 +76,7 @@ export function buildCamera(THREE) {
     for(let i=0;i<pos.count;i+=3) triangles.push([0,1,2].map(j=>[
       pos.getX(i+j),pos.getY(i+j),pos.getZ(i+j),normal.getX(i+j),normal.getY(i+j),normal.getZ(i+j)
     ]));
-    for(const [min,max] of [ [[3.73,-6,-2.80],[6.13,1.2,1.10]], [[6.30,-3.65,-1.40],[8,1.70,1.94]] ]) {
+    for(const [min,max] of [ [[3.73,-6,-2.80],[6.13,1.2,1.10]], [[6.30,-3.65,-1.40],[8,1.70,1.94]], [[4.64,2.35,-2.70],[5.26,4.1,-1.50]] ]) {
       const outside=[];
       for(const triangle of triangles) {
         let inside=triangle;
@@ -267,7 +267,32 @@ export function buildCamera(THREE) {
   }
   const crownGeometry=gripGeometry.clone();
   gripGeometry.setIndex(skinIndices); crownGeometry.setIndex(crownIndices);
-  mesh(grip,serviceOpenings(gripGeometry),leather); mesh(grip,crownGeometry,shell);
+  mesh(grip,serviceOpenings(gripGeometry),leather); mesh(grip,serviceOpenings(crownGeometry),shell);
+  // A real opening with a recessed black lip and well; the fixed socket never rotates.
+  // Sample the uncut crown so the rim follows its sloping surface without floating.
+  const crownProbe = new THREE.Mesh(crownGeometry, shell);
+  crownProbe.updateMatrixWorld(true);
+  const crownHeight = (x,z) => new THREE.Raycaster(new THREE.Vector3(x,5,z),new THREE.Vector3(0,-1,0))
+    .intersectObject(crownProbe)[0].point.y;
+  const dialSocket = new THREE.Group(); dialSocket.name='main_dial_socket'; grip.add(dialSocket);
+  const rimPositions=[];
+  const edge=[[-.31,-.60],[.31,-.60],[.31,.60],[-.31,.60]];
+  function socketQuad(a,b,c,d) { rimPositions.push(...a,...b,...c,...a,...c,...d); }
+  for(let i=0;i<4;i++) {
+    const [ax,az]=edge[i], [bx,bz]=edge[(i+1)%4];
+    const a=[4.95+ax,crownHeight(4.95+ax,-2.1+az)+.004,-2.1+az];
+    const b=[4.95+bx,crownHeight(4.95+bx,-2.1+bz)+.004,-2.1+bz];
+    const c=[b[0]-Math.sign(bx)*.018,b[1]-.045,b[2]-Math.sign(bz)*.018];
+    const d=[a[0]-Math.sign(ax)*.018,a[1]-.045,a[2]-Math.sign(az)*.018];
+    socketQuad(a,b,c,d);
+    socketQuad(d,c,[c[0],2.36,c[2]],[d[0],2.36,d[2]]);
+  }
+  const socketGeometry=new THREE.BufferGeometry();
+  socketGeometry.setAttribute('position',new THREE.Float32BufferAttribute(rimPositions,3));
+  socketGeometry.computeVertexNormals();
+  const socketBlack=black.clone();socketBlack.side=THREE.DoubleSide;
+  mesh(dialSocket,socketGeometry,socketBlack);
+  pad(dialSocket,.62,.07,1.20,.025,black,[4.95,2.35,-2.1]);
   // Seam running around the sloping shutter platform.
   const gripSeam = [];
   for (let i=0;i<=32;i++) {
@@ -368,7 +393,36 @@ export function buildCamera(THREE) {
   }
   concentricFinish(dialFace);
   quickDial2.children[1].material=dialFace;
-  dial('main_dial',[5.2,2.90,-2.17],.48,1.34,[0,0,PI/2],40);
+  // Horizontal X axle: 13 mm diameter / 5 mm width, with only the crown exposed.
+  const mainDial=part('main_dial',[4.95,2.98,-2.1]);
+  mainDial.userData.rotationAxis='x';
+  const dialRubber=material(0x181a1c,.94); grain(dialRubber,110,.18);
+  // 64 transverse teeth around the full circumference. Each has two shoulders and
+  // a narrow rounded crest; the small axial chamfer removes the flat-disc silhouette.
+  const toothCount=64, samples=toothCount*4, dialPositions=[], dialIndices=[];
+  const sections=[[-.25,.615],[-.225,.65],[.225,.65],[.25,.615]];
+  sections.forEach(([x,r])=>{
+    for(let j=0;j<samples;j++) {
+      const angle=j*2*PI/samples;
+      const radius=r-([.027,.008,0,.008][j%4]);
+      dialPositions.push(x,radius*Math.cos(angle),radius*Math.sin(angle));
+    }
+  });
+  for(let i=0;i<sections.length-1;i++) for(let j=0;j<samples;j++) {
+    const a=i*samples+j,b=i*samples+(j+1)%samples,c=b+samples,d=a+samples;
+    dialIndices.push(a,b,d,b,c,d);
+  }
+  for(const [section,reverse] of [[0,true],[3,false]]) {
+    const center=dialPositions.length/3;dialPositions.push(sections[section][0],0,0);
+    for(let j=0;j<samples;j++) {
+      const a=section*samples+j,b=section*samples+(j+1)%samples;
+      dialIndices.push(center,reverse?b:a,reverse?a:b);
+    }
+  }
+  const dialGeometry=new THREE.BufferGeometry();
+  dialGeometry.setAttribute('position',new THREE.Float32BufferAttribute(dialPositions,3));
+  dialGeometry.setIndex(dialIndices);dialGeometry.computeVertexNormals();
+  mesh(mainDial,dialGeometry,dialRubber);
   const shutter = button('shutter_button',[5.08,3.18,-3.45],.49,[-.23,0,0]);
   shutter.scale.z=.86;
   const mfn=button('mfn_button',[4.26,3.22,-2.7],.235,[0,0,0]);

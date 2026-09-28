@@ -1,0 +1,30 @@
+{
+  "dimensionsCm": {
+    "x": 0.5,
+    "y": 1.2984341382980347,
+    "z": 1.2984341382980347
+  },
+  "teeth": 64,
+  "rotationAxis": "x",
+  "samples": [
+    {
+      "z": -2.55,
+      "surfaceY": 3.2709789420917907,
+      "exposedArcFraction": 0.35225752722762177
+    },
+    {
+      "z": -2.1,
+      "surfaceY": 3.330008272750784,
+      "exposedArcFraction": 0.31900091229373345
+    },
+    {
+      "z": -1.65,
+      "surfaceY": 3.349013447921963,
+      "exposedArcFraction": 0.3078283358412963
+    }
+  ],
+  "material": {
+    "roughness": 0.94,
+    "metalness": 0
+  }
+}

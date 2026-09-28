@@ -100,3 +100,14 @@
 - 在 `npm run dev` 的 4319 页面用 Playwright 捕获 `front-app.png`、正投影 `front.png`、翻屏正面、顶部、底部关仓/开仓、电池斜底特写、卡槽关盖/开盖、AF/MF × IS ON/OFF 四个组合，共 13 张最终截图。`capture.mjs` 仅在截图会话中关闭 HMR，使用原页面 scene、灯光和控制，不增加产品调试接口；浏览器记录 40 张 CanvasTexture、UV 校验通过、pageerror / console error 均为空。
 - 对照附件正面照片确认 Canon 位于隆起中央，EOS / R6 / Mark III 位于观者右侧且正投影完整可读，镜头环形铭文未改；对照顶部照片核对握柄、模式盘和右肩控制位置；对照卡槽特写确认前 CFexpress / 后 SD、尺寸差异、红色卡边及开盖方向。底部图确认电池可从实际开口滑出，盖板与锁扣共同翻转；镜头四状态图确认拨片落在对应文字一侧。模型仍为程序化近似，未声称商标字形或内部结构达到工程复刻精度。
 - 复现：`npm run dev`，然后 `node artifacts/round-10/capture.mjs`。验收后 Playwright 浏览器和本轮开发服务均关闭，4319 HTTP / 24319 HMR 无监听，见 `shutdown.json`。
+
+## Round 11 — 握柄顶部嵌入式主拨盘
+
+- 对照用户问题截图、官方 `public/reference-images/canon-press/top.jpg` 与 `with-rf24-105-f4l.jpg` 重做 `main_dial`。移除通用转盘的亮色端盖和粗条纹，改为外径约 1.30 cm、轴向宽 0.50 cm 的黑色橡胶滚轮；左右水平 X 轴，轮心 `[4.95, 2.98, -2.10]` cm，位于快门正后方并向机身内侧移动 0.13 cm。
+- 圆周采用 64 条横跨轮宽的细齿，齿距约 0.64 mm、齿深 0.27 mm，边缘倒角；独立 MeshStandardMaterial，roughness 0.94、metalness 0，带程序化细颗粒。整轮约 1.298 × 1.298 cm 的径向包围盒来自离散齿峰采样，轴向宽精确为 0.50 cm。
+- 在结构壳和握柄顶盖中裁出实际槽口，加入随顶盖坡度变化的深色内缘、槽壁和槽底，固定组 `main_dial_socket` 属于握柄。轮子多数藏于壳内，侧边表面射线采样对应露出圆周约 30.8%–35.2%；正顶和斜顶特写可辨细齿、弧面和槽边黑缝。首版轮心偏高，视觉检查后降低 0.10 cm，并将槽口前后长度从 1.32 收至 1.20 cm。
+- 保留 `main_dial` 部件 id 与 dial 交互。其 `userData.rotationAxis='x'`，`src/firmware/index.js` 的 `nudge()` 改为读取该轴，未指定轴的其他拨盘继续使用 Y。Playwright 在实际页面执行鼠标滚轮和 60 px 拖动，分别验证 X 旋转 +0.35、+0.70 rad，齿峰世界坐标改变，轮轴方向和固定槽口世界矩阵不变；浏览器无 pageerror / console error，详见 `artifacts/round-11/browser.json`。
+- 最终 `npm run check:model` 通过：67 部件、209 网格、154524 三角面，机身尺寸保持。`npm test` 原有 **17/17 全部通过**，0 跳过，未修改或减少测试。另附 `verify.mjs` / `verification.json` 校验实际几何尺寸、64 齿、橡胶材质与露出比例。
+- 使用 `npm run dev`（4319）和 Playwright 保存并逐图查看 `grip-top-closeup.png`、`grip-oblique-closeup.png`、`top-orthographic.png`、`front-orthographic.png`。顶部图确认拨盘位于快门之后、M-Fn 旁，斜顶确认滚轮在槽中并有连续弧面；正面确认只在握柄顶部形成低矮轮廓。本轮轴向和 1.3/0.5 cm 尺寸以用户明确描述为准，照片用于核对位置、材质和嵌入关系，未将照片中的投影长宽当作轴向尺寸。
+- 复现：`npm run dev`，运行 `node artifacts/round-11/capture.mjs`；离线几何验收运行 `node artifacts/round-11/verify.mjs`。截图沿用页面 scene 和灯光，顶部截图临时隐藏镜头以对照官方机身顶部图；未增加产品调试入口。
+- 验收后 Playwright 浏览器和本轮开发服务均已关闭；4319 HTTP 与 24319 HMR 端口均无监听，见 `artifacts/round-11/shutdown.json`。

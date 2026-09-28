@@ -55,7 +55,7 @@ export function attachFirmware({ stage, root, lcdPreview, onEvent }) {
     controls.mode_dial?.(s.modeIndex / (MODES.length - 1));
     controls.still_movie?.(s.stillMovie === 'movie' ? 1 : 0);
   }
-  function nudge(partId, delta) { const p = dialParts[partId]; if (!p || partId === 'mode_dial') return; p.rotation.y += delta * 0.35; stage.invalidate?.(); }
+  function nudge(partId, delta) { const p = dialParts[partId]; if (!p || partId === 'mode_dial') return; p.rotation[p.userData.rotationAxis || 'y'] += delta * 0.35; stage.invalidate?.(); }
   function redraw() { renderer.draw(); texture.needsUpdate = true; if (previewCtx) previewCtx.drawImage(screenCanvas, 0, 0); stage.invalidate?.(); }
   fw.subscribe((s, ev) => { applyDisplays(); syncPose(); redraw(); stage.invalidate?.(); onEvent?.(ev, fw); });
   // toasts expire on their own; keep the texture fresh at a low rate
