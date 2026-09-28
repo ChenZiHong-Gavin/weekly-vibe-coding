@@ -222,6 +222,8 @@
     - 一台 Canon EOS R6 Mark III 的可交互三维数字孪生：程序化 Three.js 机身与 RF 24-105 镜头（Codex 按官方线稿与照片建模），能开机的虚拟固件（官方菜单结构、曝光、速控、录像、回放），点击部件即讲解，讲解员（豆包/Claude）可操控相机演示，并带 8 门练习课程实时判定。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/camera-twin.md)
 
+       <img width="400" alt="camera-twin" src="apps/camera-twin/docs/screenshots/demo.gif" />
+
 ## 如何运行
 
 以 `dice-verse` 应用为例，在本地运行该项目的步骤如下：

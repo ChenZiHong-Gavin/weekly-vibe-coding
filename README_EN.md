@@ -216,6 +216,8 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
     - An interactive 3D digital twin of the Canon EOS R6 Mark III: procedural Three.js body and RF 24-105 lens (modelled by Codex from official diagrams and photos), a virtual firmware that boots (official menu tree, exposure, quick control, movie, playback), click-to-explain parts, an AI guide (Doubao/Claude) that operates the camera to demonstrate, and 8 practice lessons checked live.
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/camera-twin.md)
 
+       <img width="400" alt="camera-twin" src="apps/camera-twin/docs/screenshots/demo.gif" />
+
 ## How to Run
 
 Example: running the `dice-verse` app locally.

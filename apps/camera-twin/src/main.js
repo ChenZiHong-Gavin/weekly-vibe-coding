@@ -5,6 +5,7 @@ import data from './parts.json' with { type: 'json' };
 import { attachFirmware, INTERACTIVE } from './firmware/index.js';
 import { createLessonRunner } from './firmware/lessons.js';
 import { SCENES } from './firmware/scenes.js';
+import { readShootingInfo, summary as exifSummary } from './firmware/exif.js';
 
 const $ = s => document.querySelector(s);
 const partsById = new Map(data.parts.map(p => [p.id, p]));
@@ -25,6 +26,11 @@ const guide = createGuide({ stage, firmware, lessons, partsById, modelSource: so
 // lessons UI
 $('#lesson-select').innerHTML = [...new Set(lessons.lessons.map(l => l.category))].map(c => `<optgroup label="${c}">` + lessons.lessons.filter(l => l.category === c).map(l => `<option value="${l.id}">${'★'.repeat(l.level)} ${l.title}</option>`).join('') + '</optgroup>').join('');
 function renderLesson(st) {
+  // highlight the parts the next step needs, and say what to do with them on the stage
+  const targetEl = $('#lesson-target');
+  if (st && !st.complete) { stage.setLessonTargets(st.nextParts); const names = st.nextParts.map(id => partsById.get(id)?.name).filter(Boolean); targetEl.innerHTML = `<b>第 ${st.next + 1} 步</b>${st.goals[st.next].text}${names.length ? ' · 用：' + names.join('、') : ''}`; targetEl.classList.remove('hidden'); }
+  else { stage.setLessonTargets([]); targetEl.classList.add('hidden'); }
+  $('#photo-check').classList.toggle('hidden', !st || !st.exif); if (!st) { $('#photo-result').classList.add('hidden'); }
   $('#lesson-body').classList.toggle('hidden', !st); $('#lesson-badge').textContent = st ? (st.complete ? '已完成' : `${st.goals.filter(g => g.done).length}/${st.goals.length}`) : ''; if (!st) return;
   $('#lesson-intro').textContent = st.intro; $('#lesson-source').innerHTML = st.source ? `来源：<a href="${st.source}" target="_blank" rel="noopener">佳能人像摄影专业技巧</a>` : '';
   $('#lesson-goals').innerHTML = st.goals.map((g, i) => `<li class="${g.done ? 'done' : i === st.next ? 'next' : ''}">${g.text}</li>`).join('');
@@ -34,6 +40,7 @@ function renderLesson(st) {
 lessons.subscribe(renderLesson);
 $('#lesson-start').addEventListener('click', () => { renderLesson.celebrated = false; const st = lessons.start($('#lesson-select').value); guide.log('system', `开始课程：${st.title}。目标：${st.goals.map(g => g.text).join('；')}`); });
 $('#lesson-stop').addEventListener('click', () => { lessons.stop(); });
+$('#lesson-target').addEventListener('click', () => { const st = lessons.status(); if (st && st.nextParts.length) stage.focus(st.nextParts); });
 $('#lesson-hint').addEventListener('click', () => { const st = lessons.status(); if (!st) { guide.log('system', '先选一门课程并点击开始。'); return; } if (st.complete) { guide.log('system', '这门课已经完成了。'); return; } guide.ask(`我在练习「${st.title}」，卡在第 ${st.next + 1} 步「${st.goals[st.next].text}」。给我提示，告诉我该碰哪个部件、怎么操作，但不要替我完成。`, { part: active, lesson: st }); });
 window.__twin.lessons = lessons;
 $('#scene-select').innerHTML = Object.values(SCENES).map(sc => `<option value="${sc.id}">取景：${sc.name}</option>`).join('');
@@ -97,3 +104,21 @@ $('#help').addEventListener('click', e => { if (e.target === $('#help')) toggleH
 // narrow-screen tabs
 document.querySelectorAll('.tabbar button').forEach(b => b.addEventListener('click', () => { document.querySelector('.layout').dataset.active = b.dataset.target; document.querySelectorAll('.tabbar button').forEach(x => x.classList.toggle('active', x === b)); window.dispatchEvent(new Event('resize')); }));
 document.querySelector('.layout').dataset.active = 'stage';
+
+// real-photo acceptance: read EXIF, run the lesson's exif rules, optionally ask the guide to review
+let lastPhoto = null;
+async function checkPhoto(file) {
+  const st = lessons.status(); if (!st || !st.exif) return;
+  try {
+    const info = await readShootingInfo(file); lastPhoto = { info, results: st.exif.map(r => ({ text: r.text, ok: !!r.check(info) })) };
+    $('#photo-summary').textContent = exifSummary(info);
+    $('#photo-goals').innerHTML = lastPhoto.results.map(r => `<li class="${r.ok ? 'ok' : 'no'}">${r.ok ? '✓' : '✗'} ${r.text}</li>`).join('');
+    $('#photo-result').classList.remove('hidden');
+    const passed = lastPhoto.results.filter(r => r.ok).length; guide.log('system', `真机照片验收：${passed}/${lastPhoto.results.length} 项通过。`);
+  } catch (e) { $('#photo-summary').textContent = '读取失败：' + e.message; $('#photo-goals').innerHTML = ''; $('#photo-result').classList.remove('hidden'); }
+}
+$('#photo-input').addEventListener('change', e => { if (e.target.files[0]) checkPhoto(e.target.files[0]); e.target.value = ''; });
+const pc = $('#photo-check');
+pc.addEventListener('dragover', e => { e.preventDefault(); pc.classList.add('dragover'); }); pc.addEventListener('dragleave', () => pc.classList.remove('dragover'));
+pc.addEventListener('drop', e => { e.preventDefault(); pc.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f) checkPhoto(f); });
+$('#photo-review').addEventListener('click', () => { const st = lessons.status(); if (!lastPhoto || !st) return; guide.ask(`我用真机练习「${st.title}」拍了一张，EXIF 是：${exifSummary(lastPhoto.info)}。验收结果：${lastPhoto.results.map(r => (r.ok ? '✓' : '✗') + r.text).join('，')}。请点评设置是否符合教程要点，不符合的告诉我该怎么调。`, { part: active, lesson: st }); });

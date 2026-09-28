@@ -42,9 +42,9 @@ export function attachFirmware({ stage, root, lcdPreview, onEvent }) {
     controls.mode_dial?.(s.modeIndex / (MODES.length - 1));
     controls.still_movie?.(s.stillMovie === 'movie' ? 1 : 0);
   }
-  function nudge(partId, delta) { const p = dialParts[partId]; if (!p || partId === 'mode_dial') return; p.rotation.y += delta * 0.35; }
-  function redraw() { renderer.draw(); texture.needsUpdate = true; if (previewCtx) previewCtx.drawImage(screenCanvas, 0, 0); }
-  fw.subscribe((s, ev) => { applyDisplays(); syncPose(); redraw(); onEvent?.(ev, fw); });
+  function nudge(partId, delta) { const p = dialParts[partId]; if (!p || partId === 'mode_dial') return; p.rotation.y += delta * 0.35; stage.invalidate?.(); }
+  function redraw() { renderer.draw(); texture.needsUpdate = true; if (previewCtx) previewCtx.drawImage(screenCanvas, 0, 0); stage.invalidate?.(); }
+  fw.subscribe((s, ev) => { applyDisplays(); syncPose(); redraw(); stage.invalidate?.(); onEvent?.(ev, fw); });
   // toasts expire on their own; keep the texture fresh at a low rate
   renderer.onPhotoLoaded(() => redraw());
   setInterval(() => { if (fw.state.toast || fw.state.recording || fw.state.timer || (fw.state.screen === 'shoot' && fw.afTargets().servo)) redraw(); }, fw.afTargets ? 120 : 250);
@@ -55,7 +55,7 @@ export function attachFirmware({ stage, root, lcdPreview, onEvent }) {
   function tweenControl(name, to, ms = 450) {
     const fn = controls[name]; if (!fn) return false;
     const from = mech[name] ?? defaults[name] ?? 0, t0 = performance.now();
-    const step = now => { const k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3); const v = from + (to - from) * e; mech[name] = v; fn(v); if (k < 1) requestAnimationFrame(step); };
+    const step = now => { const k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3); const v = from + (to - from) * e; mech[name] = v; fn(v); stage.invalidate?.(); if (k < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step); return true;
   }
   function toggleMechanical(partId) {
@@ -94,7 +94,7 @@ export function attachFirmware({ stage, root, lcdPreview, onEvent }) {
   }
   /** Handle a wheel event over a part id. Returns true if consumed. */
   function wheel(partId, deltaY) { if (!DIALS[partId]) return false; const d = deltaY > 0 ? 1 : -1; fw[DIALS[partId]](d); nudge(partId, d); return true; }
-  function pressAnim(partId) { const p = root.getObjectByName(partId); if (!p) return; const cap = p.children[1]; if (!cap) return; const y = cap.position.y; cap.position.y = y - 0.06; setTimeout(() => { cap.position.y = y; }, 120); }
+  function pressAnim(partId) { const p = root.getObjectByName(partId); if (!p) return; const cap = p.children[1]; if (!cap) return; const y = cap.position.y; cap.position.y = y - 0.06; stage.invalidate?.(); setTimeout(() => { cap.position.y = y; stage.invalidate?.(); }, 120); }
 
   applyDisplays(); syncPose(); redraw();
   return { fw, click, wheel, touch, redraw, tweenControl, mech, lcdMesh: lcd, evfMesh: evf, DIALS };

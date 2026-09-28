@@ -34,6 +34,7 @@
       <div id="onboard" class="onboard">
         <strong>先开机</strong>点击右肩的电源拨杆，或按 <kbd>P</kbd>。然后滚轮转动转盘，点击按钮，点击部件看说明。
       </div>
+      <div id="lesson-target" class="lesson-target hidden"></div>
       <div id="tip" class="tip hidden"></div>
       <div id="fw-hint" class="fw-hint hidden"></div>
       <div id="part-card" class="part-card hidden">
@@ -53,7 +54,12 @@
         <div id="lesson" class="lesson">
           <select id="lesson-select"></select>
           <div class="lesson-actions"><button id="lesson-start">开始</button><button id="lesson-hint" class="ghost">要提示</button><button id="lesson-stop" class="ghost">结束</button></div>
-          <div id="lesson-body" class="hidden"><p id="lesson-intro"></p><p id="lesson-source" class="lesson-source"></p><ol id="lesson-goals"></ol><div id="lesson-done" class="lesson-done hidden">完成！</div></div>
+          <div id="lesson-body" class="hidden"><p id="lesson-intro"></p><p id="lesson-source" class="lesson-source"></p><ol id="lesson-goals"></ol><div id="lesson-done" class="lesson-done hidden">完成！</div>
+            <div id="photo-check" class="photo-check hidden">
+              <div class="panel-head"><strong>用真机照片验收</strong><label class="file-btn">选择照片<input id="photo-input" type="file" accept="image/*,.cr3,.heic"></label></div>
+              <p class="muted">用真机按这门课的要求拍一张，把原图（未经微信压缩）拖进来或选择文件，读取 EXIF 后自动判定。</p>
+              <div id="photo-result" class="hidden"><p id="photo-summary" class="photo-summary"></p><ul id="photo-goals"></ul><button id="photo-review" class="ghost">让讲解员点评</button></div>
+            </div></div>
         </div>
       </details>
       <section class="block chat">
