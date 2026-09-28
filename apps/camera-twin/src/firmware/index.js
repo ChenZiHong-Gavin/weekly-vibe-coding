@@ -34,6 +34,19 @@ export function attachFirmware({ stage, root, lcdPreview, onEvent }) {
     for (const m of [lcd, evf]) { if (!m) continue; m.material = on ? lit : originals.get(m); }
   }
   const controls = root.userData.controls || {};
+  // The power lever is tiny and sits on the rim of quick control dial 2, so clicks land on the dial.
+  // Give the lever an enlarged transparent hit box that rotates with it.
+  (function addPowerHitBox() {
+    const sw = root.getObjectByName('power_switch'); if (!sw) return;
+    const box = new THREE.Box3(); let found = false;
+    sw.updateWorldMatrix(true, true);
+    sw.traverse(m => { if (!m.isMesh) return; m.geometry.computeBoundingBox(); const b = m.geometry.boundingBox.clone().applyMatrix4(m.matrixWorld); const size = b.getSize(new THREE.Vector3()); if (Math.max(size.x, size.z) < 1.6) { box.union(b); found = true; } });
+    if (!found) return;
+    const size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+    const hit = new THREE.Mesh(new THREE.BoxGeometry(Math.max(size.x, 0.6) * 2.2, Math.max(size.y, 0.3) * 3, Math.max(size.z, 0.6) * 2.2), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+    hit.name = 'power_switch_hit'; hit.castShadow = hit.receiveShadow = false;
+    sw.worldToLocal(center); hit.position.copy(center); hit.quaternion.copy(sw.getWorldQuaternion(new THREE.Quaternion()).invert()); sw.add(hit);
+  })();
   const dialParts = Object.fromEntries(Object.keys(DIALS).map(id => [id, root.getObjectByName(id)]));
   let modeAngleBase = null;
   function syncPose() {
@@ -85,7 +98,7 @@ export function attachFirmware({ stage, root, lcdPreview, onEvent }) {
   /** Handle a click on a part id. Returns true if the firmware consumed it. */
   function click(partId, { shift } = {}) {
     if (MECHANICAL[partId] && toggleMechanical(partId)) return true;
-    if (partId === 'power_switch') { const order = ['off', 'on', 'lock']; const i = order.indexOf(fw.state.power); fw.setPower(order[shift ? (i + 2) % 3 : (i + 1) % 3]); return true; }
+    if (partId === 'power_switch') { if (shift) fw.setPower(fw.state.power === 'lock' ? 'on' : 'lock'); else fw.setPower(fw.state.power === 'off' ? 'on' : 'off'); return true; }
     if (partId === 'still_movie_switch') { fw.setStillMovie(fw.state.stillMovie === 'still' ? 'movie' : 'still'); return true; }
     if (partId === 'multi_controller') { fw.press('set_button'); return true; }
     if (DIALS[partId]) { const d = shift ? -1 : 1; fw[DIALS[partId]](d); nudge(partId, d); return true; }

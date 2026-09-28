@@ -31,7 +31,8 @@
       "name": "电源/多功能锁开关",
       "en": "Power/multi-function lock switch",
       "side": "top",
-      "description": "OFF、ON、LOCK 三档拨杆，环绕在模式转盘外侧。LOCK 位可锁定转盘和多功能控制钮，防止误触。"
+      "description": "OFF、ON、LOCK 三档拨杆，环绕在模式转盘外侧。LOCK 位可锁定转盘和多功能控制钮，防止误触。",
+      "howto": "在模型上点击拨杆即开机或关机，按住 Shift 点击切到 LOCK。真机上向前拨到 ON，再往前是 LOCK。"
     },
     {
       "id": "main_dial",

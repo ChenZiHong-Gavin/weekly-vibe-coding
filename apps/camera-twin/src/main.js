@@ -81,6 +81,36 @@ document.addEventListener('keydown', e => {
   const fw = firmware.fw; const map = { p: () => fw.togglePower(), m: () => fw.press('menu_button'), i: () => fw.press('info_button'), q: () => fw.press('q_button'), ' ': () => fw.press('shutter_button'), Enter: () => fw.press('set_button'), ArrowLeft: () => fw.mainDial(-1), ArrowRight: () => fw.mainDial(1), ArrowUp: () => fw.quickDial1(-1), ArrowDown: () => fw.quickDial1(1), '[': () => fw.quickDial2(-1), ']': () => fw.quickDial2(1), ',': () => fw.turnMode(-1), '.': () => fw.turnMode(1), v: () => fw.press('movie_button'), s: () => fw.setStillMovie(fw.state.stillMovie === 'still' ? 'movie' : 'still'), r: () => fw.press('rate_button'), a: () => fw.press('af_on_button'), l: () => fw.press('ae_lock_button'), z: () => fw.press('magnify_button'), Backspace: () => fw.press('erase_button'), Escape: () => { if (!$('#help').classList.contains('hidden')) toggleHelp(false); else fw.press('menu_button'); } };
   if (map[e.key]) { e.preventDefault(); map[e.key](); }
 });
+$('#ask-part').addEventListener('click', () => { const p = partsById.get(active); if (p) guide.ask(`${p.name}是做什么的？怎么用？`, { part: active }); });
+let downAt = null, drag = null;
+$('#stage').addEventListener('pointerdown', e => {
+  downAt = [e.clientX, e.clientY];
+  const hit = stage.pickHit(e.clientX, e.clientY); if (!hit) return;
+  if (firmware.DIALS[hit.id]) { drag = { id: hit.id, x: e.clientX, acc: 0 }; stage.controls.enabled = false; $('#stage').setPointerCapture(e.pointerId); }
+  else if (hit.id === 'shutter_button') { firmware.fw.halfPress(); flashHint('半按快门：对焦'); }
+});
+$('#stage').addEventListener('pointermove', e => {
+  if (!drag) return; drag.acc += e.clientX - drag.x; drag.x = e.clientX;
+  while (Math.abs(drag.acc) >= 28) { const d = Math.sign(drag.acc); drag.acc -= d * 28; firmware.wheel(drag.id, d); drag.moved = true; flashHint(drag.id); }
+});
+const endDrag = e => { if (drag) { stage.controls.enabled = true; try { $('#stage').releasePointerCapture(e.pointerId); } catch {} } };
+$('#stage').addEventListener('pointerup', endDrag); $('#stage').addEventListener('pointercancel', endDrag);
+$('#stage').addEventListener('click', e => {
+  if (drag) { const moved = drag.moved; drag = null; if (moved) return; }
+  if (downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return; // was a drag
+  const hit = stage.pickHit(e.clientX, e.clientY); if (!hit) return; const id = hit.id;
+  if (id === 'screen' && firmware.touch(hit)) { flashHint('触摸屏'); return; }
+  if (INTERACTIVE.has(id) && firmware.click(id, { shift: e.shiftKey })) { flashHint(id); if (active !== id) { active = id; showCard(id, false); } return; }
+  select(id);
+});
+$('#stage').addEventListener('wheel', e => { const id = stage.pick(e.clientX, e.clientY); if (id && firmware.wheel(id, e.deltaY)) { e.preventDefault(); e.stopImmediatePropagation(); flashHint(id); } }, { capture: true, passive: false });
+$('#stage').addEventListener('pointermove', e => {
+  if (drag) return; const id = stage.pick(e.clientX, e.clientY); $('#stage').style.cursor = id && INTERACTIVE.has(id) ? (firmware.DIALS[id] ? 'ew-resize' : 'pointer') : 'grab';
+  const tip = $('#tip'); const p = id && partsById.get(id);
+  if (p && e.pointerType !== 'touch') { const r = $('#stage').getBoundingClientRect(); tip.textContent = p.name + (id === 'power_switch' ? ' · 点击开/关，Shift 点击锁定' : firmware.DIALS[id] ? ' · 拖动/滚轮' : INTERACTIVE.has(id) ? ' · 点击' : ''); tip.style.left = (e.clientX - r.left) + 'px'; tip.style.top = (e.clientY - r.top) + 'px'; tip.classList.remove('hidden'); } else tip.classList.add('hidden');
+});
+$('#stage').addEventListener('pointerleave', () => $('#tip').classList.add('hidden'));
+function flashHint(id) { const p = partsById.get(id); const el = $('#fw-hint'); el.textContent = p ? p.name : id; el.classList.remove('hidden'); clearTimeout(flashHint.t); flashHint.t = setTimeout(() => el.classList.add('hidden'), 1200); }
 document.querySelectorAll('.viewbar [data-view]').forEach(b => b.addEventListener('click', () => { stage.setView(b.dataset.view); document.querySelectorAll('.viewbar [data-view]').forEach(x => x.classList.toggle('active', x === b)); }));
 $('#show-all').addEventListener('click', () => { guide.reset(); document.querySelectorAll('.viewbar [data-view]').forEach(x => x.classList.toggle('active', x.dataset.view === 'overview')); });
 $('#chat-form').addEventListener('submit', e => { e.preventDefault(); guide.ask($('#chat-input').value, { part: active }); });
