@@ -8,7 +8,7 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="dot"></span>相机数字孪生 <small>Canon EOS R6 Mark III</small></div>
+    <div class="brand"><button id="parts-toggle" class="icon-btn" title="显示/隐藏部件列表" aria-label="部件列表">☰</button><span class="dot"></span>相机数字孪生 <small>Canon EOS R6 Mark III</small></div>
     <div class="topbar-right">
       <span id="model-status" class="pill">模型：加载中</span>
       <span id="llm-status" class="pill">讲解员：未连接</span>
@@ -49,7 +49,7 @@
         <summary><h2>相机屏幕</h2><span id="fw-status" class="fw-status">电源 OFF</span></summary>
         <div class="lcd"><canvas id="lcd-preview"></canvas></div>
       </details>
-      <details class="block" open>
+      <details class="block" id="lesson-block">
         <summary><h2>练习课程</h2><span id="lesson-badge" class="muted"></span></summary>
         <div id="lesson" class="lesson">
           <select id="lesson-select"></select>
@@ -65,6 +65,7 @@
       <section class="block chat">
         <div class="panel-head"><h2>问问这台相机</h2><button id="chat-clear" class="icon-btn" title="清空对话" aria-label="清空对话">↺</button></div>
         <div id="chat-log" class="chat-log">
+          <div id="steps" class="steps hidden"></div>
           <div id="chat-empty" class="chat-empty">
             <p>可以问用法、问位置，也可以让它直接帮你调。</p>
             <div class="chips">
@@ -76,9 +77,8 @@
             </div>
           </div>
         </div>
-        <div id="steps" class="steps hidden"></div>
         <form id="chat-form" class="chat-form">
-          <textarea id="chat-input" rows="2" placeholder="输入问题，回车发送，Shift+回车换行"></textarea>
+          <textarea id="chat-input" rows="3" placeholder="输入问题，回车发送，Shift+回车换行"></textarea>
           <div class="chat-actions">
             <button type="button" id="stop" class="ghost">停止演示</button>
             <button type="submit" id="send">发送</button>

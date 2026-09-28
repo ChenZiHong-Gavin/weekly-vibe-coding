@@ -38,7 +38,7 @@ function renderLesson(st) {
   if (st.complete && !renderLesson.celebrated) { renderLesson.celebrated = true; guide.log('system', `课程「${st.title}」完成，用时 ${Math.round((st.completedAt - st.startedAt) / 1000)} 秒。`); }
 }
 lessons.subscribe(renderLesson);
-$('#lesson-start').addEventListener('click', () => { renderLesson.celebrated = false; const st = lessons.start($('#lesson-select').value); guide.log('system', `开始课程：${st.title}。目标：${st.goals.map(g => g.text).join('；')}`); });
+$('#lesson-start').addEventListener('click', () => { $('#lesson-block').open = true; renderLesson.celebrated = false; const st = lessons.start($('#lesson-select').value); guide.log('system', `开始课程：${st.title}。目标：${st.goals.map(g => g.text).join('；')}`); });
 $('#lesson-stop').addEventListener('click', () => { lessons.stop(); });
 $('#lesson-target').addEventListener('click', () => { const st = lessons.status(); if (st && st.nextParts.length) stage.focus(st.nextParts); });
 $('#lesson-hint').addEventListener('click', () => { const st = lessons.status(); if (!st) { guide.log('system', '先选一门课程并点击开始。'); return; } if (st.complete) { guide.log('system', '这门课已经完成了。'); return; } guide.ask(`我在练习「${st.title}」，卡在第 ${st.next + 1} 步「${st.goals[st.next].text}」。给我提示，告诉我该碰哪个部件、怎么操作，但不要替我完成。`, { part: active, lesson: st }); });
@@ -156,3 +156,12 @@ const pc = $('#photo-check');
 pc.addEventListener('dragover', e => { e.preventDefault(); pc.classList.add('dragover'); }); pc.addEventListener('dragleave', () => pc.classList.remove('dragover'));
 pc.addEventListener('drop', e => { e.preventDefault(); pc.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f) checkPhoto(f); });
 $('#photo-review').addEventListener('click', () => { const st = lessons.status(); if (!lastPhoto || !st) return; guide.ask(`我用真机练习「${st.title}」拍了一张，EXIF 是：${exifSummary(lastPhoto.info)}。验收结果：${lastPhoto.results.map(r => (r.ok ? '✓' : '✗') + r.text).join('，')}。请点评设置是否符合教程要点，不符合的告诉我该怎么调。`, { part: active, lesson: st }); });
+
+// parts column: hidden by default (clicking the model does the same job); remembered per browser
+const layoutEl = document.querySelector('.layout');
+function setPartsCollapsed(v) { layoutEl.classList.toggle('parts-collapsed', v); $('#parts-toggle').classList.toggle('active', !v); try { localStorage.setItem('twin.partsCollapsed', v ? '1' : '0'); } catch {} window.dispatchEvent(new Event('resize')); }
+let partsCollapsed = true; try { partsCollapsed = localStorage.getItem('twin.partsCollapsed') !== '0'; } catch {}
+setPartsCollapsed(partsCollapsed);
+$('#parts-toggle').addEventListener('click', () => setPartsCollapsed(!layoutEl.classList.contains('parts-collapsed')));
+// searching from the part card or lesson opens the list when needed
+$('#lesson-block').addEventListener('toggle', () => window.dispatchEvent(new Event('resize')));
