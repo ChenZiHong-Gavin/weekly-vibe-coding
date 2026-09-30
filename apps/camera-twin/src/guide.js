@@ -26,16 +26,18 @@ export function createGuide({ stage, firmware, lessons, partsById, modelSource, 
       }
       const plan = validatePlan(data.plan);
       history.push({ role: 'assistant', content: plan.answer + (plan.steps.length ? `\n[演示 ${plan.steps.length} 步：${plan.steps.map(s => s.caption).join('；')}]` : '') });
-      log('guide', plan.answer);
-      if (plan.steps.length) await play(plan);
+      const bubble = log('guide', plan.answer);
+      if (plan.steps.length) { const stepsEl = document.createElement('div'); stepsEl.className = 'steps hidden'; bubble.after(stepsEl); plan.el = stepsEl; await play(plan); }
     } catch (e) { pending.remove(); history.pop(); log('error', '讲解失败：' + e.message); }
     finally { els.send.disabled = false; }
   }
   function renderSteps(plan, idx) {
-    els.steps.classList.toggle('hidden', !plan); if (!plan) return;
-    els.steps.innerHTML = '<div class="steps-head"><span>演示步骤（点击可重看）</span><button type="button" class="ghost steps-stop">停止</button></div><ol>' + plan.steps.map((s, i) => `<li class="${i === idx ? 'current' : ''}" data-i="${i}">${escapeHtml(s.caption)}</li>`).join('') + '</ol>';
-    els.steps.querySelector('.steps-stop').onclick = () => { stop(); renderSteps(plan, -1); };
-    els.steps.querySelectorAll('li').forEach(li => li.onclick = () => runStep(plan.steps[+li.dataset.i], +li.dataset.i, plan));
+    if (!plan) { currentPlan?.el?.classList.add('hidden'); return; }
+    const el = plan.el || els.steps; el.classList.remove('hidden');
+    el.innerHTML = '<div class="steps-head"><span>演示步骤（点击可重看）</span><button type="button" class="ghost steps-stop">停止</button></div><ol>' + plan.steps.map((s, i) => `<li class="${i === idx ? 'current' : ''}" data-i="${i}">${escapeHtml(s.caption)}</li>`).join('') + '</ol>';
+    el.querySelector('.steps-stop').onclick = () => { stop(); renderSteps(plan, -1); };
+    el.querySelectorAll('li').forEach(li => li.onclick = () => runStep(plan.steps[+li.dataset.i], +li.dataset.i, plan));
+    els.log.scrollTop = els.log.scrollHeight;
   }
   function runStep(step, i, plan) {
     renderSteps(plan, i);
@@ -56,7 +58,7 @@ export function createGuide({ stage, firmware, lessons, partsById, modelSource, 
     if (running === token) running = null;
   }
   function stop() { running = null; }
-  function reset() { stop(); currentPlan = null; renderSteps(null); stage.isolate(null); stage.highlight([]); stage.setView('overview'); }
+  function reset() { stop(); currentPlan = null; stage.isolate(null); stage.highlight([]); stage.setView('overview'); }
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const escapeHtml = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   return { ask, stop, reset, log, get history() { return history; } };

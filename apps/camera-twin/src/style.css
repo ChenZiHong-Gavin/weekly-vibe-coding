@@ -74,7 +74,7 @@ details.block[open]>summary{margin-bottom:8px}
 .layout.parts-collapsed{grid-template-columns:minmax(0,1fr) 440px}.layout.parts-collapsed .panel.parts{display:none}
 #parts-toggle{margin-right:4px}
 .chat{min-height:360px}.chat-log{min-height:220px}
-.steps{order:1;align-self:stretch}
+.steps{align-self:stretch;max-width:94%}
 .hidden{display:none!important}
 /* narrow screens: stage on top, panels as bottom tabs */
 @media (max-width:1000px){
