@@ -95,3 +95,9 @@ details.block[open]>summary{margin-bottom:8px}
 #photo-goals{margin:0;padding-left:20px}#photo-goals li.ok{color:var(--ok)}#photo-goals li.no{color:var(--accent)}
 .lesson-target{position:absolute;top:62px;left:50%;transform:translateX(-50%);background:#1f8a70;color:#fff;padding:6px 14px;border-radius:999px;font-size:13px;box-shadow:var(--shadow);max-width:calc(100% - 24px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lesson-target b{margin-right:6px}
+.lcd-float{position:absolute;right:12px;top:62px;width:300px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;z-index:5}
+.lcd-float-head{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;font-size:12px;color:var(--muted)}.lcd-float-head>span:first-child{font-weight:600}
+.lcd-float .lcd{border-width:4px;border-radius:0 0 8px 8px;margin:0 6px 6px}.lcd-float.collapsed .lcd{display:none}.lcd-float.collapsed{width:auto}
+.chat{flex:1;min-height:0}.chat-log{flex:1;min-height:0}
+.steps-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-bottom:4px}.steps-stop{padding:2px 8px;font-size:12px}
+@media (max-width:1000px){.lcd-float{width:200px;top:110px}}

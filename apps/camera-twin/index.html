@@ -30,6 +30,10 @@
         <button id="show-all" class="ghost" title="恢复全部部件显示并回到全景">复位</button>
         <select id="scene-select" title="取景画面"></select>
       </div>
+      <div id="lcd-float" class="lcd-float">
+        <div class="lcd-float-head"><span>相机屏幕</span><span id="fw-status" class="fw-status">电源 OFF</span><button id="lcd-toggle" class="icon-btn" title="收起/展开屏幕">–</button></div>
+        <div class="lcd"><canvas id="lcd-preview"></canvas></div>
+      </div>
       <button id="power-btn" class="power-btn" title="开机 / 关机（P）"><span class="power-dot"></span>开机</button>
       <div id="onboard" class="onboard">
         <strong>先开机</strong>点击右肩的电源拨杆，或按 <kbd>P</kbd>。然后滚轮转动转盘，点击按钮，点击部件看说明。
@@ -45,10 +49,6 @@
       </div>
     </section>
     <aside class="panel guide" data-tab="guide">
-      <details class="block" open>
-        <summary><h2>相机屏幕</h2><span id="fw-status" class="fw-status">电源 OFF</span></summary>
-        <div class="lcd"><canvas id="lcd-preview"></canvas></div>
-      </details>
       <details class="block" id="lesson-block">
         <summary><h2>练习课程</h2><span id="lesson-badge" class="muted"></span></summary>
         <div id="lesson" class="lesson">
@@ -80,7 +80,6 @@
         <form id="chat-form" class="chat-form">
           <textarea id="chat-input" rows="3" placeholder="输入问题，回车发送，Shift+回车换行"></textarea>
           <div class="chat-actions">
-            <button type="button" id="stop" class="ghost">停止演示</button>
             <button type="submit" id="send">发送</button>
           </div>
         </form>

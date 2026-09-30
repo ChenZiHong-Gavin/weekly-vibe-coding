@@ -119,7 +119,6 @@ let composing = false;
 $('#chat-input').addEventListener('compositionstart', () => { composing = true; });
 $('#chat-input').addEventListener('compositionend', () => { setTimeout(() => { composing = false; }, 0); });
 $('#chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { if (e.isComposing || composing || e.keyCode === 229) return; e.preventDefault(); $('#chat-form').requestSubmit(); } });
-$('#stop').addEventListener('click', () => guide.stop());
 // power button + onboarding
 const powerBtn = $('#power-btn');
 function syncPowerUI(st) { const on = st.power !== 'off'; powerBtn.classList.toggle('on', on); powerBtn.lastChild.textContent = on ? (st.power === 'lock' ? '已锁定' : '已开机') : '开机'; $('#onboard').classList.toggle('hidden', on || syncPowerUI.dismissed); }
@@ -165,3 +164,6 @@ setPartsCollapsed(partsCollapsed);
 $('#parts-toggle').addEventListener('click', () => setPartsCollapsed(!layoutEl.classList.contains('parts-collapsed')));
 // searching from the part card or lesson opens the list when needed
 $('#lesson-block').addEventListener('toggle', () => window.dispatchEvent(new Event('resize')));
+
+// floating LCD on the stage: collapsible
+$('#lcd-toggle').addEventListener('click', () => { const f = $('#lcd-float'); const c = f.classList.toggle('collapsed'); $('#lcd-toggle').textContent = c ? '+' : '–'; });

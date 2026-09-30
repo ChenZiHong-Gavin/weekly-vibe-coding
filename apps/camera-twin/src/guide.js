@@ -33,7 +33,8 @@ export function createGuide({ stage, firmware, lessons, partsById, modelSource, 
   }
   function renderSteps(plan, idx) {
     els.steps.classList.toggle('hidden', !plan); if (!plan) return;
-    els.steps.innerHTML = '<ol>' + plan.steps.map((s, i) => `<li class="${i === idx ? 'current' : ''}" data-i="${i}">${escapeHtml(s.caption)}</li>`).join('') + '</ol>';
+    els.steps.innerHTML = '<div class="steps-head"><span>演示步骤（点击可重看）</span><button type="button" class="ghost steps-stop">停止</button></div><ol>' + plan.steps.map((s, i) => `<li class="${i === idx ? 'current' : ''}" data-i="${i}">${escapeHtml(s.caption)}</li>`).join('') + '</ol>';
+    els.steps.querySelector('.steps-stop').onclick = () => { stop(); renderSteps(plan, -1); };
     els.steps.querySelectorAll('li').forEach(li => li.onclick = () => runStep(plan.steps[+li.dataset.i], +li.dataset.i, plan));
   }
   function runStep(step, i, plan) {
