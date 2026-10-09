@@ -1,4 +1,5 @@
 import { validatePlan } from './guide-contract.js';
+import { askArkDirect, loadArkConfig } from './guide-client.js';
 
 /** Chat panel + step executor. `stage` is the object from createScene. */
 export function createGuide({ stage, firmware, lessons, partsById, modelSource, els }) {
@@ -11,8 +12,17 @@ export function createGuide({ stage, firmware, lessons, partsById, modelSource, 
     history.push({ role: 'user', content: question });
     try {
       const payload = JSON.stringify({ messages: history.slice(-12), modelSource, context: { ...context, camera: firmware?.fw.snapshot(), lesson: lessons?.status() || undefined } });
-      let data = null, res = await fetch('/api/guide/stream', { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload });
-      if (res.ok && res.headers.get('content-type')?.includes('ndjson')) {
+      let data = null, res = null;
+      // Local server first (keeps the key on the server); on the static site there is no /api, so go browser-direct.
+      try { if (!createGuide.noServer) res = await fetch('/api/guide/stream', { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload }); } catch { res = null; }
+      if (!res || res.status === 404 || res.status === 405 || (res.status === 503 && loadArkConfig().key)) {
+        createGuide.noServer = createGuide.noServer || !res || res.status === 404 || res.status === 405;
+        const live = log('guide', ''); pending.textContent = '讲解员正在回答…';
+        const out = await askArkDirect(JSON.parse(payload), text => { live.textContent = text; });
+        pending.remove(); live.remove();
+        if (out.error) { history.pop(); log('error', out.error); return; }
+        data = { plan: out.plan };
+      } else if (res.ok && res.headers.get('content-type')?.includes('ndjson')) {
         // NDJSON: answer text arrives while the model is still writing the steps
         const live = log('guide', ''); pending.textContent = '讲解员正在回答…';
         const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '';

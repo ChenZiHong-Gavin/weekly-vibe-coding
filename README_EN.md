@@ -212,7 +212,7 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
 
 
 ### Topic 10: Digital Twins
-26. **[Camera Twin](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/tree/main/apps/camera-twin)** (`apps/camera-twin`)
+26. **[Camera Twin](https://chenzihong-gavin.github.io/weekly-vibe-coding/camera-twin/)** (`apps/camera-twin`)
     - An interactive 3D digital twin of the Canon EOS R6 Mark III: procedural Three.js body and RF 24-105 lens (modelled by Codex from official diagrams and photos), a virtual firmware that boots (official menu tree, exposure, quick control, movie, playback), click-to-explain parts, an AI guide (Doubao/Claude) that operates the camera to demonstrate, and 8 practice lessons checked live.
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/camera-twin.md)
 

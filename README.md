@@ -218,7 +218,7 @@
 
 
 ### 专题十：数字孪生
-26. **[Camera Twin · 相机数字孪生](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/tree/main/apps/camera-twin)** (`apps/camera-twin`)
+26. **[Camera Twin · 相机数字孪生](https://chenzihong-gavin.github.io/weekly-vibe-coding/camera-twin/)** (`apps/camera-twin`)
     - 一台 Canon EOS R6 Mark III 的可交互三维数字孪生：程序化 Three.js 机身与 RF 24-105 镜头（Codex 按官方线稿与照片建模），能开机的虚拟固件（官方菜单结构、曝光、速控、录像、回放），点击部件即讲解，讲解员（豆包/Claude）可操控相机演示，并带 8 门练习课程实时判定。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/camera-twin.md)
 

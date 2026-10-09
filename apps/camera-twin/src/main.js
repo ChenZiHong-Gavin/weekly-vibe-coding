@@ -6,6 +6,7 @@ import { attachFirmware, INTERACTIVE } from './firmware/index.js';
 import { createLessonRunner } from './firmware/lessons.js';
 import { SCENES } from './firmware/scenes.js';
 import { readShootingInfo, summary as exifSummary } from './firmware/exif.js';
+import { loadArkConfig, saveArkConfig } from './guide-client.js';
 
 const $ = s => document.querySelector(s);
 const partsById = new Map(data.parts.map(p => [p.id, p]));
@@ -46,7 +47,12 @@ window.__twin.lessons = lessons;
 $('#scene-select').innerHTML = Object.values(SCENES).map(sc => `<option value="${sc.id}">取景：${sc.name}</option>`).join('');
 $('#scene-select').addEventListener('change', e => firmware.fw.setScene(e.target.value));
 firmware.fw.subscribe((s, ev) => { if (ev === 'scene') $('#scene-select').value = s.scene; });
-fetch('/api/health').then(r => r.json()).then(h => { const el = $('#llm-status'); el.textContent = h.configured ? `讲解员：${h.model}` : '讲解员：未配置 ANTHROPIC_API_KEY'; el.classList.add(h.configured ? 'ok' : 'bad'); }).catch(() => { $('#llm-status').textContent = '讲解员：服务未启动'; });
+function refreshLlmStatus() {
+  const el = $('#llm-status'); el.classList.remove('ok', 'bad');
+  fetch('/api/health').then(r => r.ok ? r.json() : Promise.reject()).then(h => { if (h.configured) { el.textContent = `讲解员：${h.model}`; el.classList.add('ok'); } else throw 0; })
+    .catch(() => { const c = loadArkConfig(); if (c.key) { el.textContent = `讲解员：${c.model}（浏览器直连）`; el.classList.add('ok'); } else { el.textContent = '讲解员：未配置密钥，点 ? 设置'; el.classList.add('bad'); } });
+}
+refreshLlmStatus();
 
 // part list, grouped by where the part sits on the body
 const SIDE_LABELS = { top: '顶部', front: '正面', back: '背面', left: '左侧（端子）', right: '右侧（卡槽）', bottom: '底部', lens: '镜头', all: '整体' };
@@ -167,3 +173,8 @@ $('#lesson-block').addEventListener('toggle', () => window.dispatchEvent(new Eve
 
 // floating LCD on the stage: collapsible
 $('#lcd-toggle').addEventListener('click', () => { const f = $('#lcd-float'); const c = f.classList.toggle('collapsed'); $('#lcd-toggle').textContent = c ? '+' : '–'; });
+
+// guide key settings (static build): stored in this browser only
+const cfg = loadArkConfig(); $('#ark-key').value = cfg.fromBuild ? '' : cfg.key; $('#ark-model').value = cfg.model; $('#ark-base').value = cfg.base; $('#ark-key').placeholder = cfg.fromBuild ? '已内置密钥，留空即用内置' : 'ark-xxxxxxxx';
+$('#ark-save').addEventListener('click', () => { saveArkConfig({ key: $('#ark-key').value.trim(), model: $('#ark-model').value.trim(), base: $('#ark-base').value.trim() }); refreshLlmStatus(); $('#ark-saved').textContent = '已保存到本浏览器'; setTimeout(() => { $('#ark-saved').textContent = ''; }, 2000); });
+$('#ark-clear').addEventListener('click', () => { saveArkConfig({}); $('#ark-key').value = ''; refreshLlmStatus(); });

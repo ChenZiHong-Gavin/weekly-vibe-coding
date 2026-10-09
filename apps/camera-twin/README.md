@@ -1,5 +1,7 @@
 # 相机数字孪生 · Camera Twin
 
+在线版：https://chenzihong-gavin.github.io/weekly-vibe-coding/camera-twin/
+
 ![演示](./docs/screenshots/demo.gif)
 
 一台 Canon EOS R6 Mark III 的可交互三维数字孪生：点击任何部件看它是什么、怎么用；在右侧直接提问，讲解员（Claude）会用中文回答，并让模型配合演示：镜头飞到部件、高亮、单独显示、切换视角、转动模式转盘或翻开屏幕。
@@ -9,6 +11,7 @@
 - 三维场景、部件知识库（55 个部件，来自佳能官方手册"部件名称"页）、讲解员工具协议、契约测试：已完成。
 - `src/model/r6iii.js`：**程序化 Three.js 模型槽位，由 Codex 按 [建模简报](./docs/MODELING_BRIEF.md) 编写**。未实现时应用自动使用 `src/model/placeholder.js` 的方块占位模型，所有功能照常可用。
 - 讲解员支持两种模型接口：火山方舟豆包（`ARK_API_KEY`，默认 `doubao-seed-evolving`，已实测）或 Anthropic（`ANTHROPIC_API_KEY`）。未配置时其余功能不受影响。
+- 在线版是纯静态页面（GitHub Pages），没有后端：讲解员由浏览器直接调用豆包接口，密钥在右上角「?」里填写，只存在本浏览器。仓库若设置了 `CAMERA_TWIN_ARK_API_KEY` 密钥，构建时会内置一把，访客无需填写，但这把密钥会出现在公开的 JS 里。
 
 ## 虚拟固件（第一轮闭环）
 
@@ -44,6 +47,7 @@ npm run dev            # http://127.0.0.1:4319
 ```
 
 ```sh
+NODE_ENV=production npm run build   # 产出 dist/，base 为 /weekly-vibe-coding/camera-twin/
 npm test               # 契约与协议测试
 npm run check:model    # 单独检查 r6iii.js 是否满足模型契约
 npm run build && npm start

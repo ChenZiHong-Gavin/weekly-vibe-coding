@@ -101,3 +101,6 @@ details.block[open]>summary{margin-bottom:8px}
 .chat{flex:1;min-height:0}.chat-log{flex:1;min-height:0}
 .steps-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-bottom:4px}.steps-stop{padding:2px 8px;font-size:12px}
 @media (max-width:1000px){.lcd-float{width:200px;top:110px}}
+.ark-settings{border-bottom:1px solid var(--line);padding-bottom:12px;margin:8px 0 4px}.ark-settings h4{margin:0 0 4px;font-size:13px}.ark-settings p{margin:0 0 8px;font-size:12px}.ark-settings a{color:var(--accent)}
+.ark-form{display:grid;grid-template-columns:1.4fr 1fr 1.4fr auto auto auto;gap:6px;align-items:center}.ark-form input{min-width:0}
+@media (max-width:1000px){.ark-form{grid-template-columns:1fr 1fr}}

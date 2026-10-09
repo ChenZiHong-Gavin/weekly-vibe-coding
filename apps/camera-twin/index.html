@@ -92,6 +92,11 @@
   <div id="help" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="panel-head"><h2>操作说明</h2><button id="help-close" class="icon-btn" aria-label="关闭">×</button></div>
+      <div class="ark-settings">
+        <h4>讲解员接口</h4>
+        <p class="muted">静态站点没有后端，讲解员由浏览器直接调用火山方舟豆包。密钥只存在你这台浏览器的本地存储里，不会上传。<a href="https://console.volcengine.com/ark" target="_blank" rel="noopener">获取 ARK_API_KEY</a></p>
+        <div class="ark-form"><input id="ark-key" type="password" placeholder="ark-xxxxxxxx" autocomplete="off"><input id="ark-model" placeholder="模型 id"><input id="ark-base" placeholder="接口地址"><button id="ark-save" class="primary">保存</button><button id="ark-clear" class="ghost">清除</button><span id="ark-saved" class="muted"></span></div>
+      </div>
       <div class="help-grid">
         <div><h4>模型上</h4><ul><li>拖动旋转，滚轮缩放</li><li>点击部件：看说明</li><li>转盘：左右拖动或滚轮</li><li>快门：按下对焦，松开拍摄</li><li>翻转屏、卡槽盖、电池盖、镜头释放钮：点击开合</li><li>开机后点击屏幕：触摸菜单</li></ul></div>
         <div><h4>键盘</h4><ul>

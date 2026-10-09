@@ -454,11 +454,43 @@ jobs:
           fi
 
       # ═══════════════════════════════════════════════════════════════
+      # camera-twin
+      # ═══════════════════════════════════════════════════════════════
+      - name: Cache camera-twin node_modules
+        id: nm-camera-twin
+        uses: actions/cache@v4
+        with:
+          path: apps/camera-twin/node_modules
+          key: camera-twin-nm-${{ hashFiles('apps/camera-twin/package-lock.json') }}
+
+      - name: Cache camera-twin dist
+        id: dist-camera-twin
+        uses: actions/cache@v4
+        with:
+          path: apps/camera-twin/dist
+          key: camera-twin-dist-${{ hashFiles('apps/camera-twin/src/**', 'apps/camera-twin/public/**', 'apps/camera-twin/index.html', 'apps/camera-twin/vite.config.*', 'apps/camera-twin/package-lock.json') }}
+
+      - name: Build camera-twin
+        if: steps.dist-camera-twin.outputs.cache-hit != 'true'
+        continue-on-error: true
+        env:
+          # Optional: a build-time Doubao key makes the guide work without the visitor entering one.
+          # It ends up in the public JS bundle, so only use a key you are willing to expose.
+          VITE_ARK_API_KEY: ${{ secrets.CAMERA_TWIN_ARK_API_KEY }}
+        run: |
+          cd apps/camera-twin
+          if [ "${{ steps.nm-camera-twin.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
+
+      # ═══════════════════════════════════════════════════════════════
       # Assemble all builds into dist/
       # ═══════════════════════════════════════════════════════════════
       - name: Assemble dist
         run: |
-          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop,sky-pilot,dino-3d,wake-up-call}
+          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop,sky-pilot,dino-3d,wake-up-call,camera-twin}
 
           # Built projects — copy dist/
           cp -r apps/dice-verse/dist/*         dist/dice-verse/        2>/dev/null || true
@@ -476,6 +508,7 @@ jobs:
           cp -r apps/real-to-ai/dist/*         dist/real-to-ai/        2>/dev/null || true
           cp -r apps/shadow-puppet/dist/*      dist/shadow-puppet/     2>/dev/null || true
           cp -r apps/mind-hop/dist/*           dist/mind-hop/          2>/dev/null || true
+          cp -r apps/camera-twin/dist/*        dist/camera-twin/       2>/dev/null || true
 
           # Static projects — copy source files
           cp apps/walk-the-dog/index.html      dist/walk-the-dog/
