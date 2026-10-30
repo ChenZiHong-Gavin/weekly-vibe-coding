@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-26%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-27%2F100-blue)
 
 [中文](./README.md) | **English**
 
@@ -103,6 +103,12 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
     - Runs locally as an independent Node.js app without model calls during exhibition playback. The retained image-reconstruction workspace requires a configured vision-model API; see the [app guide](./apps/mechanical-explainer/README.md).
 
       <img width="400" alt="Mechanism Lab radial engine exhibition" src="./docs/screenshots/mechanical-explainer.png" />
+
+28. **[Pixel Cat Diffusion](https://chenzihong-gavin.github.io/weekly-vibe-coding/pixel-cat-diffusion/)** (`apps/pixel-cat-diffusion`)
+    - Describe a cat in one English sentence and a 4M-parameter diffusion model trained from scratch draws it right in the browser (onnxruntime-web: under a second on WebGPU, a few seconds on CPU without it), no backend. The first screen is one big cat face made of a thousand-plus cats the model generated; below it the generator lets you build a prompt, tune guidance and seed, and watch the cats emerge from noise step by step. Trained on Cool Cats pixel cats, with random recolouring so colours transfer to any hat or outfit; int8 weights, about 4 MB. Layout by Codex, chosen from several mockups.
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/pixel-cat-diffusion.md)
+
+       <img width="400" alt="pixel-cat-diffusion" src="apps/pixel-cat-diffusion/docs/screenshots/demo.png" />
 
 ### Track 2: Gesture Interaction
 

@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-26%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-27%2F100-blue)
 
 **中文** | [English](./README_EN.md)
 
@@ -107,6 +107,12 @@
     - 独立 Node.js 应用，本地展台无需模型；保留单图重建工作台，生成需配置多模态模型 API。详见 [使用说明](./apps/mechanical-explainer/README.md)。
 
       <img width="400" alt="Mechanism Lab radial engine exhibition" src="./docs/screenshots/mechanical-explainer.png" />
+
+28. **[Pixel Cat Diffusion · 像素猫生成](https://chenzihong-gavin.github.io/weekly-vibe-coding/pixel-cat-diffusion/)** (`apps/pixel-cat-diffusion`)
+    - 一句英文描述一只猫，一个从零训练的 400 万参数 diffusion 模型直接在浏览器里把它画出来（onnxruntime-web，WebGPU 不到 1 秒，没有 WebGPU 时 CPU 几秒），不需要后端。首屏是由上千只模型生成的小猫拼成的一张大猫脸；往下是生成器，可以拼句子、调听话程度和种子，看猫从噪声里一步步浮现。模型在 Cool Cats 像素猫上训练，用随机换色让它学会把颜色套到任何帽子和衣服上，权重 int8 约 4 MB。布局由 Codex 出几版提案后挑一版实现。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/pixel-cat-diffusion.md)
+
+       <img width="400" alt="pixel-cat-diffusion" src="apps/pixel-cat-diffusion/docs/screenshots/demo.png" />
 
 ### 专题二：手势交互
 

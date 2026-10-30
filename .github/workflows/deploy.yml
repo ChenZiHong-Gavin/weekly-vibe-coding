@@ -490,7 +490,7 @@ jobs:
       # ═══════════════════════════════════════════════════════════════
       - name: Assemble dist
         run: |
-          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop,sky-pilot,dino-3d,wake-up-call,camera-twin}
+          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop,sky-pilot,dino-3d,wake-up-call,camera-twin,pixel-cat-diffusion}
 
           # Built projects — copy dist/
           cp -r apps/dice-verse/dist/*         dist/dice-verse/        2>/dev/null || true
@@ -519,6 +519,7 @@ jobs:
           cp apps/sky-pilot/index.html         dist/sky-pilot/
           cp apps/dino-3d/index.html dist/dino-3d/ && cp -r apps/dino-3d/models dist/dino-3d/
           cp -r apps/wake-up-call/index.html apps/wake-up-call/theme.css apps/wake-up-call/assets apps/wake-up-call/CREDITS.md dist/wake-up-call/
+          cp -r apps/pixel-cat-diffusion/index.html apps/pixel-cat-diffusion/style.css apps/pixel-cat-diffusion/app.js apps/pixel-cat-diffusion/mosaic.js apps/pixel-cat-diffusion/sampler.js apps/pixel-cat-diffusion/model apps/pixel-cat-diffusion/assets dist/pixel-cat-diffusion/
 
           # prompt-playground also serves as site root
           cp -r apps/prompt-playground/dist/*  dist/ 2>/dev/null || true

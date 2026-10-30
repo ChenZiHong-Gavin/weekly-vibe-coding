@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#f4f5ed" />
+<meta name="description" content="Pixel Cat Diffusion：用一句英文描述一只猫。由小猫组成的大猫脸，与可交互的像素猫生成器。" />
+<title>Pixel Cat Diffusion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&amp;family=Noto+Sans+SC:wght@400;500;600;700;800;900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27%23222%27 d=%27M2 2h2v2h1v1h6V4h1V2h2v12H2z%27/%3E%3Cpath fill=%27%237cc1e8%27 d=%27M3 4h1v2h8V4h1v9H3z%27/%3E%3Cpath fill=%27%23222%27 d=%27M5 8h1v2H5zM10 8h1v2h-1z%27/%3E%3C/svg%3E" />
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.webgpu.min.js"></script>
+<script src="mosaic.js" defer></script>
+<script type="module" src="app.js"></script>
+</head><body class="editorial">
+<main>
+<section class="mosaic-hero" aria-label="全屏猫猫马赛克封面">
+  <div class="mosaic-interactive">
+    <canvas class="mosaic" data-mosaic tabindex="0" role="button" aria-label="由小猫组成的大猫脸；悬停、点击或按回车放大查看"></canvas>
+    <div class="mosaic-lens" aria-hidden="true"><canvas width="24" height="24"></canvas><span>CAT 001</span></div>
+  </div>
+  <a class="hero-brand hero-backing" href="#" aria-label="Pixel Cat 首页">PIXEL CAT</a>
+  <span class="status hero-status hero-backing" id="status" role="status">正在加载模型…</span>
+  <div class="hero-caption hero-backing"><h1>SMALL CATS. BIG IDEAS.</h1><p>一只猫，由 <span data-tile-count>—</span> 只猫组成。</p></div>
+  <div class="hero-stamp" aria-label="马赛克猫猫总数"><span data-tile-count>—</span><small>CATS IN A CAT</small></div>
+  <a class="hero-scroll hero-backing" href="#generator">往下，自己造一只 <span aria-hidden="true">↓</span></a>
+</section>
+<div class="page">
+
+<div class="editor-workspace"><div class="editor-form"><section class="controls" id="generator" aria-label="控制面板">
+  <div class="prompt-field"><label class="label" for="prompt">描述（英文）</label>
+  <textarea id="prompt" rows="3" spellcheck="false">a cat with a happy face, wearing a blue beret</textarea></div>
+  <div class="tokens" id="tokens" aria-label="识别到的词语" aria-live="polite"></div>
+  <p class="token-note" id="tokenNote" hidden>模型不认识划掉的词，会忽略它们</p>
+  <div class="examples"><span class="example-label">示例</span><button type="button" data-example="0">蓝色贝雷帽</button><button type="button" data-example="1">粉色爆炸头</button><button type="button" data-example="6">a pixel cat</button></div>
+  <details class="builder" open><summary>帮我拼一句<span class="summary-plus" aria-hidden="true">−</span></summary>
+    <div class="builder-body"><div class="builder-row"><label for="face">脸</label><select id="face"></select></div>
+    <div class="builder-row"><label for="hat">帽子</label><select id="hat"></select><select id="hatColour" aria-label="帽子颜色"></select></div>
+    <div class="builder-row"><label for="clothes">衣服</label><select id="clothes"></select><select id="clothesColour" aria-label="衣服颜色"></select></div>
+    <button class="randomise" id="randomise" type="button"><span aria-hidden="true">↻</span> 随机组合</button></div>
+  </details>
+  <div class="settings"><div class="setting"><span class="label" id="countLabel">数量</span><div class="seg" id="count" role="group" aria-labelledby="countLabel"><button type="button" data-v="4" aria-pressed="false">4</button><button type="button" data-v="9" class="on" aria-pressed="true">9</button><button type="button" data-v="16" aria-pressed="false">16</button></div></div>
+  <div class="setting"><span class="label" id="stepsLabel">步数</span><div class="seg" id="steps" role="group" aria-labelledby="stepsLabel"><button type="button" data-v="15" class="on" aria-pressed="true">15</button><button type="button" data-v="25" aria-pressed="false">25</button><button type="button" data-v="50" aria-pressed="false">50</button></div></div>
+  <div class="setting guidance-setting"><label class="label" for="guidance">听话程度<output id="guidanceOut" for="guidance">4</output></label><input type="range" id="guidance" min="1" max="7" step="0.5" value="4" /></div>
+  <div class="setting seed-setting"><label class="label" for="seed">种子</label><div class="seed-field"><input type="number" id="seed" value="7" min="0" max="2147483647" /><button id="newSeed" type="button" aria-label="换一个种子" title="换一个种子">↻</button></div></div></div>
+  <button class="generate" id="go" type="button" disabled><span id="goLabel">生成</span><span aria-hidden="true">↗</span></button>
+</section></div><div class="contact-sheet"><section class="results" id="collection" aria-label="生成结果">
+  <div class="stage-head"><div class="progress" id="progress" role="progressbar" aria-label="生成进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="bar" style="width:100%"></div></div><span id="stepText" role="status">示例作品 · 已就绪</span></div>
+  <div class="cat-grid" id="grid"></div>
+  <div class="stage-foot"><span>点一只猫下载 PNG</span><button class="save-all" id="saveAll" type="button" disabled>下载整张 <span aria-hidden="true">↓</span></button></div>
+</section></div></div></div></main><div id="toast" class="toast" role="status" aria-live="polite"></div></body></html>
