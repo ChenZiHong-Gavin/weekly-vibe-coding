@@ -25,6 +25,7 @@ import mindHopPromptRaw from "@prompts/mind-hop.md?raw";
 import skyPilotPromptRaw from "@prompts/sky-pilot.md?raw";
 import dino3dPromptRaw from "@prompts/dino-3d.md?raw";
 import wakeUpCallPromptRaw from "@prompts/wake-up-call.md?raw";
+import wireScorePromptRaw from "@prompts/wire-score.md?raw";
 
 export const categories = [
   {
@@ -287,6 +288,20 @@ export const categories = [
         status: "live" as const,
         colorClass: "icon-orange",
         prompt: walkTheDogPromptRaw,
+      },
+    ],
+  },
+  {
+    title: "专题十一：把一件事当成另一件事",
+    apps: [
+      {
+        title: "Wire Score · 電線譜",
+        description: "电线当五线谱，鸟是音符，古琴在下面。五根线即宫商角徵羽，一道风扫过，鸟跳一下、琴拨一声；弹过的鸟飞走，新的鸟落在风身后，每一轮都是新曲子。新中式水墨绘本风格，笔触与纸纹全部程序生成，古琴与鸟鸣全部合成。",
+        icon: "🐦",
+        url: "https://chenzihong-gavin.github.io/weekly-vibe-coding/wire-score/",
+        status: "live" as const,
+        colorClass: "icon-orange",
+        prompt: wireScorePromptRaw,
       },
     ],
   },
