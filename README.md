@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-27%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-28%2F100-blue)
 
 **中文** | [English](./README_EN.md)
 
@@ -24,6 +24,7 @@
     - [专题八：抽象排序算法](#专题八抽象排序算法)
     - [专题九：假装是真的](#专题九假装是真的)
     - [专题十：数字孪生](#专题十数字孪生)
+    - [专题十一：把一件事当成另一件事](#专题十一把一件事当成另一件事)
   - [如何运行](#如何运行)
   - [贡献](#贡献)
   - [License](#license)
@@ -229,6 +230,13 @@
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/camera-twin.md)
 
        <img width="400" alt="camera-twin" src="apps/camera-twin/docs/screenshots/demo.gif" />
+
+### 专题十一：把一件事当成另一件事
+29. **[Wire Score · 電線譜](https://chenzihong-gavin.github.io/weekly-vibe-coding/wire-score/)** (`apps/wire-score`)
+    - 电线当五线谱。画面上方是夕阳和两根电线杆，五根电线从下到上是宫商角徵羽，停在线上的小鸟就是音符，横向位置就是时间；一道风从左到右扫过电线，扫到的鸟跳一下、叫一声，画面下方的古琴就拨出那个音，一轮循环。弹过的鸟自己飞走，风还没扫到的地方鸟又陆续落回来，落点按动机作曲，每一轮都是一首新曲子；没有按钮和说明，点电线落鸟、点鸟惊飞、拨弦喚鸟都靠自己发现。新中式水墨绘本风格，致敬 80 年代上美影：先让 Codex 出四张风格稿再挑一张，笔触、纸纹全部程序生成；古琴拨弦、鸟鸣、风声全部 Web Audio 合成。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/wire-score.md)
+
+       <img width="400" alt="wire-score" src="apps/wire-score/docs/screenshots/wire-score.png" />
 
 ## 如何运行
 

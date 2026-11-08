@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-27%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-28%2F100-blue)
 
 [中文](./README.md) | **English**
 
@@ -223,6 +223,13 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/camera-twin.md)
 
        <img width="400" alt="camera-twin" src="apps/camera-twin/docs/screenshots/demo.gif" />
+
+### Topic 11: One Thing as Another
+29. **[Wire Score](https://chenzihong-gavin.github.io/weekly-vibe-coding/wire-score/)** (`apps/wire-score`)
+    - Power lines as a musical staff. A sunset and two poles up top; the five wires are the Chinese pentatonic gong-shang-jue-zhi-yu (C D E G A) from bottom to top, and birds perched on them are the notes, their horizontal position the time. A gust sweeps left to right; each bird it reaches hops, chirps, and the guqin at the bottom plucks its note, looping. Birds that have been played fly off on their own, and new ones keep landing ahead of the gust, composed stepwise from the last one, so every pass is a new tune. No buttons, no instructions: clicking a wire lands a bird, clicking a bird scares it off, plucking the guqin calls one. New Chinese ink-wash picture-book style after 1980s Shanghai Animation Film Studio: Codex drafted four style frames, one was picked, and every brush stroke and paper grain is generated procedurally; the plucked guqin, birdsong and wind are all synthesized with Web Audio.
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/wire-score.md)
+
+       <img width="400" alt="wire-score" src="apps/wire-score/docs/screenshots/wire-score.png" />
 
 ## How to Run
 
