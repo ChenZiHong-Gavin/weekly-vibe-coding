@@ -163,6 +163,10 @@ jobs:
       - name: Build hairline-tracker
         if: steps.dist-hairline-tracker.outputs.cache-hit != 'true'
         continue-on-error: true
+        env:
+          # onnxruntime-node's postinstall downloads CUDA binaries from a GitHub release that now 404s;
+          # the web build never uses CUDA, so skip it.
+          ONNXRUNTIME_NODE_INSTALL_CUDA: skip
         run: |
           cd apps/hairline-tracker
           if [ "${{ steps.nm-hairline-tracker.outputs.cache-hit }}" = "true" ]; then
