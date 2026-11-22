@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-28%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-29%2F100-blue)
 
 [中文](./README.md) | **English**
 
@@ -225,6 +225,12 @@ Follow my WeChat official account: 【无所事事的执念】for coding insight
        <img width="400" alt="camera-twin" src="apps/camera-twin/docs/screenshots/demo.gif" />
 
 ### Topic 11: One Thing as Another
+27. **[Memory Kitchen](https://chenzihong-gavin.github.io/weekly-vibe-coding/memory-kitchen/)** (`apps/memory-kitchen`)
+    - Photos are ingredients, and cooking comes in two stages. The page is a kitchen table seen from above: on the cutting board you slice, dice, shred, mash, roll, marinate, salt or dry a photo, and each move is baked into the picture for good, so the order matters; drag one photo onto another to toss them together. Prepared photos go into the pot in the shape they were cut into, and the pot cooks step by step (sear, stir-fry, stew, steam, reduce), each step acting only on what is in the pot at that moment, so a late ingredient misses the earlier steps. Serving gathers the pieces into a photo of a moment that never happened on a white plate, and a dish can go back into the pot whole. Composites offline in the browser by default, with image-to-image API slots; the pot and visuals designed by Codex.
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/memory-kitchen.md)
+
+       <img width="400" alt="memory-kitchen" src="apps/memory-kitchen/docs/screenshots/02-served.png" />
+
 29. **[Wire Score](https://chenzihong-gavin.github.io/weekly-vibe-coding/wire-score/)** (`apps/wire-score`)
     - Power lines as a musical staff. A sunset and two poles up top; the five wires are the Chinese pentatonic gong-shang-jue-zhi-yu (C D E G A) from bottom to top, and birds perched on them are the notes, their horizontal position the time. A gust sweeps left to right; each bird it reaches hops, chirps, and the guqin at the bottom plucks its note, looping. Birds that have been played fly off on their own, and new ones keep landing ahead of the gust, composed stepwise from the last one, so every pass is a new tune. No buttons, no instructions: clicking a wire lands a bird, clicking a bird scares it off, plucking the guqin calls one. New Chinese ink-wash picture-book style after 1980s Shanghai Animation Film Studio: Codex drafted four style frames, one was picked, and every brush stroke and paper grain is generated procedurally; the plucked guqin, birdsong and wind are all synthesized with Web Audio.
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/wire-score.md)

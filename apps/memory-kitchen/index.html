@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>记忆厨房 · Memory Kitchen</title>
+    <meta name="description" content="把照片当作食材，用烹饪的方式把几段记忆做成一段全新的记忆。" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <main class="table" id="table" aria-label="记忆厨房，一张灶台">
+      <header class="masthead">
+        <div class="brand">
+          <h1>记忆厨房</h1>
+          <span class="brand__sub">把照片摊开，像在家里做一顿饭。</span>
+        </div>
+        <div class="masthead__actions">
+          <button type="button" class="btn btn--ghost" id="btn-samples">放几张示例照片</button>
+          <button type="button" class="btn btn--ghost" id="btn-settings" aria-haspopup="dialog">灶台设置</button>
+        </div>
+        <div class="masthead__notes" aria-hidden="true">
+          <span>一日三餐 · 记忆手帖</span>
+          <span>晚一些也没关系，厨房还亮着灯。</span>
+        </div>
+      </header>
+
+      <!-- Left: the board. Photos are ingredients; they are cut, mashed, marinated… here, then dragged into the pot. -->
+      <section class="board" id="board-zone" aria-labelledby="board-title">
+        <label class="upload" id="dropzone" for="file-input">
+          <input type="file" class="visually-hidden" id="file-input" accept="image/*" multiple />
+          <span class="upload__text">＋ 挑照片 / 拖到案板上</span>
+          <small class="upload__hint" id="board-count">案板上 0 / 8 样</small>
+        </label>
+        <p class="board__gesture" id="board-hint" aria-live="polite"></p>
+        <h2 id="board-title" class="visually-hidden">案板</h2>
+        <ul class="photos" id="photos" aria-live="polite"></ul>
+        <p class="board__empty" id="board-empty" hidden></p>
+        <template id="tpl-photo">
+          <li class="photo" draggable="true" tabindex="0">
+            <img class="photo__img" alt="" />
+            <span class="photo__name"></span>
+            <small class="photo__steps"></small>
+            <small class="photo__meta"></small>
+            <button type="button" class="photo__remove" data-act="remove" aria-label="丢掉">×</button>
+          </li>
+        </template>
+        <!-- The selected photo: name, flavour, the tools that work it (in order, for good) and its amount. -->
+        <aside class="selected" id="selected" aria-label="当前选中的照片">
+          <p class="selected__row">
+            <span>这一味：</span>
+            <input class="selected__name" id="edit-name" type="text" aria-label="名字" placeholder="还没挑照片" maxlength="24" />
+          </p>
+          <p class="selected__row">
+            <span>味道：</span>
+            <input class="selected__flavor" id="edit-flavor" type="text" aria-label="味道" placeholder="写一个词" maxlength="12" />
+          </p>
+          <p class="selected__steps" id="steps-now"></p>
+          <div class="tools" id="preps" role="group" aria-label="案板上的处理（按顺序做在照片上，做了就回不去）"></div>
+          <button type="button" class="btn btn--ghost selected__mix" id="btn-mix">拌在一起…</button>
+          <button type="button" class="btn selected__to-pot" id="btn-to-pot">下锅 →</button>
+          <div class="amounts" id="amounts" role="radiogroup" aria-label="用量"></div>
+        </aside>
+      </section>
+
+      <!-- Centre: the pot. Board ingredients are dragged in; pot steps act on what is in it, in order. -->
+      <section class="stove" id="stove" aria-labelledby="stove-title">
+        <h2 id="stove-title" class="visually-hidden">锅</h2>
+        <p class="stove__steps" id="pot-steps" aria-live="polite"></p>
+        <div class="burner-slot">
+          <div class="burner">
+            <div class="burner__grate" aria-hidden="true"></div>
+            <div class="wok" id="pot" data-stage="idle">
+              <canvas class="wok__canvas" id="wok-canvas" width="640" height="640" aria-hidden="true"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="wok__status" id="pot-status" role="status"></div>
+        <div class="heat" id="heats" role="radiogroup" aria-label="下一步的火候（火苗越多火越大）"></div>
+        <div class="methods" id="methods" role="group" aria-label="锅里的处理（对锅里现有的食材，按顺序，做了就回不去）"></div>
+        <div class="stove__actions">
+          <button type="button" class="btn btn--primary btn--big" id="btn-cook" disabled>出锅</button>
+          <button type="button" class="btn btn--ghost" id="btn-cancel" hidden>熄火</button>
+        </div>
+        <span class="stove__provider" id="stove-provider"></span>
+      </section>
+
+      <!-- Right: the plate with the dish just served, and the way back into the pot. -->
+      <section class="serve" id="serve" aria-labelledby="plate-title">
+        <p class="plate-lead" id="plate-lead"></p>
+        <h2 class="plate-title" id="plate-title"></h2>
+        <div class="plate-slot">
+        <div class="place-setting">
+                    <figure class="plate" id="plate">
+            <img class="plate__img" id="plate-img" alt="" hidden />
+          </figure>
+        </div>
+        </div>
+        <p class="plate-recipe" id="plate-recipe"></p>
+        <details class="plate-notes" id="plate-notes" hidden>
+          <summary>烹饪笔记</summary>
+          <pre id="plate-prompt"></pre>
+        </details>
+        <div class="plate-actions" id="plate-actions" hidden>
+          <button type="button" class="btn" data-act="download">收好这道菜 · 保存</button>
+          <div class="return-tag">
+            <button type="button" class="btn btn--primary" data-act="pantry">↶ 放回锅里，继续煮</button>
+            
+          </div>
+          <button type="button" class="btn btn--ghost" data-act="remove" aria-label="倒掉">×</button>
+        </div>
+      </section>
+    </main>
+
+
+    <dialog class="dialog" id="settings-dialog" aria-labelledby="settings-title">
+      <form method="dialog" class="dialog__form" id="settings-form">
+        <h2 id="settings-title">灶台设置</h2>
+        <p class="dialog__hint">默认在本机用画布合成，不联网。接上一个生图接口后，开火会把照片和烹饪笔记一起发过去，用真正的图生图做出新记忆。密钥只存在这个浏览器里。</p>
+        <label class="field">
+          <span>生图接口</span>
+          <select name="provider" id="provider"></select>
+        </label>
+        <label class="field" data-remote>
+          <span>接口地址</span>
+          <input name="baseUrl" type="url" placeholder="https://…" autocomplete="off" />
+        </label>
+        <label class="field" data-remote>
+          <span>API Key</span>
+          <input name="apiKey" type="password" autocomplete="off" />
+        </label>
+        <label class="field" data-remote>
+          <span>模型</span>
+          <input name="model" type="text" autocomplete="off" />
+        </label>
+        <label class="field" data-remote>
+          <span>尺寸</span>
+          <input name="size" type="text" placeholder="1024x1024" autocomplete="off" />
+        </label>
+        <p class="dialog__note" id="provider-note"></p>
+        <div class="dialog__actions">
+          <button type="button" class="btn btn--ghost" id="btn-settings-cancel">取消</button>
+          <button type="submit" class="btn btn--primary">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

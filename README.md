@@ -1,6 +1,6 @@
 # weekly-vibe-coding
 
-![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-28%2F100-blue)
+![Project Status: Active](https://img.shields.io/badge/status-active-success.svg) ![Progress](https://img.shields.io/badge/Ideas-29%2F100-blue)
 
 **中文** | [English](./README_EN.md)
 
@@ -232,6 +232,12 @@
        <img width="400" alt="camera-twin" src="apps/camera-twin/docs/screenshots/demo.gif" />
 
 ### 专题十一：把一件事当成另一件事
+27. **[Memory Kitchen · 记忆厨房](https://chenzihong-gavin.github.io/weekly-vibe-coding/memory-kitchen/)** (`apps/memory-kitchen`)
+    - 照片是食材，做菜分两段。整页是一张俯视的灶台：先在案板上用切片、切丁、擦丝、捣碎、擀平、腌制、撒盐、晾干处理照片，每一下都真的做进照片、回不去，先后顺序不同结果也不同；把一张拖到另一张上就拌在一起。处理好的照片按切好的形状下锅，锅里一步步煎、炒、炖、蒸、收汁，每一步只作用在此刻锅里的食材上，后下的赶不上前面的步骤。出锅时碎块聚成一张从未发生过的新照片端上瓷盘，也能整张放回锅里继续煮。默认在浏览器里离线合成，也预留了图生图接口；锅和视觉由 Codex 设计。
+    - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/memory-kitchen.md)
+
+       <img width="400" alt="memory-kitchen" src="apps/memory-kitchen/docs/screenshots/02-served.png" />
+
 29. **[Wire Score · 電線譜](https://chenzihong-gavin.github.io/weekly-vibe-coding/wire-score/)** (`apps/wire-score`)
     - 电线当五线谱。画面上方是夕阳和两根电线杆，五根电线从下到上是宫商角徵羽，停在线上的小鸟就是音符，横向位置就是时间；一道风从左到右扫过电线，扫到的鸟跳一下、叫一声，画面下方的古琴就拨出那个音，一轮循环。弹过的鸟自己飞走，风还没扫到的地方鸟又陆续落回来，落点按动机作曲，每一轮都是一首新曲子；没有按钮和说明，点电线落鸟、点鸟惊飞、拨弦喚鸟都靠自己发现。新中式水墨绘本风格，致敬 80 年代上美影：先让 Codex 出四张风格稿再挑一张，笔触、纸纹全部程序生成；古琴拨弦、鸟鸣、风声全部 Web Audio 合成。
     - [Prompt](https://github.com/ChenZiHong-Gavin/weekly-vibe-coding/blob/main/prompts/wire-score.md)

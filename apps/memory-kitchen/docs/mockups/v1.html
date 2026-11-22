@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>记忆厨房 · 01 围着一口锅</title>
+  <style>
+    :root { --paper:#f5f0e5; --ink:#383c32; --muted:#777363; --sage:#657054; --red:#a5432e; --line:#d7cfbc; --serif:"Songti SC","STSong","SimSun",serif; --hand:"Kaiti SC","STKaiti","KaiTi",serif; }
+    * { box-sizing:border-box; } body { margin:0; min-width:1440px; background:#e8e2d5; color:var(--ink); font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; }
+    h1,h2,p,figure { margin:0; } button { font:inherit; color:inherit; cursor:default; } button:focus-visible { outline:2px solid var(--red); outline-offset:4px; } img { display:block; object-fit:cover; } svg { display:block; }
+    .page { width:1440px; height:1000px; margin:auto; position:relative; overflow:hidden; background:radial-gradient(ellipse at 50% 47%,#fffaf0 0,transparent 58%),repeating-linear-gradient(0deg,#8e7f5f03 0 1px,transparent 1px 4px),var(--paper); }
+    .version { position:absolute; inset:0 44px auto; height:34px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; font-size:10px; letter-spacing:.1em; color:var(--muted); }
+    .version b { color:var(--red); font-weight:500; margin-right:14px; } .version span:last-child { font-family:monospace; font-size:9px; }
+    header { position:absolute; top:59px; left:64px; right:64px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:20px; } h1 { font:500 41px/1.25 var(--serif); letter-spacing:.16em; } .seal { border:1px solid var(--red); outline:1px solid var(--red); outline-offset:3px; padding:3px 5px; color:var(--red); font:12px/1.4 var(--serif); transform:rotate(-7deg); }
+    .settings { display:flex; align-items:center; gap:8px; padding:8px 0; border:0; background:transparent; color:var(--muted); font-size:12px; } .settings svg { width:17px; height:17px; }
+    .intro { position:absolute; top:156px; left:440px; width:560px; text-align:center; } .eyebrow { color:var(--sage); font:10px/1.5 monospace; letter-spacing:.16em; } h2 { margin-top:9px; font:500 32px/1.5 var(--serif); letter-spacing:.12em; } .intro p { margin-top:9px; color:var(--muted); font:17px/1.6 var(--hand); }
+    .orbit { position:absolute; background:#fffaf0; padding:8px 8px 30px; border:1px solid #d7cebc; box-shadow:3px 9px 16px #49382419; } .orbit::before { content:""; position:absolute; z-index:2; top:-8px; left:38%; width:64px; height:18px; background:#b1ad8466; transform:rotate(5deg); } .orbit img { width:100%; height:130px; filter:saturate(.8); } .orbit figcaption { padding-top:9px; font:17px/1.3 var(--hand); } .orbit small { color:var(--muted); font:10px/1.4 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; }
+    .photo-a { left:167px; top:267px; width:193px; transform:rotate(-9deg); } .photo-b { left:1081px; top:245px; width:183px; transform:rotate(9deg); } .photo-b img { object-position:70% center; } .photo-c { left:1070px; top:493px; width:169px; transform:rotate(-6deg); } .photo-c img { height:108px; }
+    .ingredient-note { position:absolute; top:507px; left:122px; width:283px; transform:rotate(-3deg); } .note-label { color:var(--sage); font:14px var(--hand); } .ingredient-note .name { margin-top:9px; padding-bottom:6px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:15px; font:19px var(--serif); } .rename { color:var(--muted); border:0; padding:0; background:transparent; font:10px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; } .flavor { margin:8px 0; font:15px var(--hand); color:var(--muted); }
+    .choices { display:flex; align-items:center; gap:16px; } .choices button { padding:2px 0; border:0; background:transparent; font-size:11px; color:var(--muted); } .choices .selected { color:var(--red); border-bottom:1px solid var(--red); } .choices + .choices { margin-top:5px; }
+    .add { position:absolute; left:382px; top:359px; width:63px; height:63px; border:1px dashed #9b9e85; border-radius:50%; background:transparent; color:var(--sage); font-size:27px; font-weight:200; } .add-label { position:absolute; top:435px; left:363px; color:var(--muted); font-size:10px; text-align:center; }
+    .arrow-in { position:absolute; top:306px; left:355px; width:154px; height:80px; color:#9b9e85; } .annotation { position:absolute; left:969px; top:467px; color:var(--sage); font:17px/1.6 var(--hand); transform:rotate(4deg); } .annotation small { display:block; font-size:13px; }
+    .pot { position:absolute; left:425px; top:287px; width:590px; height:348px; } .steam { position:absolute; left:638px; top:255px; width:160px; height:111px; opacity:.6; color:#a99f87; } .status { position:absolute; left:490px; top:621px; width:460px; text-align:center; color:var(--sage); font:16px var(--hand); } .status i { display:inline-block; width:6px; height:6px; margin:0 8px 2px 0; border-radius:50%; background:var(--red); }
+    .progress { width:170px; height:2px; background:#d9d2c1; margin:11px auto 0; } .progress span { display:block; width:62%; height:2px; background:var(--red); }
+    .dish-name { position:absolute; left:494px; top:671px; width:452px; display:flex; justify-content:center; align-items:center; gap:14px; font:17px var(--hand); } .dish-name span { color:var(--muted); font:10px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; }
+    .controls { position:absolute; top:716px; left:422px; width:596px; padding:16px 0 0; border-top:1px solid var(--line); display:flex; justify-content:space-between; } .dial-block { width:266px; display:flex; align-items:center; gap:16px; } .dial { width:57px; height:57px; flex-shrink:0; border-radius:50%; border:1px solid #b2a58b; background:linear-gradient(140deg,#ece5d5,#d0c4ab); box-shadow:inset 0 0 0 5px #eae2d1,1px 3px 5px #483b281c; position:relative; } .dial::before { content:""; position:absolute; width:3px; height:19px; left:26px; top:7px; background:var(--red); transform-origin:50% 21px; transform:rotate(-42deg); border-radius:2px; } .heat-dial::before { transform:rotate(-60deg); } .dial-title { color:var(--muted); font-size:10px; margin-bottom:6px; letter-spacing:.1em; } .dial-block .choices { gap:12px; } .dial-block .choices button { font:15px var(--serif); }
+    .cook-switch { position:absolute; top:735px; left:1082px; width:155px; height:47px; border:1px solid #b5ad9b; border-radius:4px; background:#e8e2d6; color:#7c7d68; font:17px var(--serif); letter-spacing:.07em; white-space:nowrap; box-shadow:inset 0 1px #fff9,0 3px 0 #cfc5b1; } .cook-switch:disabled { opacity:1; } .cook-caption { position:absolute; top:794px; left:1070px; width:180px; text-align:center; color:var(--muted); font-size:10px; }
+    .shelf { position:absolute; left:64px; right:64px; top:850px; height:110px; border-top:1px solid var(--line); display:flex; align-items:center; gap:26px; } .shelf-label { width:116px; align-self:flex-start; padding-top:24px; } .shelf-label strong { font:18px var(--serif); } .shelf-label small { display:block; margin-top:6px; color:var(--muted); font:10px monospace; }
+    .little-plate { width:78px; height:78px; padding:9px; border-radius:50%; background:#fffdf6; border:1px solid #cfc5b2; box-shadow:inset 0 0 0 4px #fbf7ed,inset 0 0 0 5px #e3dccc,2px 4px 5px #49382418; } .little-plate img { width:100%; height:100%; border-radius:50%; } .history-copy { width:192px; } .history-copy strong { display:block; font:17px var(--serif); } .history-copy small { color:var(--muted); font-size:10px; } .shelf-actions { display:flex; align-items:center; gap:17px; } .shelf-actions button { border:0; background:transparent; padding:4px 0; color:var(--muted); font-size:11px; } .shelf-actions .return { color:var(--red); border-bottom:1px solid #a5432e55; } .again { margin-left:16px; } .shelf-quote { margin-left:auto; font:20px/1.7 var(--hand); color:var(--sage); transform:rotate(-3deg); }
+    .colophon { position:absolute; top:974px; left:64px; right:64px; display:flex; justify-content:space-between; color:var(--muted); font:9px monospace; letter-spacing:.13em; }
+  </style>
+</head>
+<body>
+  <main class="page" aria-label="记忆厨房，居中大锅静态示意">
+    <div class="version"><span><b>V1 · 围着一口锅</b>以锅为圆心，照片、旋钮和旧菜都在伸手可及的地方。</span><span>STATIC STUDY / 1440 × 1000</span></div>
+    <header>
+      <div class="brand"><h1>记忆厨房</h1><span class="seal">慢慢<br>做饭</span></div>
+      <button type="button" class="settings" aria-label="灶台设置，生图接口"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 3v18M12 3v18M18 3v18M3 8h6m0 8h6m0-9h6"/><circle cx="6" cy="8" r="2" fill="#f5f0e5"/><circle cx="12" cy="16" r="2" fill="#f5f0e5"/><circle cx="18" cy="7" r="2" fill="#f5f0e5"/></svg>灶台设置</button>
+    </header>
+    <section class="intro" aria-label="当前烹饪">
+      <div class="eyebrow">TONIGHT'S RECIPE · 第 004 锅</div><h2>把午后，慢慢煮暖。</h2><p>照片是食材，想念是那一点火。</p>
+    </section>
+    <figure class="orbit photo-a"><img src="assets/backlit.jpg" alt="窗边，一位长辈为孩子整理头巾"><figcaption>窗边的午后<br><small>切片 · 适量 · 味道：牵挂</small></figcaption></figure>
+    <figure class="orbit photo-b"><img src="assets/kid.jpg" alt="戴着彩色围巾，露出笑容的孩子"><figcaption>第一口笑<br><small>捣碎 · 少许 · 味道：甜</small></figcaption></figure>
+    <figure class="orbit photo-c"><img src="assets/lowkey.jpg" alt="昏暗房间里，被一束光照亮的孩子"><figcaption>那束光<br><small>腌制 · 大量 · 味道：安静</small></figcaption></figure>
+    <button type="button" class="add" aria-label="点选或拖入照片，可多选，最多五张">＋</button><p class="add-label">拖进锅里，或点选照片<br>本锅 3 / 5 张 · 可多选</p>
+    <svg class="arrow-in" viewBox="0 0 154 80" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M3 7c58-22 85 6 143 59" stroke-dasharray="4 5"/><path d="m133 63 13 4-2-13"/></svg>
+    <aside class="ingredient-note" aria-label="选中食材的处理方式">
+      <div class="note-label">这一味，留一点牵挂。↗</div><div class="name">窗边的午后 <button type="button" class="rename">改名 ↗</button></div><div class="flavor">味道：牵挂 <button type="button" class="rename">写一个词</button></div>
+      <div class="choices" aria-label="处理方式"><button type="button" class="selected" aria-pressed="true">切片</button><button type="button" aria-pressed="false">捣碎</button><button type="button" aria-pressed="false">腌制</button></div>
+      <div class="choices" aria-label="用量"><button type="button" aria-pressed="false">少许</button><button type="button" class="selected" aria-pressed="true">适量</button><button type="button" aria-pressed="false">大量</button></div>
+    </aside>
+    <svg class="pot" viewBox="0 0 660 390" role="img" aria-label="铸铁锅里，三张照片浸在金色汤汁里，炉火正在煮着记忆">
+      <defs>
+        <linearGradient id="iron" x2="0" y2="1"><stop stop-color="#535644"/><stop offset="1" stop-color="#272d25"/></linearGradient>
+        <radialGradient id="broth"><stop stop-color="#ba8b50"/><stop offset="1" stop-color="#685335"/></radialGradient>
+        <radialGradient id="glow"><stop stop-color="#d67d3e" stop-opacity=".42"/><stop offset="1" stop-color="#d67d3e" stop-opacity="0"/></radialGradient>
+        <clipPath id="soup"><ellipse cx="330" cy="153" rx="213" ry="91"/></clipPath>
+      </defs>
+      <ellipse cx="330" cy="311" rx="272" ry="73" fill="url(#glow)"/><ellipse cx="330" cy="330" rx="180" ry="21" fill="#4a3c2924"/>
+      <path d="M183 333q147-50 294 0M206 347l24-18m200 0 24 18" fill="none" stroke="#393e32" stroke-width="11"/>
+      <g fill="#cc7940"><path d="M254 324c-22-24 11-23 7-45 25 26 28 32 13 47Z"/><path d="M312 330c-24-33 15-25 13-54 23 26 32 39 11 56Z"/><path d="M377 326c-15-24 12-26 13-47 22 27 23 39 7 48Z"/></g>
+      <ellipse cx="89" cy="170" rx="42" ry="21" fill="#33392c" stroke="#96916b" stroke-width="3"/><ellipse cx="89" cy="170" rx="27" ry="10" fill="#eee8dc"/>
+      <ellipse cx="571" cy="170" rx="42" ry="21" fill="#33392c" stroke="#96916b" stroke-width="3"/><ellipse cx="571" cy="170" rx="27" ry="10" fill="#eee8dc"/>
+      <path d="M104 154c2 105 36 159 226 166s224-65 226-166Z" fill="url(#iron)" stroke="#272f25" stroke-width="3"/>
+      <path d="M128 210c28 80 356 106 406-3" fill="none" stroke="#8d8b6380" stroke-width="1.5"/>
+      <ellipse cx="330" cy="151" rx="232" ry="109" fill="#30392d" stroke="#96966f" stroke-width="4"/>
+      <ellipse cx="330" cy="153" rx="219" ry="96" fill="url(#broth)" stroke="#bcaa7e" stroke-width="2"/>
+      <g clip-path="url(#soup)">
+        <image href="assets/backlit.jpg" x="106" y="67" width="229" height="155" preserveAspectRatio="xMidYMid slice" transform="rotate(-12 220 145)"/>
+        <image href="assets/kid.jpg" x="319" y="69" width="211" height="153" preserveAspectRatio="xMaxYMid slice" transform="rotate(13 420 145)"/>
+        <image href="assets/lowkey.jpg" x="237" y="158" width="175" height="101" preserveAspectRatio="xMidYMid slice" transform="rotate(-8 325 205)"/>
+        <ellipse cx="330" cy="162" rx="223" ry="96" fill="#b3945633"/>
+        <g fill="#f7dc9d33" stroke="#f8dfa370" stroke-width="1.2"><circle cx="174" cy="142" r="11"/><circle cx="200" cy="196" r="7"/><circle cx="305" cy="100" r="5"/><circle cx="371" cy="126" r="8"/><circle cx="460" cy="198" r="12"/><circle cx="493" cy="147" r="6"/><circle cx="285" cy="222" r="4"/></g>
+        <path d="M138 180q34 15 58 1m238-64q34 15 61-3m-221 96q47 13 74-5" fill="none" stroke="#e9d1a275" stroke-width="2" stroke-linecap="round"/>
+      </g>
+      <path d="M113 173c36 109 405 115 434-1" fill="none" stroke="#b5ad7f" stroke-width="3"/>
+      <text x="330" y="294" fill="#b5ad7f" font-size="11" text-anchor="middle" letter-spacing="8" font-family="serif">记 忆 厨 房</text>
+    </svg>
+    <svg class="steam" viewBox="0 0 160 111" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><path d="M31 104C1 69 66 58 39 16M78 99c-23-29 31-47 9-84M123 99c-19-23 33-37 15-67"/></svg>
+    <p class="annotation">三段日子，<br>慢慢熬暖。<small>文火，别着急。</small></p>
+    <div class="status"><i></i>烹饪中 · 让想念再咕嘟一会儿<div class="progress" aria-label="烹饪进度 62%"><span></span></div></div>
+    <div class="dish-name"><span>这道菜叫</span>把午后煮暖 <button type="button" class="rename">改菜名 ↗</button></div>
+    <section class="controls" aria-label="锅下的烹饪旋钮">
+      <div class="dial-block"><div class="dial" aria-hidden="true"></div><div><div class="dial-title">做法 / 小火慢熬</div><div class="choices"><button type="button" class="selected" aria-pressed="true">炖</button><button type="button" aria-pressed="false">炒</button><button type="button" aria-pressed="false">蒸</button><button type="button" aria-pressed="false">烤</button><button type="button" aria-pressed="false">生拌</button></div></div></div>
+      <div class="dial-block"><div class="dial heat-dial" aria-hidden="true"></div><div><div class="dial-title">火候 / 不急不慢</div><div class="choices"><button type="button" class="selected" aria-pressed="true">文火</button><button type="button" aria-pressed="false">中火</button><button type="button" aria-pressed="false">大火</button></div></div></div>
+    </section>
+    <button type="button" class="cook-switch" disabled aria-label="开火后，当前正在烹饪">已开火 · 炖着</button><p class="cook-caption">备料 → 下锅 → <b>烹饪</b> → 出锅</p>
+    <section class="shelf" aria-label="做过的菜，可保存或放回锅里">
+      <div class="shelf-label"><strong>留一口回味</strong><small>01 DISH / 回看</small></div><figure class="little-plate"><img src="assets/dish.jpg" alt="上次出锅的成菜，多张人物照片交融成一段新记忆"></figure>
+      <div class="history-copy"><strong>把旧日子煮暖</strong><small>上一锅 · 炖 / 文火 / 三味</small></div>
+      <div class="shelf-actions"><button type="button">保存图片 ↓</button><button type="button" class="return">↶ 放回锅里，继续煮</button><button type="button" class="again">再来一锅 ＋</button></div><p class="shelf-quote">有些日子，值得再回味一次。</p>
+    </section>
+    <footer class="colophon"><span>一日三餐 · 记忆手帖</span><span>MEMORY KITCHEN / MADE WITH MEMORIES</span></footer>
+  </main>
+</body>
+</html>

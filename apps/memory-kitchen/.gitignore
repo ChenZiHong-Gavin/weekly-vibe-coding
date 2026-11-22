@@ -1,0 +1,5 @@
+node_modules
+dist
+.env
+# Demo videos are recorded locally (npm run video), not kept in git
+docs/video/

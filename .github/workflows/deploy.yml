@@ -486,11 +486,39 @@ jobs:
           fi
 
       # ═══════════════════════════════════════════════════════════════
+      # memory-kitchen
+      # ═══════════════════════════════════════════════════════════════
+      - name: Cache memory-kitchen node_modules
+        id: nm-memory-kitchen
+        uses: actions/cache@v4
+        with:
+          path: apps/memory-kitchen/node_modules
+          key: memory-kitchen-nm-${{ hashFiles('apps/memory-kitchen/package-lock.json') }}
+
+      - name: Cache memory-kitchen dist
+        id: dist-memory-kitchen
+        uses: actions/cache@v4
+        with:
+          path: apps/memory-kitchen/dist
+          key: memory-kitchen-dist-${{ hashFiles('apps/memory-kitchen/src/**', 'apps/memory-kitchen/public/**', 'apps/memory-kitchen/index.html', 'apps/memory-kitchen/vite.config.*', 'apps/memory-kitchen/package-lock.json') }}
+
+      - name: Build memory-kitchen
+        if: steps.dist-memory-kitchen.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          cd apps/memory-kitchen
+          if [ "${{ steps.nm-memory-kitchen.outputs.cache-hit }}" = "true" ]; then
+            npm run build
+          else
+            npm ci && npm run build
+          fi
+
+      # ═══════════════════════════════════════════════════════════════
       # Assemble all builds into dist/
       # ═══════════════════════════════════════════════════════════════
       - name: Assemble dist
         run: |
-          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop,sky-pilot,dino-3d,wake-up-call,camera-twin,pixel-cat-diffusion,wire-score}
+          mkdir -p dist/{dice-verse,spin-art,snap-puzzle,danmaku-magic,hairline-tracker,peking-opera,air-drum-master,pi-matchmaker,prompt-playground,arxiv-to-novel,vim-chaser,louis-xvi-sort,pretext-solar-system,real-to-ai,marionette,planet-slides,shadow-puppet,walk-the-dog,paper-kite,mind-hop,sky-pilot,dino-3d,wake-up-call,camera-twin,memory-kitchen,pixel-cat-diffusion,wire-score}
 
           # Built projects — copy dist/
           cp -r apps/dice-verse/dist/*         dist/dice-verse/        2>/dev/null || true
@@ -509,6 +537,7 @@ jobs:
           cp -r apps/shadow-puppet/dist/*      dist/shadow-puppet/     2>/dev/null || true
           cp -r apps/mind-hop/dist/*           dist/mind-hop/          2>/dev/null || true
           cp -r apps/camera-twin/dist/*        dist/camera-twin/       2>/dev/null || true
+          cp -r apps/memory-kitchen/dist/*     dist/memory-kitchen/    2>/dev/null || true
 
           # Static projects — copy source files
           cp apps/walk-the-dog/index.html      dist/walk-the-dog/
